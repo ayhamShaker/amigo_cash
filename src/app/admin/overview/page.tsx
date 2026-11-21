@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { daysAgo, startOfTodayUtc } from "@/lib/time";
 import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
@@ -10,6 +11,7 @@ export const metadata: Metadata = { title: "نظرة عامة" };
 type Day = { day: string; revenue: number; coins: number; reversed: number };
 
 export default async function Overview() {
+  await requireAdminPage();
   const settings = await getSettings();
   const since = startOfTodayUtc();
   since.setUTCDate(since.getUTCDate() - 29);

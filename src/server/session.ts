@@ -3,7 +3,7 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { randomToken, sha256 } from "@/lib/crypto";
-import { isProd, requestIp, userAgent } from "./request";
+import { secureCookies, requestIp, userAgent } from "./request";
 
 export const SESSION_COOKIE = "amigo_session";
 export const PENDING_COOKIE = "amigo_2fa";
@@ -12,7 +12,7 @@ const PENDING_MINUTES = 10;
 
 function cookieName(base: string) {
   // __Host- prefix: Secure, path=/, no Domain — the browser refuses anything weaker.
-  return isProd() ? `__Host-${base}` : base;
+  return secureCookies() ? `__Host-${base}` : base;
 }
 
 export async function createSession(userId: string) {
@@ -21,7 +21,7 @@ export async function createSession(userId: string) {
   await db.session.create({ data: { id: sha256(token), userId, expiresAt, ip: await requestIp(), userAgent: await userAgent() } });
   (await cookies()).set(cookieName(SESSION_COOKIE), token, {
     httpOnly: true,
-    secure: isProd(),
+    secure: secureCookies(),
     sameSite: "lax",
     path: "/",
     expires: expiresAt,
@@ -105,7 +105,7 @@ export const currentUser = cache(async (): Promise<SessionUser | null> => {
 export async function startPendingLogin(userId: string) {
   const token = randomToken(32);
   await db.pendingLogin.create({ data: { id: sha256(token), userId, expiresAt: new Date(Date.now() + PENDING_MINUTES * 60_000) } });
-  (await cookies()).set(cookieName(PENDING_COOKIE), token, { httpOnly: true, secure: isProd(), sameSite: "lax", path: "/", maxAge: PENDING_MINUTES * 60 });
+  (await cookies()).set(cookieName(PENDING_COOKIE), token, { httpOnly: true, secure: secureCookies(), sameSite: "lax", path: "/", maxAge: PENDING_MINUTES * 60 });
 }
 
 /** Returns the waiting user id, counting this as an attempt (max 5). */

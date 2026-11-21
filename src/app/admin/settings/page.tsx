@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { getSettings } from "@/server/settings";
 import { ActionForm, Submit } from "@/components/forms";
 import { saveSettingsAction } from "@/app/actions/admin";
@@ -8,6 +9,7 @@ import { env } from "@/lib/env";
 export const metadata: Metadata = { title: "إعدادات الموقع" };
 
 export default async function SettingsPage() {
+  await requireAdminPage();
   const s = await getSettings();
   const e = env();
   const usd = (c: number) => (c / 100).toFixed(2);

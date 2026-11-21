@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { db } from "@/lib/db";
 import { ActionForm, Submit } from "@/components/forms";
 import { adminReplyAction, chatStatusAction } from "@/app/actions/admin";
@@ -9,6 +10,7 @@ import { QuickReplies } from "@/components/quick-replies";
 export const metadata: Metadata = { title: "الدعم المباشر" };
 
 export default async function ChatAdminPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await requireAdminPage();
   const sp = await searchParams;
   const list = await db.chatConversation.findMany({
     orderBy: [{ unreadAdmin: "desc" }, { updatedAt: "desc" }],

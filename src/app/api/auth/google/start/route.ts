@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     prompt: "select_account",
   });
   const res = NextResponse.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
-  const secure = e.NODE_ENV === "production";
+  const secure = e.APP_URL.startsWith("https://");
   res.cookies.set("amigo_oauth", JSON.stringify({ state, verifier, locale }), { httpOnly: true, secure, sameSite: "lax", path: "/api/auth/google", maxAge: 600 });
   return res;
 }

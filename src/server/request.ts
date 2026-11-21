@@ -13,7 +13,8 @@ export async function userAgent(): Promise<string | null> {
   return (await headers()).get("user-agent")?.slice(0, 300) ?? null;
 }
 
-export const isProd = () => process.env.NODE_ENV === "production";
+/** Secure cookies and the __Host- prefix whenever the site is served over https. */
+export const secureCookies = () => (process.env.APP_URL ?? "").startsWith("https://");
 
 /** Long-lived random device id, used to spot many accounts on one device. */
 export const DEVICE_COOKIE = "amigo_did";
@@ -23,6 +24,6 @@ export async function deviceId(create = false): Promise<string | null> {
   if (existing && /^[A-Za-z0-9_-]{20,64}$/.test(existing)) return existing;
   if (!create) return null;
   const id = randomToken(18);
-  jar.set(DEVICE_COOKIE, id, { httpOnly: true, secure: isProd(), sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 400 });
+  jar.set(DEVICE_COOKIE, id, { httpOnly: true, secure: secureCookies(), sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 400 });
   return id;
 }

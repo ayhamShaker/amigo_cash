@@ -49,7 +49,7 @@ export const WITHDRAWAL_STATUS_AR: Record<string, [string, string]> = {
 export function LineChart({ days, series }: { days: string[]; series: { color: string; values: number[]; fill?: boolean }[] }) {
   const W = 640;
   const H = 220;
-  const P = { l: 52, r: 12, t: 12, b: 26 };
+  const P = { l: 52, r: 30, t: 12, b: 26 };
   const max = Math.max(100, ...series.flatMap((s) => s.values));
   const raw = max / 4;
   const mag = 10 ** Math.floor(Math.log10(raw));

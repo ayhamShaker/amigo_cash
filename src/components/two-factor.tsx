@@ -1,62 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import { FormMessage, Submit, type FormAction } from "./forms";
-
-export function TwoFactorSetup({
-  action,
-  locale,
-  qrSvg,
-  secret,
-  doneHref,
-  labels,
-}: {
-  action: FormAction;
-  locale: string;
-  qrSvg: string;
-  secret: string;
-  doneHref: string;
-  labels: Record<"scan" | "manual" | "enter" | "code" | "submit" | "saveCodes" | "done" | "on", string>;
-}) {
-  const [state, formAction] = useActionState(action, null);
-  const codes = (state?.data?.codes as string[] | undefined) ?? null;
-  if (codes) {
-    return (
-      <div className="card stack" style={{ maxWidth: 520 }}>
-        <h2 style={{ fontSize: 20 }}>{labels.on}</h2>
-        <p className="small">{labels.saveCodes}</p>
-        <div className="backup">
-          {codes.map((c) => (
-            <span key={c}>{c}</span>
-          ))}
-        </div>
-        <a className="btn primary" href={doneHref}>
-          {labels.done}
-        </a>
-      </div>
-    );
-  }
-  return (
-    <div className="card stack" style={{ maxWidth: 520 }}>
-      <p className="small">{labels.scan}</p>
-      {/* SVG generated on our server from a fixed library; contains no user input except the encoded secret */}
-      <div className="qrbox" dangerouslySetInnerHTML={{ __html: qrSvg }} />
-      <div className="small muted">{labels.manual}</div>
-      <div className="code" style={{ fontSize: 15, letterSpacing: ".08em" }}>
-        {secret.match(/.{1,4}/g)?.join(" ")}
-      </div>
-      <form action={formAction} className="stack" noValidate>
-        <input type="hidden" name="locale" value={locale} />
-        <div className="field">
-          <label htmlFor="tf-code">{labels.enter}</label>
-          <input className="input num otp" id="tf-code" name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="123456" dir="ltr" />
-        </div>
-        <Submit className="btn primary block">{labels.submit}</Submit>
-        <FormMessage state={state} />
-      </form>
-    </div>
-  );
-}
 
 export function TwoFactorDisable({ action, locale, labels }: { action: FormAction; locale: string; labels: Record<"title" | "hint" | "code" | "submit" | "on", string> }) {
   const [state, formAction] = useActionState(action, null);
@@ -66,7 +11,7 @@ export function TwoFactorDisable({ action, locale, labels }: { action: FormActio
         {labels.on}
       </span>
       <h2 style={{ fontSize: 18 }}>{labels.title}</h2>
-      <form action={formAction} className="stack" noValidate>
+      <form action={formAction} onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.currentTarget); startTransition(() => formAction(fd)); }} className="stack" noValidate>
         <input type="hidden" name="locale" value={locale} />
         <div className="field">
           <label htmlFor="tfo-code">{labels.hint}</label>
@@ -74,6 +19,84 @@ export function TwoFactorDisable({ action, locale, labels }: { action: FormActio
         </div>
         <Submit className="btn bad">{labels.submit}</Submit>
         <FormMessage state={state} />
+      </form>
+    </div>
+  );
+}
+
+/**
+ * One component for both states. The server re-renders the page after the code
+ * is confirmed; keeping a single component means the backup codes (held in
+ * client state) stay on screen instead of being replaced by the "turn off" form.
+ */
+export function TwoFactorPanel(props: {
+  enabled: boolean;
+  setupAction: FormAction;
+  disableAction: FormAction;
+  locale: string;
+  qrSvg: string | null;
+  secret: string | null;
+  doneHref: string;
+  setupLabels: Record<"scan" | "manual" | "enter" | "code" | "submit" | "saveCodes" | "done" | "on", string>;
+  disableLabels: Record<"title" | "hint" | "code" | "submit" | "on", string>;
+  notStarted: string;
+}) {
+  const [setupState, setupFormAction] = useActionState(props.setupAction, null);
+  const codes = (setupState?.data?.codes as string[] | undefined) ?? null;
+  if (codes) {
+    return (
+      <div className="card stack" style={{ maxWidth: 520 }}>
+        <h2 style={{ fontSize: 20 }}>{props.setupLabels.on}</h2>
+        <p className="small">{props.setupLabels.saveCodes}</p>
+        <div className="backup">
+          {codes.map((c) => (
+            <span key={c}>{c}</span>
+          ))}
+        </div>
+        <a className="btn primary" href={props.doneHref}>
+          {props.setupLabels.done}
+        </a>
+      </div>
+    );
+  }
+  if (props.enabled) return <TwoFactorDisable action={props.disableAction} locale={props.locale} labels={props.disableLabels} />;
+  if (!props.qrSvg || !props.secret) {
+    return (
+      <div className="card empty">
+        <span>{props.notStarted}</span>
+        <a className="btn primary" href={props.doneHref}>
+          ←
+        </a>
+      </div>
+    );
+  }
+  const { setupLabels: labels } = props;
+  return (
+    <div className="card stack" style={{ maxWidth: 520 }}>
+      <p className="small">{labels.scan}</p>
+      {/* SVG generated on our server by the qrcode library from the otpauth URI */}
+      <div className="qrbox" dangerouslySetInnerHTML={{ __html: props.qrSvg }} />
+      <div className="small muted">{labels.manual}</div>
+      <div className="code" style={{ fontSize: 15, letterSpacing: ".08em" }}>
+        {props.secret.match(/.{1,4}/g)?.join(" ")}
+      </div>
+      <form
+        action={setupFormAction}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const fd = new FormData(e.currentTarget);
+          startTransition(() => setupFormAction(fd));
+        }}
+        className="stack"
+        noValidate
+      >
+        <input type="hidden" name="locale" value={props.locale} />
+        <div className="field">
+          <label htmlFor="tf-code">{labels.enter}</label>
+          <input className="input num otp" id="tf-code" name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="123456" dir="ltr" />
+        </div>
+        <Submit className="btn primary block">{labels.submit}</Submit>
+        <FormMessage state={setupState} />
       </form>
     </div>
   );

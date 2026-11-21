@@ -412,3 +412,18 @@ a.tab{text-decoration:none;color:inherit}
 .inbox-item .badge{margin-inline-start:auto}
 .qrbox svg{display:block;width:200px;height:200px}
 details>summary::-webkit-details-marker{display:none}
+@media (max-width:420px){
+  .topbar-in{gap:5px}
+  .langsw a,.langsw button{padding:0 6px}
+  .topbar .btn{padding:8px 10px}
+}
+a.offer,a.wall,a.phone,a.method{text-decoration:none;color:inherit}
+.guestcard>.grow,.chest>.grow{min-width:200px}
+.chest{flex-wrap:wrap}
+@media (max-width:480px){
+  .guestcard>.row{width:100%}
+  .guestcard>.row .btn{flex:1}
+  .chest>form,.chest>a{width:100%}
+  .chest .btn{width:100%}
+}
+a.inbox-item,a.flagrow{text-decoration:none;color:inherit}

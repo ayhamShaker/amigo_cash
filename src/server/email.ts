@@ -19,15 +19,18 @@ ${paras}${btn}<p style="color:#5F6678;font-size:12px;margin-top:28px">Amigo Cash
 }
 
 /**
- * Sends through Resend when RESEND_API_KEY is set. Without a key (local
- * development) the email is written to the server log instead.
+ * Sends through Resend when RESEND_API_KEY is set. Without a key on a local
+ * (http) site the email is written to the server log instead.
  * Returns true when the provider accepted the message.
  */
 export async function sendEmail(mail: Mail): Promise<boolean> {
   const e = env();
   if (!e.RESEND_API_KEY) {
-    if (e.NODE_ENV !== "production") console.info(`[email:dev] to=${mail.to} subject="${mail.subject}"\n${mail.text}`);
-    return e.NODE_ENV !== "production";
+    // Local machine (http): print the email so links can be opened by hand.
+    const local = !e.APP_URL.startsWith("https://");
+    if (local) console.info(`[email:dev] to=${mail.to} subject="${mail.subject}"\n${mail.text}`);
+    else console.error("[email] RESEND_API_KEY is not set; email not sent");
+    return local;
   }
   try {
     const res = await fetch("https://api.resend.com/emails", {

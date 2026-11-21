@@ -14,7 +14,7 @@ function pickLocale(req: NextRequest): string {
   return "en";
 }
 
-function buildCsp(nonce: string, isDev: boolean) {
+function buildCsp(nonce: string, isDev: boolean, https: boolean) {
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
@@ -29,24 +29,25 @@ function buildCsp(nonce: string, isDev: boolean) {
     "form-action 'self' https://accounts.google.com",
     "base-uri 'self'",
     "object-src 'none'",
-    ...(isDev ? [] : ["upgrade-insecure-requests"]),
+    ...(https ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }
 
-function securityHeaders(res: NextResponse, csp: string, isDev: boolean) {
+function securityHeaders(res: NextResponse, csp: string, https: boolean) {
   res.headers.set("Content-Security-Policy", csp);
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
   res.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  if (!isDev) res.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  if (https) res.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   return res;
 }
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isDev = process.env.NODE_ENV !== "production";
+  const https = (process.env.APP_URL ?? "").startsWith("https://");
   const first = pathname.split("/")[1] ?? "";
 
   // Pages without a language prefix go to the visitor's language.
@@ -57,7 +58,7 @@ export function proxy(req: NextRequest) {
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const csp = buildCsp(nonce, isDev);
+  const csp = buildCsp(nonce, isDev, https);
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-nonce", nonce);
   // Next.js reads the nonce from this request header and adds it to its own scripts.
@@ -67,7 +68,7 @@ export function proxy(req: NextRequest) {
   if (LOCALES.includes(first)) {
     res.cookies.set("amigo_locale", first, { path: "/", sameSite: "lax", maxAge: 60 * 60 * 24 * 365 });
   }
-  return securityHeaders(res, csp, isDev);
+  return securityHeaders(res, csp, https);
 }
 
 export const config = {

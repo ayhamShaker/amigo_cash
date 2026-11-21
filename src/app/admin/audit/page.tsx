@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { db } from "@/lib/db";
 import { agoAr } from "@/components/admin-ui";
 
 export const metadata: Metadata = { title: "سجل العمليات" };
 
 export default async function AuditPage() {
+  await requireAdminPage();
   const rows = await db.auditLog.findMany({ orderBy: { createdAt: "desc" }, take: 200, include: { actor: { select: { name: true } } } });
   return (
     <>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { daysAgo } from "@/lib/time";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -18,6 +19,7 @@ const MODE_HELP: Record<string, string> = {
 };
 
 export default async function NetworksPage() {
+  await requireAdminPage();
   const [networks, settings, revenue] = await Promise.all([
     db.network.findMany({ orderBy: { name: "asc" } }),
     getSettings(),

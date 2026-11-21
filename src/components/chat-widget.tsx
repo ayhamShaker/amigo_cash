@@ -47,7 +47,7 @@ export function ChatWidget({ locale, signedIn, labels, startOpen }: { locale: st
         const res = await fetch(`/api/chat?${q}`, { cache: "no-store" });
         if (!res.ok) return;
         const j = (await res.json()) as { messages: Msg[]; unread: number; started: boolean };
-        if (j.started) setStarted(true);
+        setStarted(j.started); // follows sign-in / sign-out without a full page reload
         if (j.messages.length) {
           lastAt.current = j.messages[j.messages.length - 1]!.createdAt;
           setMsgs((m) => {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { daysAgo } from "@/lib/time";
 import { db } from "@/lib/db";
 import { Num, Risk } from "@/components/admin-ui";
@@ -9,6 +10,7 @@ export const metadata: Metadata = { title: "المستخدمون" };
 const FILTERS = { all: "الكل", flagged: "مشبوهون", banned: "محظورون", new: "جدد (7 أيام)", admins: "المدراء" } as const;
 
 export default async function UsersPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await requireAdminPage();
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().slice(0, 100);
   const f = (sp.f ?? "all") in FILTERS ? (sp.f as keyof typeof FILTERS) : "all";

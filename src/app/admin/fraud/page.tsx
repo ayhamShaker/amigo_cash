@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { getSettings } from "@/server/settings";
@@ -9,6 +10,7 @@ import { Risk } from "@/components/admin-ui";
 export const metadata: Metadata = { title: "مكافحة الاحتيال" };
 
 export default async function FraudPage() {
+  await requireAdminPage();
   const s = await getSettings();
   const flagged = await db.user.findMany({
     where: { OR: [{ riskScore: { gte: 50 } }, { flags: { isEmpty: false } }] },

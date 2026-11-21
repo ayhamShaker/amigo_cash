@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { db } from "@/lib/db";
 import { ActionForm, Submit } from "@/components/forms";
 import { withdrawalAction } from "@/app/actions/admin";
@@ -23,6 +24,7 @@ const REASONS: [string, string][] = [
 ];
 
 export default async function WithdrawalsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await requireAdminPage();
   const sp = await searchParams;
   const tab = sp.tab && TABS[sp.tab] ? sp.tab : "open";
   const statuses = TABS[tab]![1];

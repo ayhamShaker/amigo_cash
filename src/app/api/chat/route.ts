@@ -5,7 +5,7 @@ import { currentUser } from "@/server/session";
 import { findConversation, listMessages, markReadByUser, postUserMessage, startGuestConversation } from "@/server/chat";
 import { sameOrigin } from "@/server/origin";
 import { rateLimit } from "@/server/rate-limit";
-import { requestIp, isProd } from "@/server/request";
+import { requestIp, secureCookies } from "@/server/request";
 import { isLocale } from "@/i18n/config";
 import { EMAIL_RE, normaliseEmail } from "@/server/auth";
 
@@ -19,10 +19,14 @@ async function conversationForRequest() {
   return { user: null, conv: token ? await findConversation({ guestToken: token }) : null };
 }
 
-/** Poll: new messages since `after`, plus the unread count for the badge. */
+/**
+ * Poll: new messages since `after`, plus the unread count for the badge.
+ * `started` is true for signed-in members even before their first message, so
+ * the widget never asks a member for their name and email.
+ */
 export async function GET(req: NextRequest) {
-  const { conv } = await conversationForRequest();
-  if (!conv) return NextResponse.json({ messages: [], unread: 0, started: false });
+  const { user, conv } = await conversationForRequest();
+  if (!conv) return NextResponse.json({ messages: [], unread: 0, started: !!user });
   const afterRaw = req.nextUrl.searchParams.get("after");
   const after = afterRaw && !Number.isNaN(Date.parse(afterRaw)) ? new Date(afterRaw) : undefined;
   const open = req.nextUrl.searchParams.get("open") === "1";
@@ -51,7 +55,7 @@ export async function POST(req: NextRequest) {
     if (!EMAIL_RE.test(email)) return NextResponse.json({ error: "email" }, { status: 400 });
     const name = parsed.data.name.trim().replace(/[<>]/g, "");
     const { token } = await startGuestConversation(name, email, locale);
-    (await cookies()).set(GUEST_COOKIE, token, { httpOnly: true, secure: isProd(), sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
+    (await cookies()).set(GUEST_COOKIE, token, { httpOnly: true, secure: secureCookies(), sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
     return NextResponse.json({ ok: true });
   }
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { db } from "@/lib/db";
 import { ActionForm, Submit } from "@/components/forms";
 import { reverseConversionAction } from "@/app/actions/admin";
@@ -10,6 +11,7 @@ export const metadata: Metadata = { title: "سجل التأكيدات" };
 const ST: Record<ConversionStatus, [string, string]> = { CREDITED: ["مؤكد", "good"], REVERSED: ["مسترد", "bad"], REJECTED: ["مرفوض", "warn"] };
 
 export default async function PostbacksPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await requireAdminPage();
   const sp = await searchParams;
   const status = sp.s && sp.s in ST ? (sp.s as ConversionStatus) : undefined;
   const list = await db.conversion.findMany({

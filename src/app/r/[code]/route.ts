@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ code: strin
   const res = NextResponse.redirect(new URL(`/${locale}`, env().APP_URL));
   const ref = code ? await db.user.findUnique({ where: { refCode: code }, select: { status: true } }) : null;
   if (ref?.status === "ACTIVE") {
-    res.cookies.set("amigo_ref", code, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 30 });
+    res.cookies.set("amigo_ref", code, { httpOnly: true, sameSite: "lax", secure: (process.env.APP_URL ?? "").startsWith("https://"), path: "/", maxAge: 60 * 60 * 24 * 30 });
   }
   return res;
 }

@@ -38,10 +38,11 @@ export function env(): Env {
     const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("\n");
     throw new Error(`Invalid server environment:\n${issues}`);
   }
-  if (parsed.data.NODE_ENV === "production" && parsed.data.SESSION_SECRET.includes("dev-only")) {
+  const live = parsed.data.APP_URL.startsWith("https://");
+  if (live && parsed.data.SESSION_SECRET.includes("dev-only")) {
     throw new Error("SESSION_SECRET is still the development value");
   }
-  if (parsed.data.NODE_ENV === "production" && parsed.data.ENCRYPTION_KEY === "ZGV2LW9ubHktZW5jcnlwdGlvbi1rZXktMzItYnl0ZXM=") {
+  if (live && parsed.data.ENCRYPTION_KEY === "ZGV2LW9ubHktZW5jcnlwdGlvbi1rZXktMzItYnl0ZXM=") {
     throw new Error("ENCRYPTION_KEY is still the development value");
   }
   cached = parsed.data;

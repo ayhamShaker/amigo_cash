@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
 import { coinsToCents } from "@/lib/money";
@@ -9,6 +10,7 @@ import { Num, Usd } from "@/components/admin-ui";
 export const metadata: Metadata = { title: "أكواد المكافآت" };
 
 export default async function PromosPage() {
+  await requireAdminPage();
   const [promos, s] = await Promise.all([db.promoCode.findMany({ orderBy: { createdAt: "desc" } }), getSettings()]);
   return (
     <>

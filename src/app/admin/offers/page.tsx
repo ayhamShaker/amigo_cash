@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdminPage } from "@/server/admin-guard";
 import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
 import { offerCoins, parseSteps } from "@/server/queries";
@@ -12,6 +13,7 @@ export const metadata: Metadata = { title: "العروض" };
 const CATS: Record<string, string> = { game: "لعبة", app: "تطبيق", signup: "تسجيل", finance: "مالي", trial: "تجربة مجانية" };
 
 export default async function OffersPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  await requireAdminPage();
   const sp = await searchParams;
   const [offers, networks, settings] = await Promise.all([
     db.offer.findMany({ include: { network: { select: { name: true, userShare: true, enabled: true } }, _count: { select: { progress: true } } }, orderBy: [{ featured: "desc" }, { createdAt: "desc" }] }),

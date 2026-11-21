@@ -1,0 +1,52 @@
+[
+ [
+  "^Reach level (\\d+)$",
+  "Llegá al nivel $1",
+  "صل إلى المستوى $1"
+ ],
+ [
+  "^Clear stage (\\d+)$",
+  "Superá la etapa $1",
+  "اجتز المرحلة $1"
+ ],
+ [
+  "^Town Hall level (\\d+)$",
+  "Ayuntamiento nivel $1",
+  "مبنى البلدية مستوى $1"
+ ],
+ [
+  "^Win (\\d+) matches$",
+  "Ganá $1 partidos",
+  "اربح $1 مباريات"
+ ],
+ [
+  "^Reach Division (\\d+)$",
+  "Llegá a la División $1",
+  "صل إلى الدرجة $1"
+ ],
+ [
+  "^Play for (\\d+) minutes$",
+  "Jugá $1 minutos",
+  "العب لمدة $1 دقيقة"
+ ],
+ [
+  "^Reach chapter (\\d+)$",
+  "Llegá al capítulo $1",
+  "صل إلى الفصل $1"
+ ],
+ [
+  "^Reach farm level (\\d+)$",
+  "Llevá la granja al nivel $1",
+  "صل بالمزرعة إلى المستوى $1"
+ ],
+ [
+  "^Solve (\\d+) puzzles$",
+  "Resolvé $1 acertijos",
+  "حل $1 لغزاً"
+ ],
+ [
+  "^Win (\\d+) races$",
+  "Ganá $1 carreras",
+  "اربح $1 سباقات"
+ ]
+]

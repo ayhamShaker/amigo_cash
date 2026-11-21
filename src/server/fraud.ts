@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { getSettings } from "./settings";
 
 export type IpVerdict = { vpn: boolean; proxy: boolean; tor: boolean; fraudScore: number; country: string | null; checked: boolean };
 
@@ -60,4 +61,21 @@ export async function addFlag(userId: string, flag: string, risk: number) {
       flags = CASE WHEN ${flag} = ANY(flags) THEN flags ELSE array_append(flags, ${flag}) END,
       "riskScore" = LEAST(100, "riskScore" + CASE WHEN ${flag} = ANY(flags) THEN 0 ELSE ${risk} END)
     WHERE id = ${userId}`;
+  await enforceAutoBan(userId);
+}
+
+/**
+ * Suspends a member whose risk score reached the owner's auto-ban level.
+ * Their coins stay in the ledger; the owner can review and lift it.
+ */
+export async function enforceAutoBan(userId: string): Promise<boolean> {
+  const s = await getSettings();
+  const u = await db.user.findUnique({ where: { id: userId }, select: { riskScore: true, status: true, role: true } });
+  if (!u || u.status !== "ACTIVE" || u.role === "ADMIN" || u.riskScore < s.autoBanRisk) return false;
+  await db.$transaction([
+    db.user.update({ where: { id: userId }, data: { status: "BANNED" } }),
+    db.session.deleteMany({ where: { userId } }),
+    db.auditLog.create({ data: { actorId: null, action: "user.auto_ban", targetType: "user", targetId: userId, data: { riskScore: u.riskScore, threshold: s.autoBanRisk } } }),
+  ]);
+  return true;
 }

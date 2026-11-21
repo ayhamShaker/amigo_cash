@@ -8,6 +8,7 @@ import { ipInAllowList } from "@/lib/ip";
 import { Prisma } from "@/generated/prisma/client";
 import { creditEarning, isUniqueViolation, reverseEarning } from "./ledger";
 import { getSettings } from "./settings";
+import { enforceAutoBan } from "./fraud";
 
 /**
  * Offer-network callback ("postback"). Every network gets this URL with its
@@ -165,6 +166,25 @@ async function handleReversal(
   raw: Record<string, string>,
 ): Promise<PostbackResult> {
   try {
+    const result = await reversalTx(networkId, txid, subid, offerName, payoutCents, ip, raw);
+    if (result.outcome === "reversed" && result.userId) await enforceAutoBan(result.userId);
+    return { http: 200, body: "1", outcome: result.outcome };
+  } catch (err) {
+    if (isUniqueViolation(err)) return { http: 200, body: "1", outcome: "duplicate" };
+    throw err;
+  }
+}
+
+async function reversalTx(
+  networkId: string,
+  txid: string,
+  subid: string,
+  offerName: string,
+  payoutCents: number,
+  ip: string | null,
+  raw: Record<string, string>,
+): Promise<{ outcome: "reversed" | "reversal_recorded" | "duplicate"; userId?: string | null }> {
+  {
     return await db.$transaction(async (tx) => {
       // Lock the conversion row so a reversal and a retry cannot both run.
       const rows = await tx.$queryRaw<{ id: string; status: string }[]>`
@@ -176,20 +196,17 @@ async function handleReversal(
         await tx.conversion.create({
           data: { networkId, txid, userId: user?.id ?? null, offerName, payoutCents, coins: 0, status: "REVERSED", reason: "reversal before credit", ip, raw: raw as Prisma.InputJsonValue, reversedAt: new Date() },
         });
-        return { http: 200, body: "1", outcome: "reversal_recorded" } as const;
+        return { outcome: "reversal_recorded" as const };
       }
-      if (conv.status !== "CREDITED") return { http: 200, body: "1", outcome: "duplicate" } as const;
+      if (conv.status !== "CREDITED") return { outcome: "duplicate" as const };
       await reverseEarning(tx, "conversion", conv.id, { k: "Reversed by advertiser · {o}", a: { o: offerName } });
       const updated = await tx.conversion.update({ where: { id: conv.id }, data: { status: "REVERSED", reversedAt: new Date() }, select: { userId: true } });
       if (updated.userId) {
         await tx.user.update({ where: { id: updated.userId }, data: { riskScore: { increment: 15 } } });
         await tx.$executeRaw`UPDATE "User" SET "riskScore" = LEAST("riskScore", 100), flags = CASE WHEN 'Reversal' = ANY(flags) THEN flags ELSE array_append(flags, 'Reversal') END WHERE id = ${updated.userId}`;
       }
-      return { http: 200, body: "1", outcome: "reversed" } as const;
+      return { outcome: "reversed" as const, userId: updated.userId };
     });
-  } catch (err) {
-    if (isUniqueViolation(err)) return { http: 200, body: "1", outcome: "duplicate" };
-    throw err;
   }
 }
 

@@ -6,7 +6,7 @@
 /* Layout: app shell — sidebar + content on desktop, bottom tab bar on phones; admin is an RTL control room with the same tokens. */
 :root{
   --bg:#F3F4F7; --surface:#FFFFFF; --surface-2:#ECEEF3; --line:#DFE2E9; --fg:#151823; --muted:#5F6678;
-  --accent:#FF5A36; --accent-ink:#FFFFFF; --accent-soft:#FFE7E0;
+  --accent:#0284C7; --accent-ink:#FFFFFF; --accent-soft:#E0F2FE;
   --coin:#D99A00; --coin-soft:#FFF3D3; --coin-face:#FFC21A;
   --good:#118A47; --good-soft:#DCF4E6; --warn:#A86A00; --warn-soft:#FFF0D2; --bad:#C93030; --bad-soft:#FCE1E1; --info:#2F5BD8; --info-soft:#E2E9FF;
   --ink-band:#151823; --ink-band-fg:#F3F4F7;
@@ -15,17 +15,17 @@
   --f-body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
   --f-ar:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
-  --r:14px; --r-sm:10px;
+  --r:8px; --r-sm:6px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0E1016; --surface:#161922; --surface-2:#1E222D; --line:#2A2F3C; --fg:#ECEEF4; --muted:#949AAD;
-  --accent:#FF6B48; --accent-ink:#FFFFFF; --accent-soft:#3B1D15;
+  --accent:#38BDF8; --accent-ink:#04263A; --accent-soft:#0C2B40;
   --coin:#FFC233; --coin-soft:#3A2E10; --coin-face:#FFC21A;
   --good:#3FD07F; --good-soft:#12301F; --warn:#F2B443; --warn-soft:#3A2B0D; --bad:#FF6B6B; --bad-soft:#3A1717; --info:#7C9BFF; --info-soft:#1A2448;
   --ink-band:#1E222D; --ink-band-fg:#ECEEF4; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0E1016; --surface:#161922; --surface-2:#1E222D; --line:#2A2F3C; --fg:#ECEEF4; --muted:#949AAD;
-  --accent:#FF6B48; --accent-ink:#FFFFFF; --accent-soft:#3B1D15;
+  --accent:#38BDF8; --accent-ink:#04263A; --accent-soft:#0C2B40;
   --coin:#FFC233; --coin-soft:#3A2E10; --coin-face:#FFC21A;
   --good:#3FD07F; --good-soft:#12301F; --warn:#F2B443; --warn-soft:#3A2B0D; --bad:#FF6B6B; --bad-soft:#3A1717; --info:#7C9BFF; --info-soft:#1A2448;
   --ink-band:#1E222D; --ink-band-fg:#ECEEF4; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
@@ -45,7 +45,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .tiny{font-size:12px}
 .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .row{display:flex;gap:12px;align-items:center}
-.row.wrap{flex-wrap:wrap}
+.row.wr{flex-wrap:wrap}
 .between{justify-content:space-between}
 .stack{display:flex;flex-direction:column;gap:12px}
 .grow{flex:1;min-width:0}
@@ -57,7 +57,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .amt{display:inline-flex;align-items:center;gap:.3em;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
 
 /* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:999px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;background:var(--surface-2);color:var(--fg);text-decoration:none;transition:transform .12s,background .15s;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:6px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;background:var(--surface-2);color:var(--fg);text-decoration:none;transition:transform .12s,background .15s;white-space:nowrap}
 .btn:hover{transform:translateY(-1px)}
 .btn:active{transform:translateY(0)}
 .btn.primary{background:var(--accent);color:var(--accent-ink)}
@@ -68,7 +68,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn.lg{padding:14px 26px;font-size:16px}
 .btn.block{width:100%}
 .btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
-.iconbtn{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+.iconbtn{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:6px;color:var(--fg);border:1px solid var(--line);background:var(--surface);cursor:pointer}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
 /* inputs */
@@ -90,7 +90,7 @@ textarea.input{min-height:90px;resize:vertical}
 /* surfaces */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
 .card.flat{box-shadow:none}
-.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--surface-2);color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--surface-2);color:var(--muted)}
 .pill.good{background:var(--good-soft);color:var(--good)}
 .pill.warn{background:var(--warn-soft);color:var(--warn)}
 .pill.bad{background:var(--bad-soft);color:var(--bad)}
@@ -113,7 +113,7 @@ td.r,th.r{text-align:end}
 .topbar-in{display:flex;align-items:center;gap:16px;height:64px;max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .logo{display:inline-flex;align-items:baseline;gap:6px;font:800 23px/1 var(--f-display);letter-spacing:-.03em;text-decoration:none;color:var(--fg);cursor:pointer}
 .logo b{font-weight:800}
-.logo i{font-style:normal;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:4px 7px 3px;border-radius:6px;transform:translateY(-3px)}
+.logo i{font-style:normal;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:4px 7px 3px;border-radius:3px;transform:translateY(-3px)}
 .wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .ticker{background:var(--ink-band);color:var(--ink-band-fg);overflow:hidden;white-space:nowrap;font-size:13px}
 .ticker-in{display:flex;gap:28px;padding-block:9px;animation:tick 40s linear infinite;width:max-content}
@@ -133,7 +133,7 @@ td.r,th.r{text-align:end}
 .proofrow strong{font:800 26px/1.1 var(--f-display)}
 .proofrow span{font-size:13px;color:var(--muted)}
 
-.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:18px;box-shadow:var(--shadow);max-width:400px;margin-inline:auto;width:100%}
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow);max-width:400px;margin-inline:auto;width:100%}
 .phone .offer-head{display:flex;gap:14px;align-items:center}
 .ms{display:flex;flex-direction:column;gap:0;margin-top:16px}
 .ms-item{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:10px 0;position:relative}
@@ -154,7 +154,7 @@ td.r,th.r{text-align:end}
 .step p{color:var(--muted);margin-top:8px}
 .methods{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:24px}
 .method{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
-.mlogo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:#fff;font:800 11px/1 var(--f-display);letter-spacing:-.01em;flex:none;text-align:center}
+.mlogo{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;color:#fff;font:800 11px/1 var(--f-display);letter-spacing:-.01em;flex:none;text-align:center}
 .faq details{border-bottom:1px solid var(--line);padding:16px 0}
 .faq summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
 .faq summary::after{content:"+";font:700 20px/1 var(--f-mono);color:var(--accent)}
@@ -166,16 +166,16 @@ td.r,th.r{text-align:end}
 /* ===== app shell ===== */
 .shell{display:grid;grid-template-columns:240px 1fr;min-height:calc(100% - 64px)}
 .side{border-inline-end:1px solid var(--line);background:var(--surface);padding:18px 12px;position:sticky;top:calc(64px + env(safe-area-inset-top,0px));height:calc(100vh - 64px);overflow:auto;display:flex;flex-direction:column;gap:2px}
-.navlink{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:700;font-size:14px;cursor:pointer;border:0;background:none;width:100%;text-align:start}
+.navlink{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:6px;text-decoration:none;color:var(--muted);font-weight:700;font-size:14px;cursor:pointer;border:0;background:none;width:100%;text-align:start}
 .navlink:hover{background:var(--surface-2);color:var(--fg)}
 .navlink.on{background:var(--accent-soft);color:var(--accent)}
-.navlink .badge{margin-inline-start:auto;font:700 11px/1 var(--f-mono);background:var(--accent);color:var(--accent-ink);padding:4px 7px;border-radius:99px}
+.navlink .badge{margin-inline-start:auto;font:700 11px/1 var(--f-mono);background:var(--accent);color:var(--accent-ink);padding:4px 7px;border-radius:4px}
 .side .sep{height:1px;background:var(--line);margin:10px 6px}
 .main{min-width:0;padding-block:28px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .main-in{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
 .pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .pagehead h1{font-size:clamp(26px,3vw,34px);font-weight:800}
-.balance-chip{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 14px;border-radius:99px;background:var(--surface-2);font-weight:700}
+.balance-chip{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 14px;border-radius:6px;background:var(--surface-2);font-weight:700}
 .balance-chip .amt{font-size:15px}
 .balance-chip .btn{padding:7px 14px}
 .avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:800 14px/1 var(--f-display);color:#fff;flex:none;cursor:pointer;border:0}
@@ -192,12 +192,12 @@ td.r,th.r{text-align:end}
 .offer:hover{transform:translateY(-2px);border-color:var(--accent)}
 .offer-art{aspect-ratio:16/10;position:relative;display:grid;place-items:center;overflow:hidden;max-width:100%}
 .offer-art .mono{font:800 46px/1 var(--f-display);color:rgba(255,255,255,.92);letter-spacing:-.04em;text-shadow:0 2px 10px rgba(0,0,0,.18)}
-.offer-art .tag{position:absolute;top:10px;inset-inline-start:10px;background:rgba(0,0,0,.45);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;backdrop-filter:blur(4px)}
+.offer-art .tag{position:absolute;top:10px;inset-inline-start:10px;background:rgba(0,0,0,.45);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px)}
 .offer-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
 .offer-body h4{font-family:var(--f-body);font-size:15px;font-weight:800;letter-spacing:0}
 .offer-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:6px}
 .offer-foot .amt{font-size:16px}
-.appicon{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;font:800 24px/1 var(--f-display);color:#fff;flex:none}
+.appicon{width:56px;height:56px;border-radius:8px;display:grid;place-items:center;font:800 24px/1 var(--f-display);color:#fff;flex:none}
 
 .walls{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
 .wall{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:16px;cursor:pointer;text-align:start;display:flex;flex-direction:column;gap:10px;transition:border-color .15s}
@@ -207,7 +207,7 @@ td.r,th.r{text-align:end}
 .wall .bar i{display:block;height:100%;background:var(--accent)}
 
 .tabs{display:flex;gap:6px;flex-wrap:wrap}
-.tab{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:13px;cursor:pointer}
+.tab{padding:7px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:13px;cursor:pointer}
 .tab.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 
 .split{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
@@ -216,11 +216,11 @@ td.r,th.r{text-align:end}
 .mp.on{border-color:var(--accent)}
 .mp[disabled]{opacity:.5;cursor:not-allowed}
 .amtpick{display:flex;gap:8px;flex-wrap:wrap}
-.amtpick button{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font:700 14px/1 var(--f-mono);cursor:pointer}
+.amtpick button{padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface);font:700 14px/1 var(--f-mono);cursor:pointer}
 .amtpick button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 
 .chest{display:flex;gap:18px;align-items:center;padding:20px;border-radius:var(--r);background:linear-gradient(120deg,var(--coin-soft),var(--accent-soft));border:1px solid var(--line)}
-.chest-ico{width:64px;height:64px;border-radius:16px;background:var(--coin-face);display:grid;place-items:center;color:#6B4300;flex:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
+.chest-ico{width:64px;height:64px;border-radius:8px;background:var(--coin-face);display:grid;place-items:center;color:#6B4300;flex:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
 .chest-ico svg{width:34px;height:34px;stroke-width:2}
 
 .lvl{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
@@ -233,7 +233,7 @@ td.r,th.r{text-align:end}
 
 /* modal + toast */
 .backdrop{position:fixed;inset:0;background:rgba(10,12,18,.55);z-index:100;display:grid;place-items:center;padding:16px;animation:fade .15s}
-.modal{background:var(--surface);border-radius:20px;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:pop .18s}
+.modal{background:var(--surface);border-radius:10px;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:pop .18s}
 .modal.wide{max-width:760px}
 .modal-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:1}
 .modal-h h3{font-size:20px}
@@ -241,15 +241,15 @@ td.r,th.r{text-align:end}
 @keyframes fade{from{opacity:0}}
 @keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}}
 .toasts{position:fixed;z-index:200;top:calc(76px + env(safe-area-inset-top,0px));inset-inline-end:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast{background:var(--fg);color:var(--bg);padding:12px 16px;border-radius:12px;font-weight:700;font-size:14px;box-shadow:var(--shadow);max-width:340px;animation:pop .2s;display:flex;gap:10px;align-items:center}
+.toast{background:var(--fg);color:var(--bg);padding:12px 16px;border-radius:6px;font-weight:700;font-size:14px;box-shadow:var(--shadow);max-width:340px;animation:pop .2s;display:flex;gap:10px;align-items:center}
 .toast.good{background:var(--good);color:#fff}
 .toast.bad{background:var(--bad);color:#fff}
 
 /* demo bar */
 .demobar{position:fixed;z-index:150;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));font-family:var(--f-ar);direction:rtl}
-.demobtn{display:flex;align-items:center;gap:8px;background:var(--ink-band);color:var(--ink-band-fg);border:1px solid var(--line);border-radius:99px;padding:10px 16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);font-size:14px}
+.demobtn{display:flex;align-items:center;gap:8px;background:var(--ink-band);color:var(--ink-band-fg);border:1px solid var(--line);border-radius:6px;padding:10px 16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);font-size:14px}
 .demobtn i{width:8px;height:8px;border-radius:50%;background:var(--accent);display:block}
-.demopanel{position:absolute;bottom:52px;left:0;width:300px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 20px 50px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}
+.demopanel{position:absolute;bottom:52px;left:0;width:300px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 20px 50px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}
 .demopanel .btn{justify-content:flex-start;font-family:var(--f-ar)}
 
 /* ===== admin (RTL, Arabic) ===== */
@@ -280,7 +280,7 @@ td.r,th.r{text-align:end}
 .setgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
 .setrow:last-child{border-bottom:0}
-.code{font:500 12px/1.6 var(--f-mono);background:var(--surface-2);padding:10px 12px;border-radius:10px;overflow-x:auto;direction:ltr;text-align:left;white-space:pre}
+.code{font:500 12px/1.6 var(--f-mono);background:var(--surface-2);padding:10px 12px;border-radius:6px;overflow-x:auto;direction:ltr;text-align:left;white-space:pre}
 .maint{min-height:70vh;display:grid;place-items:center;text-align:center;padding:40px 16px}
 
 @media (max-width:1000px){
@@ -305,6 +305,9 @@ td.r,th.r{text-align:end}
   .adminnav{display:flex!important;overflow-x:auto;gap:6px;padding-bottom:4px}
   .adminnav .navlink{width:auto;white-space:nowrap;background:var(--surface);border:1px solid var(--line)}
   .podium{grid-template-columns:1fr}
+  .walletbar.three{grid-template-columns:1fr 1fr 1fr}
+  .walletbar.three>div{border-bottom:0!important;border-inline-end:1px solid var(--line)!important}
+  .walletbar.three>div:last-child{border-inline-end:0!important}
 }
 @media (max-width:480px){
   .kpis{grid-template-columns:1fr 1fr}
@@ -313,9 +316,40 @@ td.r,th.r{text-align:end}
   .offer-art .mono{font-size:34px}
   .balance-chip .lbl,.balance-chip .btn{display:none}
   .balance-chip{padding:6px 12px}
+  .hide-xs{display:none!important}
+  .topbar .btn{padding:8px 11px;font-size:13px}
+  .logo{font-size:18px;gap:4px}
+  .logo i{font-size:10px;padding:3px 5px 2px}
+  .iconbtn{width:34px;height:34px}
+  .topbar .avatar{display:none}
+  .topbar-in{gap:8px}
+  .langsw button{padding:0 7px}
+  .walletbar.three .v{font-size:17px}
   .logo{font-size:20px}
 }
 .adminnav{display:none}
+
+html[lang="ar"] body,html[lang="ar"] .btn,html[lang="ar"] .input,html[lang="ar"] .tab,html[lang="ar"] .pill,html[lang="ar"] .navlink{font-family:var(--f-ar)}
+html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3,html[lang="ar"] h4{font-family:var(--f-ar);letter-spacing:0}
+html[lang="ar"] .eyebrow{letter-spacing:0}
+.ticker{direction:ltr}
+.langsw{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;direction:ltr;flex:none}
+.langsw button{border:0;background:var(--surface);color:var(--muted);font:700 12px/1 var(--f-mono);padding:0 10px;height:34px;cursor:pointer;letter-spacing:.04em}
+.langsw button+button{border-left:1px solid var(--line)}
+.langsw button.on{background:var(--accent);color:var(--accent-ink)}
+.toplinks{display:flex;gap:4px;margin-inline-start:12px}
+.toplinks a{padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;color:var(--muted)}
+.toplinks a:hover{background:var(--surface-2);color:var(--fg)}
+.phone{display:block;text-align:start;cursor:pointer;font:inherit;color:inherit}
+.guestcard{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:18px 20px;border-radius:var(--r);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:6px;background:var(--surface-2);font-size:14px}
+.note svg{color:var(--accent);margin-top:1px}
+.faq-center{max-width:760px;margin-inline:auto;text-align:center}
+.faq-center .faq-list{text-align:start;margin-top:18px}
+.pwgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.walletbar.three{grid-template-columns:repeat(3,1fr)}
+.lockic{margin-inline-start:auto;opacity:.6;display:inline-flex}
+.lockic svg{width:15px;height:15px}
 </style>
 
 <div id="app"></div>
@@ -327,7 +361,7 @@ td.r,th.r{text-align:end}
 (function(){
 'use strict';
 /* ---------- utilities ---------- */
-const KEY='amigo-cash-demo-v1';
+const KEY='amigo-cash-demo-v2';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>Math.round(n).toLocaleString('en-US');
@@ -369,6 +403,8 @@ const IC={
  plus:'<path d="M12 5v14M5 12h14"/>',
  globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/>',
  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>',
+ sun:'<circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/>',
+ moon:'<path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>',
  home:'<path d="M3 10l9-7 9 7v11H3z"/><path d="M9 21v-7h6v7"/>'
 };
 const ic=(n,cls)=>`<svg class="i ${cls||''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||''}</svg>`;
@@ -398,7 +434,7 @@ function seed(){
   const R=mulberry32(20261121);
   const pick=a=>a[Math.floor(R()*a.length)];
   const t0=now();
-  const S={v:1,me:null,admin:false,vpn:false,lastDaily:{},progress:{},tickets:[],feed:[]};
+  const S={v:2,me:null,admin:false,vpn:false,lastDaily:{},progress:{},tickets:[],feed:[]};
   S.settings={
     siteName:'Amigo Cash',coinsPerUSD:1000,userShare:70,refPercent:10,welcomeBonus:250,
     dailyMin:10,dailyMax:150,holdThresholdUSD:5,holdDays:7,
@@ -444,7 +480,9 @@ function seed(){
     const flags=[];if(vpn)flags.push('VPN');if(risk>75&&R()<.6)flags.push('Multi-account');if(risk>70&&R()<.4)flags.push('Fast completions');
     return {id:'u'+(101+i),name:f+' '+L+'.',email:(f+'.'+L+(10+i)).toLowerCase()+'@example.com',country:ctry(),joined:t0-Math.floor(R()*170+1)*DAY,earned,balance:Math.floor(R()*Math.min(earned,24000)),pending:R()<.3?Math.floor(R()*9000):0,risk,flags,status:risk>92?'banned':'active',device:'dv-'+Math.floor(R()*1e6).toString(16),ip:`${Math.floor(R()*200+20)}.${Math.floor(R()*255)}.${Math.floor(R()*255)}.${Math.floor(R()*255)}`,vpn,refBy:null,refCode:(f.slice(0,4)+Math.floor(R()*90+10)).toUpperCase(),weekly:Math.floor(R()*R()*40000),lastSeen:t0-Math.floor(R()*72)*36e5,paidOnce:R()<.7};
   });
+  S.users.unshift({id:'u100',name:'Demo Player',email:'demo@amigo.cash',pass:'demo1234',country:'US',joined:t0-41*DAY,earned:18450,balance:3120,pending:0,risk:6,flags:[],status:'active',device:'dv-d3m0',ip:'73.41.19.204',vpn:false,refBy:null,refCode:'DEMO77',weekly:6400,lastSeen:t0,paidOnce:true,twofa:false,isYou:true});
   S.tx=[];S.withdrawals=[];S.postbacks=[];
+  S.tx.push({id:'td1',uid:'u100',type:'welcome',desc:{k:'Welcome bonus'},coins:250,status:'credited',ts:t0-41*DAY},{id:'td2',uid:'u100',type:'offer',desc:{k:'{o} · {s}',a:{o:'Bubble Bistro',s:'Reach level 10'}},coins:1512,status:'credited',ts:t0-9*DAY},{id:'td3',uid:'u100',type:'bonus',desc:{k:'Daily bonus chest'},coins:88,status:'credited',ts:t0-2*DAY},{id:'td4',uid:'u100',type:'withdraw',desc:{k:'Withdrawal · {m}',a:{m:'USDT'}},coins:-5000,status:'paid',ts:t0-6*DAY});
   for(let k=0;k<70;k++){
     const u=pick(S.users),o=pick(S.offers),st=pick(o.steps),coins=Math.round(o.payout*st[1]*700);
     const ts=t0-Math.floor(R()*20*DAY);
@@ -459,6 +497,7 @@ function seed(){
     const ts=t0-(k<7?Math.floor(R()*30)*36e5:Math.floor(R()*28*DAY));
     S.withdrawals.push({id:'w'+k,uid:u.id,method:m,usd,coins:usd*1000,addr:m==='amazon'?u.email:(m==='usdt'?'TX'+Math.floor(R()*1e12).toString(36)+'…':m==='binance'?String(Math.floor(R()*9e8+1e8)):'ltc1q'+Math.floor(R()*1e12).toString(36)+'…'),status,ts,note:status==='rejected'?'VPN on every session':'',first:!u.paidOnce});
   }
+  S.withdrawals.push({id:'wd1',uid:'u100',method:'usdt',usd:5,coins:5000,addr:'TXk2fA81…9fQa',status:'paid',ts:t0-6*DAY,note:'',first:true});
   S.withdrawals.sort((a,b)=>b.ts-a.ts);
   S.series=Array.from({length:30},(_,i)=>{const rev=140+i*10.5+R()*70;return {d:t0-(29-i)*DAY,rev:+rev.toFixed(2),paid:+(rev*(0.66+R()*0.06)).toFixed(2),rv:+(rev*(0.02+R()*0.04)).toFixed(2),signups:Math.floor(18+i*1.6+R()*14)}});
   S.promos=[{code:'WELCOME500',coins:500,uses:312,max:1000,on:true},{code:'AMIGO2026',coins:1000,uses:48,max:100,on:true},{code:'TIKTOK25',coins:250,uses:100,max:100,on:false}];
@@ -473,7 +512,7 @@ function seed(){
 /* ---------- state ---------- */
 let S;
 try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):null}catch(e){S=null}
-if(!S||S.v!==1)S=seed();
+if(!S||S.v!==2)S=seed();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 const me=()=>S.users.find(u=>u.id===S.me)||null;
 const userById=id=>S.users.find(u=>u.id===id);
@@ -500,127 +539,268 @@ function credit(u,coins,type,desc,extra){
   const t=addTx(u.id,type,desc,coins,hold?'pending':'credited',{...(extra||{}),release:hold?now()+S.settings.holdDays*DAY:null});
   if(hold)u.pending+=coins;else u.balance+=coins;
   u.earned+=coins;u.weekly=(u.weekly||0)+coins;
-  if(u.refBy&&(type==='offer'||type==='survey')){const r=userById(u.refBy);if(r){const rc=Math.round(coins*S.settings.refPercent/100);r.balance+=rc;r.earned+=rc;addTx(r.id,'ref','Referral commission from '+u.name,rc,'credited')}}
+  if(u.refBy&&(type==='offer'||type==='survey')){const r=userById(u.refBy);if(r){const rc=Math.round(coins*S.settings.refPercent/100);r.balance+=rc;r.earned+=rc;addTx(r.id,'ref',{k:'Referral commission from {n}',a:{n:u.name}},rc,'credited')}}
   return t;
 }
 function releaseHolds(u){let n=0;S.tx.forEach(t=>{if(t.uid===u.id&&t.status==='pending'&&t.type!=='withdraw'){t.status='credited';u.pending=Math.max(0,u.pending-t.coins);u.balance+=t.coins;n+=t.coins}});return n}
 function vpnBlocked(){return S.vpn&&S.settings.blockVPN}
 
+/* ---------- language + theme ---------- */
+const L3=[
+ ['Earn','Ganá','اربح'],['Surveys','Encuestas','استبيانات'],['Cash out','Retirar','سحب'],['Referrals','Referidos','الإحالات'],['Leaderboard','Ranking','المتصدرون'],['Activity','Actividad','النشاط'],['Account','Cuenta','حسابي'],['Help','Ayuda','المساعدة'],['Invite','Invitar','ادعُ'],
+ ['Log out','Cerrar sesión','تسجيل الخروج'],['Log in','Ingresar','تسجيل الدخول'],['Sign up free','Registrate gratis','سجّل مجاناً'],['Sign up','Registrate','سجّل'],['Balance','Saldo','الرصيد'],['Open dashboard','Ir a mi panel','لوحتي'],['Close','Cerrar','إغلاق'],['Language','Idioma','اللغة'],
+ ['Switch to dark mode','Cambiar a modo oscuro','التبديل إلى الوضع الداكن'],['Switch to light mode','Cambiar a modo claro','التبديل إلى الوضع الفاتح'],
+ ['Rewards for your free time','Recompensas por tu tiempo libre','مكافآت مقابل وقت فراغك'],['Play games. Try apps.','Jugá. Probá apps.','العب. جرّب تطبيقات.'],['Get paid','Cobrá','واقبض'],['in minutes.','en minutos.','خلال دقائق.'],
+ ['Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from {min} in crypto or gift cards.','Elegí un juego o una app, cumplí el objetivo y las monedas llegan a tu saldo apenas el anunciante lo confirma. Retirá desde {min} en cripto o gift cards.','اختر لعبة أو تطبيقاً، حقّق الهدف، وتصل العملات إلى رصيدك فور تأكيد المعلن. اسحب ابتداءً من {min} بالعملات الرقمية أو بطاقات الهدايا.'],
+ ['Start earning','Empezá a ganar','ابدأ الربح'],['Browse offers','Ver ofertas','تصفّح العروض'],['paid to members','pagados a miembros','دُفعت للأعضاء'],['members','miembros','عضو'],['average crypto payout','pago cripto promedio','متوسط وقت السحب بالكريبتو'],
+ ['Featured game','Juego destacado','لعبة مميزة'],['{d} days to finish','{d} días para completar','{d} يوماً لإكمالها'],['Total reward','Recompensa total','المكافأة الكاملة'],
+ ['How it works','Cómo funciona','كيف يعمل'],['Three steps from sign-up to payout','Tres pasos del registro al cobro','ثلاث خطوات من التسجيل إلى السحب'],['Choose an offer','Elegí una oferta','اختر عرضاً'],
+ ['Games, app sign-ups and short surveys from {n} offer partners. Every task shows the exact coins before you start.','Juegos, registros en apps y encuestas cortas de {n} socios. Cada tarea muestra las monedas exactas antes de empezar.','ألعاب وتسجيلات في تطبيقات واستبيانات قصيرة من {n} شركاء. كل مهمة تعرض عدد العملات بدقة قبل أن تبدأ.'],
+ ['Reach the goal','Cumplí el objetivo','حقّق الهدف'],['Play to a level, open an account or finish a survey. The advertiser confirms it and your coins arrive automatically.','Llegá a un nivel, abrí una cuenta o terminá una encuesta. El anunciante lo confirma y tus monedas llegan solas.','العب حتى مستوى معيّن، أو افتح حساباً، أو أكمل استبياناً. يؤكد المعلن ذلك وتصلك العملات تلقائياً.'],
+ ['{c} coins = $1. Withdraw to USDT, Litecoin, Binance Pay or an Amazon gift card.','{c} monedas = US$1. Retirá en USDT, Litecoin, Binance Pay o gift card de Amazon.','{c} عملة = 1 دولار. اسحب إلى USDT أو Litecoin أو Binance Pay أو بطاقة هدايا أمازون.'],
+ ['Payout options','Formas de cobro','طرق السحب'],['Your money, your way','Tu plata, a tu manera','أموالك بالطريقة التي تناسبك'],['From {v}','Desde {v}','ابتداءً من {v}'],['Coming soon','Próximamente','قريباً'],
+ ['Questions','Preguntas','أسئلة'],['Before you sign up','Antes de registrarte','قبل أن تسجّل'],
+ ['© 2026 Amigo Cash. Members must be {age}+. Earnings depend on the offers you complete.','© 2026 Amigo Cash. Solo mayores de {age} años. Lo que ganes depende de las ofertas que completes.','© 2026 Amigo Cash. العضوية لمن هم فوق {age} سنة. الأرباح تعتمد على العروض التي تكملها.'],
+ ['Terms','Términos','الشروط'],['Privacy','Privacidad','الخصوصية'],['Cookies','Cookies','ملفات الارتباط'],
+ ['Is Amigo Cash free?','¿Amigo Cash es gratis?','هل Amigo Cash مجاني؟'],['Yes. You never pay to join or to cash out. Advertisers pay us when you try their game or app, and we pass most of that payment to you.','Sí. Nunca pagás para unirte ni para retirar. Los anunciantes nos pagan cuando probás su juego o app, y te pasamos la mayor parte.','نعم. لا تدفع شيئاً للتسجيل أو للسحب. المعلنون يدفعون لنا عندما تجرّب لعبتهم أو تطبيقهم، ونعطيك الجزء الأكبر من هذا المبلغ.'],
+ ['Can I look around before signing up?','¿Puedo mirar antes de registrarme?','هل أستطيع التصفح قبل التسجيل؟'],['Yes. Browse every offer, survey and payout option first. You only need an account to start a task or cash out.','Sí. Mirá todas las ofertas, encuestas y formas de cobro. Solo necesitás una cuenta para empezar una tarea o retirar.','نعم. تصفّح كل العروض والاستبيانات وطرق السحب أولاً. تحتاج حساباً فقط لتبدأ مهمة أو تسحب أرباحك.'],
+ ['How much are coins worth?','¿Cuánto valen las monedas?','كم تساوي العملات؟'],['{c} coins are worth $1.00. Every offer shows its reward in coins and in dollars.','{c} monedas valen US$1,00. Cada oferta muestra la recompensa en monedas y en dólares.','كل {c} عملة تساوي 1.00 دولار. كل عرض يُظهر مكافأته بالعملات وبالدولار.'],
+ ['Why is some of my reward pending?','¿Por qué parte de mi recompensa está pendiente?','لماذا جزء من مكافأتي معلّق؟'],['Rewards of {v} or more are held for {d} days while the advertiser checks the conversion. After that they move to your balance automatically.','Las recompensas de {v} o más quedan retenidas {d} días mientras el anunciante verifica la conversión. Después pasan solas a tu saldo.','المكافآت التي تبلغ {v} أو أكثر تُعلّق لمدة {d} أيام ريثما يتحقق المعلن منها، ثم تنتقل إلى رصيدك تلقائياً.'],
+ ['Can I use a VPN?','¿Puedo usar una VPN?','هل يمكنني استخدام VPN؟'],['No. Offer partners reject traffic from VPNs and proxies, so we pause earning on those connections to protect your account.','No. Los socios rechazan el tráfico de VPN y proxies, así que pausamos las ganancias en esas conexiones para proteger tu cuenta.','لا. شركاء العروض يرفضون الزيارات القادمة عبر VPN أو بروكسي، لذلك نوقف الربح على هذه الاتصالات لحماية حسابك.'],
+ ['How fast are payouts?','¿Qué tan rápido pagan?','ما سرعة السحب؟'],['Crypto and Binance Pay withdrawals are usually sent within minutes. Your first withdrawal is reviewed by our team, normally within 24 hours.','Los retiros en cripto y Binance Pay suelen llegar en minutos. Tu primer retiro lo revisa nuestro equipo, normalmente en menos de 24 horas.','السحب بالعملات الرقمية وBinance Pay يُرسل عادة خلال دقائق. أول سحب لك يراجعه فريقنا، وعادة خلال 24 ساعة.'],
+ ['Create your account','Creá tu cuenta','أنشئ حسابك'],['Welcome back','Hola de nuevo','أهلاً بعودتك'],['Continue with Google','Continuar con Google','المتابعة باستخدام Google'],['or with email','o con email','أو بالبريد الإلكتروني'],
+ ['Display name','Nombre visible','الاسم الظاهر'],['e.g. Sam R.','ej. Sofi R.','مثلاً: سامر ع.'],['Email','Email','البريد الإلكتروني'],['Password','Contraseña','كلمة المرور'],['At least 8 characters','Mínimo 8 caracteres','8 أحرف على الأقل'],['Country','País','الدولة'],
+ ['Referral code','Código de referido','كود الإحالة'],['(optional)','(opcional)','(اختياري)'],['e.g. JAKE42','ej. JAKE42','مثلاً JAKE42'],
+ ['I am {age} or older and accept the Terms and Privacy Policy.','Tengo {age} años o más y acepto los Términos y la Política de Privacidad.','عمري {age} سنة أو أكثر وأوافق على الشروط وسياسة الخصوصية.'],
+ ['Create account','Crear cuenta','إنشاء الحساب'],['Already a member?','¿Ya tenés cuenta?','لديك حساب؟'],['New here?','¿Sos nuevo?','جديد هنا؟'],['Create an account','Creá una cuenta','أنشئ حساباً'],
+ ['{c} welcome bonus on sign-up','Bono de bienvenida de {c} al registrarte','مكافأة ترحيب {c} عند التسجيل'],['Forgot password?','¿Olvidaste tu contraseña?','نسيت كلمة المرور؟'],['Demo account:','Cuenta demo:','الحساب التجريبي:'],
+ ['Sign-ups are paused','Registros pausados','التسجيل متوقف مؤقتاً'],['New registrations are closed for a short while. Please try again later.','Los registros nuevos están cerrados por un rato. Probá más tarde.','التسجيلات الجديدة مغلقة لفترة قصيرة. حاول مرة أخرى لاحقاً.'],
+ ['Create a free account to start earning. It takes 30 seconds.','Creá una cuenta gratis para empezar a ganar. Tarda 30 segundos.','أنشئ حساباً مجانياً لتبدأ الربح. يستغرق 30 ثانية.'],
+ ['Enter a display name with at least 2 characters.','Poné un nombre de al menos 2 caracteres.','أدخل اسماً من حرفين على الأقل.'],['Enter a valid email address, like you@email.com.','Ingresá un email válido, como vos@email.com.','أدخل بريداً إلكترونياً صحيحاً مثل you@email.com.'],
+ ['Your password needs at least 8 characters.','La contraseña necesita al menos 8 caracteres.','كلمة المرور يجب أن تكون 8 أحرف على الأقل.'],['Confirm that you are {age} or older to continue.','Confirmá que tenés {age} años o más para seguir.','أكّد أن عمرك {age} سنة أو أكثر للمتابعة.'],
+ ['An account with this email already exists. Log in instead.','Ya existe una cuenta con este email. Ingresá con ella.','يوجد حساب بهذا البريد. سجّل الدخول بدلاً من ذلك.'],['No account uses this email. Check the spelling or create an account.','No hay ninguna cuenta con este email. Revisalo o creá una cuenta.','لا يوجد حساب بهذا البريد. تحقق من الكتابة أو أنشئ حساباً.'],
+ ['Wrong password. Try again or reset it.','Contraseña incorrecta. Probá de nuevo o restablecela.','كلمة المرور غير صحيحة. حاول مجدداً أو أعد تعيينها.'],['This account is suspended. Contact support for details.','Esta cuenta está suspendida. Escribí a soporte para más info.','هذا الحساب موقوف. تواصل مع الدعم لمعرفة التفاصيل.'],
+ ['Welcome, {name}! {c} coins added','¡Bienvenido/a, {name}! Sumamos {c} monedas','أهلاً {name}! أضفنا {c} عملة'],['Referral code applied','Código de referido aplicado','تم تطبيق كود الإحالة'],['Signed in with Google. {c} welcome coins added','Ingresaste con Google. Sumamos {c} monedas de bienvenida','تم الدخول عبر Google. أضفنا {c} عملة ترحيب'],['You are in the demo account','Estás en la cuenta demo','أنت الآن في الحساب التجريبي'],
+ ['Reset your password','Restablecé tu contraseña','إعادة تعيين كلمة المرور'],['Enter your email and we will send you a reset link.','Ingresá tu email y te mandamos un link para restablecerla.','أدخل بريدك وسنرسل لك رابطاً لإعادة التعيين.'],['Send reset link','Enviar link','إرسال الرابط'],['If an account uses this email, a reset link is on its way.','Si hay una cuenta con ese email, ya te mandamos el link.','إذا كان هناك حساب بهذا البريد، فرابط إعادة التعيين في الطريق.'],
+ ['Browsing as a guest','Estás navegando como invitado','أنت تتصفح كزائر'],['Sign up free to start offers, collect the daily chest and cash out.','Registrate gratis para empezar ofertas, abrir el cofre diario y retirar.','سجّل مجاناً لتبدأ العروض وتفتح الصندوق اليومي وتسحب أرباحك.'],
+ ['This page is for members','Esta sección es para miembros','هذه الصفحة للأعضاء'],['Sign up or log in to see this page.','Registrate o ingresá para ver esta página.','سجّل أو ادخل لعرض هذه الصفحة.'],
+ ['Hi {name}','Hola {name}','أهلاً {name}'],['Welcome','Bienvenido/a','أهلاً بك'],['Earn coins','Ganá monedas','اربح العملات'],['{c} coins = $1.00','{c} monedas = US$1,00','{c} عملة = 1.00 دولار'],
+ ['Available','Disponible','المتاح'],['Pending','Pendiente','معلّق'],['Releases after {d}-day check','Se libera tras {d} días de control','يتحرر بعد فحص {d} أيام'],['Nothing on hold','Nada retenido','لا شيء معلّق'],['Earned today','Ganado hoy','أرباح اليوم'],['Lifetime','Total histórico','الإجمالي'],['{lvl} member','Miembro {lvl}','عضو {lvl}'],
+ ['Daily bonus chest','Cofre de bono diario','صندوق المكافأة اليومية'],['Open it once a day for {a}–{b} free coins.','Abrilo una vez por día y llevate {a}–{b} monedas gratis.','افتحه مرة يومياً واحصل على {a}–{b} عملة مجاناً.'],['Opened. Next chest in {h} hours.','Abierto. El próximo cofre en {h} horas.','تم فتحه. الصندوق التالي بعد {h} ساعة.'],
+ ['Open chest','Abrir cofre','افتح الصندوق'],['Come back later','Volvé más tarde','عد لاحقاً'],['Continue where you left off','Seguí donde quedaste','تابع من حيث توقفت'],['Featured offers','Ofertas destacadas','العروض المميزة'],['All','Todas','الكل'],
+ ['Game','Juego','لعبة'],['App','App','تطبيق'],['Sign-up','Registro','تسجيل'],['Finance','Finanzas','مالي'],['Free trial','Prueba gratis','تجربة مجانية'],
+ ['No offers in this category right now.','No hay ofertas en esta categoría por ahora.','لا توجد عروض في هذه الفئة حالياً.'],['Offer walls','Muros de ofertas','جدران العروض'],['Hundreds more tasks from our partners. Rewards are shown in Amigo coins.','Cientos de tareas más de nuestros socios. Las recompensas se muestran en monedas Amigo.','مئات المهام الإضافية من شركائنا. المكافآت تظهر بعملات Amigo.'],
+ ['Rating {r} · {s}% to you','Puntaje {r} · {s}% para vos','التقييم {r} · {s}% لك'],['{n} step','{n} paso','{n} مرحلة'],['{n} steps','{n} pasos','{n} مراحل'],
+ ['Have a promo code?','¿Tenés un código promo?','لديك كود مكافأة؟'],['Codes are shared on our Telegram channel and by creators.','Compartimos códigos en nuestro canal de Telegram y con creadores.','ننشر الأكواد على قناة تيليغرام ومع صنّاع المحتوى.'],['Redeem','Canjear','استخدم'],
+ ['Games','Juegos','ألعاب'],['Mixed offers','Ofertas variadas','عروض متنوعة'],['Play-time games','Juegos por tiempo','ألعاب حسب وقت اللعب'],['Sign-ups & trials','Registros y pruebas','تسجيلات وتجارب'],
+ ['Android · iOS','Android · iOS','أندرويد · iOS'],['iOS · Android','iOS · Android','iOS · أندرويد'],['Web · Mobile','Web · Móvil','ويب · جوال'],['Web','Web','ويب'],
+ ['Finish within {d} days. Available in {c}. New users only. Rewards of {v}+ are held for {h} days.','Completala en {d} días. Disponible en {c}. Solo usuarios nuevos. Las recompensas de {v}+ quedan retenidas {h} días.','أكملها خلال {d} يوماً. متاح في: {c}. للمستخدمين الجدد فقط. المكافآت من {v} فما فوق تُعلّق {h} أيام.'],
+ ['Not available in {c}','No disponible en {c}','غير متاح في {c}'],['Completed','Completada','مكتمل'],['Start offer','Empezar oferta','ابدأ العرض'],['Sign up to start this offer','Registrate para empezar esta oferta','سجّل لتبدأ هذا العرض'],['Offer in progress.','Oferta en curso.','العرض قيد التنفيذ.'],
+ ['On the live site the partner confirms each step automatically. In this demo you can trigger the confirmation yourself.','En el sitio real el socio confirma cada paso solo. En esta demo podés dispararlo vos.','في الموقع الحقيقي يؤكد الشريك كل مرحلة تلقائياً. في هذه التجربة يمكنك تفعيل التأكيد بنفسك.'],
+ ['Simulate: “{s}” confirmed','Simular: “{s}” confirmado','محاكاة: تأكيد “{s}”'],['Offer started. Install the app from the link to begin.','Oferta iniciada. Instalá la app desde el link para empezar.','بدأ العرض. ثبّت التطبيق من الرابط لتبدأ.'],
+ ['{c} coins added as pending ({d}-day check)','{c} monedas sumadas como pendientes (control de {d} días)','أُضيفت {c} عملة كرصيد معلّق (فحص {d} أيام)'],['+{c} coins added to your balance','+{c} monedas sumadas a tu saldo','+{c} عملة أُضيفت لرصيدك'],
+ ['{n} offer wall','Muro de ofertas {n}','جدار عروض {n}'],["On the live site this panel loads {n}'s offer wall inside the page, with your member ID attached so every completion is credited to you automatically.",'En el sitio real este panel carga el muro de {n} dentro de la página, con tu ID de miembro para acreditarte cada tarea automáticamente.','في الموقع الحقيقي تُحمَّل هنا صفحة عروض {n} داخل الموقع ومعها رقم عضويتك، لتُضاف كل مهمة تكملها إلى رصيدك تلقائياً.'],
+ ["The partner's full catalog appears here on the live site.",'En el sitio real acá aparece el catálogo completo del socio.','في الموقع الحقيقي يظهر هنا كامل عروض الشريك.'],
+ ['Powered by BitLabs','Con tecnología de BitLabs','بالشراكة مع BitLabs'],['Answer honestly. Rushed answers get screened out.','Respondé con sinceridad. Las respuestas apuradas se descartan.','أجب بصدق. الإجابات المتسرعة تُستبعد.'],
+ ['Topic','Tema','الموضوع'],['Length','Duración','المدة'],['Rating','Puntaje','التقييم'],['Reward','Recompensa','المكافأة'],['Start','Empezar','ابدأ'],['{m} min','{m} min','{m} د'],['{m} minutes','{m} minutos','{m} دقيقة'],
+ ['If a survey screens you out after a few questions you still receive a small consolation reward of 20 coins.','Si una encuesta te descarta después de algunas preguntas, igual recibís 20 monedas de consuelo.','إذا استبعدك الاستبيان بعد بعض الأسئلة تحصل على مكافأة ترضية 20 عملة.'],
+ ['In the live site the survey opens from BitLabs. In this demo, pick an outcome to see how each one is credited.','En el sitio real la encuesta se abre desde BitLabs. En esta demo, elegí un resultado para ver cómo se acredita.','في الموقع الحقيقي يفتح الاستبيان من BitLabs. في هذه التجربة اختر نتيجة لترى كيف تُضاف.'],
+ ['Simulate: survey completed','Simular: encuesta completada','محاكاة: اكتمل الاستبيان'],['Simulate: screened out','Simular: descartado','محاكاة: تم الاستبعاد'],['+{c} coins for the survey','+{c} monedas por la encuesta','+{c} عملة مقابل الاستبيان'],['+{c} coins consolation reward','+{c} monedas de consuelo','+{c} عملة مكافأة ترضية'],
+ ['Shopping habits','Hábitos de compra','عادات التسوق'],['Streaming services','Servicios de streaming','خدمات البث'],['Mobile games','Juegos de celular','ألعاب الجوال'],['Travel plans','Planes de viaje','خطط السفر'],['Personal finance','Finanzas personales','التمويل الشخصي'],['Food & delivery','Comida y delivery','الطعام والتوصيل'],['Cars & driving','Autos y manejo','السيارات والقيادة'],['Technology','Tecnología','التكنولوجيا'],
+ ['Choose a method','Elegí un método','اختر طريقة'],['Amount','Monto','المبلغ'],['Amazon Gift Card','Gift card de Amazon','بطاقة هدايا أمازون'],
+ ['TRC20 wallet address','Dirección de billetera TRC20','عنوان محفظة TRC20'],['Litecoin address','Dirección de Litecoin','عنوان Litecoin'],['Bitcoin address','Dirección de Bitcoin','عنوان Bitcoin'],['Binance Pay ID','ID de Binance Pay','معرّف Binance Pay'],['Email for the code','Email para recibir el código','البريد لاستلام الكود'],['PayPal email','Email de PayPal','بريد PayPal'],
+ ['Min {v}','Mín. {v}','الحد الأدنى {v}'],['fee {v}','comisión {v}','رسوم {v}'],['You need {c} more coins','Te faltan {c} monedas','تحتاج {c} عملة إضافية'],['Withdraw {v} to {m}','Retirar {v} a {m}','اسحب {v} إلى {m}'],['Sign up to cash out','Registrate para retirar','سجّل لتتمكن من السحب'],
+ ['Summary','Resumen','الملخص'],['Coins deducted','Monedas descontadas','العملات المخصومة'],['Network fee','Comisión de red','رسوم الشبكة'],['You receive','Recibís','ستستلم'],
+ ['Your first withdrawal is checked by our team, usually within 24 hours. After that, small withdrawals are sent automatically.','Tu primer retiro lo revisa nuestro equipo, en general en menos de 24 horas. Después, los retiros chicos salen automáticamente.','أول سحب لك يراجعه فريقنا، عادة خلال 24 ساعة. بعد ذلك تُرسل السحوبات الصغيرة تلقائياً.'],
+ ['Withdrawals up to {v} are sent automatically.','Los retiros de hasta {v} salen automáticamente.','السحوبات حتى {v} تُرسل تلقائياً.'],
+ ['Your withdrawals','Tus retiros','سحوباتك'],['Date','Fecha','التاريخ'],['Method','Método','الطريقة'],['Status','Estado','الحالة'],['No withdrawals yet. Your first one is a few offers away.','Todavía no retiraste. Tu primer retiro está a pocas ofertas.','لا توجد سحوبات بعد. أول سحب لك على بُعد بضعة عروض.'],
+ ['Processing','En proceso','قيد المعالجة'],['Sent','Enviado','تم الإرسال'],['Rejected · refunded','Rechazado · reintegrado','مرفوض · أُعيد الرصيد'],
+ ['Your account is suspended','Tu cuenta está suspendida','حسابك موقوف'],['Turn off your VPN to cash out','Apagá la VPN para retirar','أوقف VPN لتتمكن من السحب'],['Enter your {f}','Ingresá tu {f}','أدخل {f}'],['Not enough coins for this amount','No te alcanzan las monedas para este monto','رصيدك لا يكفي لهذا المبلغ'],
+ ['{v} sent to your {m}','{v} enviados a tu {m}','تم إرسال {v} إلى {m}'],['Withdrawal requested.','Retiro solicitado.','تم طلب السحب.'],['We review first payouts within 24 hours.','Revisamos los primeros retiros en menos de 24 horas.','نراجع السحب الأول خلال 24 ساعة.'],['Processing now.','Procesando.','جارٍ التنفيذ.'],
+ ['Invite friends','Invitá amigos','ادعُ أصدقاءك'],['Earn {p}% of everything they earn. For life.','Ganá el {p}% de todo lo que ganen. Para siempre.','اربح {p}% من كل ما يربحونه. مدى الحياة.'],['Your invite link','Tu link de invitación','رابط الدعوة الخاص بك'],['Copy','Copiar','نسخ'],['Code:','Código:','الكود:'],
+ ['Friends get {c} bonus coins when they join with it.','Tus amigos reciben {c} monedas extra al registrarse con él.','يحصل أصدقاؤك على {c} عملة إضافية عند التسجيل به.'],['Friends joined','Amigos registrados','أصدقاء انضموا'],['Earned from friends','Ganado por amigos','أرباح من الأصدقاء'],['Your commission','Tu comisión','عمولتك'],
+ ['Your friends','Tus amigos','أصدقاؤك'],['Demo: a friend joins and completes an offer','Demo: un amigo se registra y completa una oferta','تجربة: صديق ينضم ويكمل عرضاً'],['Friend','Amigo','الصديق'],['Joined','Se unió','انضم'],['They earned','Ganó','ربح'],['You got','Recibiste','حصلت على'],
+ ['No friends yet. Share your link on TikTok, Discord or with family.','Todavía no invitaste amigos. Compartí tu link en TikTok, Discord o con tu familia.','لا يوجد أصدقاء بعد. شارك رابطك على تيك توك أو ديسكورد أو مع العائلة.'],
+ ['Sign up to get your personal invite link.','Registrate para tener tu link de invitación.','سجّل لتحصل على رابط الدعوة الخاص بك.'],
+ ['Link copied','Link copiado','تم نسخ الرابط'],['Press Ctrl+C to copy','Presioná Ctrl+C para copiar','اضغط Ctrl+C للنسخ'],['{n} joined with your link and earned. Your {p}% was added.','{n} se registró con tu link y ganó. Sumamos tu {p}%.','{n} انضم عبر رابطك وربح. أُضيفت نسبتك {p}%.'],
+ ['Weekly race · {v} prize pool','Carrera semanal · {v} en premios','السباق الأسبوعي · جوائز بقيمة {v}'],['Ends in {d}d {h}h','Termina en {d} d {h} h','ينتهي بعد {d} يوم و{h} ساعة'],['(you)','(vos)','(أنت)'],['Prize {v}','Premio {v}','الجائزة {v}'],
+ ['Rank','Puesto','المركز'],['Member','Miembro','العضو'],['Coins this week','Monedas esta semana','عملات هذا الأسبوع'],['Prize','Premio','الجائزة'],['You','Vos','أنت'],['{c} to top 10','{c} para el top 10','{c} للوصول لأفضل 10'],
+ ['Demo: skip the {d}-day hold','Demo: saltear los {d} días de retención','تجربة: تخطّي التعليق {d} أيام'],['Credited','Acreditado','مضاف'],['Reversed','Revertido','مسترد'],['Paid out','Pagado','مدفوع'],['When','Cuándo','الوقت'],['Coins','Monedas','العملات'],['Nothing here yet.','Todavía no hay nada.','لا يوجد شيء هنا بعد.'],['{c} coins moved to your balance','{c} monedas pasaron a tu saldo','انتقلت {c} عملة إلى رصيدك'],
+ ['Member since {d}','Miembro desde {d}','عضو منذ {d}'],['{lvl} level','Nivel {lvl}','مستوى {lvl}'],['+{b}% bonus','+{b}% de bono','مكافأة +{b}%'],['{c} coins to {lvl}','{c} monedas para {lvl}','{c} عملة للوصول إلى {lvl}'],['Top level reached','Llegaste al nivel máximo','وصلت لأعلى مستوى'],
+ ['Bronze','Bronce','برونزي'],['Silver','Plata','فضي'],['Gold','Oro','ذهبي'],['Platinum','Platino','بلاتيني'],['Diamond','Diamante','ماسي'],['Level bonuses:','Bonos por nivel:','مكافآت المستويات:'],
+ ['Details','Datos','البيانات'],['Two-factor login','Verificación en dos pasos','التحقق بخطوتين'],['Required for withdrawals over $50','Obligatoria para retiros de más de US$50','مطلوب للسحوبات فوق 50 دولار'],['Save changes','Guardar cambios','حفظ التغييرات'],
+ ['Change password','Cambiar contraseña','تغيير كلمة المرور'],['Current password','Contraseña actual','كلمة المرور الحالية'],['New password','Contraseña nueva','كلمة المرور الجديدة'],['Repeat new password','Repetí la contraseña nueva','أعد كتابة كلمة المرور الجديدة'],['Update password','Actualizar contraseña','تحديث كلمة المرور'],
+ ['Your current password is not correct.','La contraseña actual no es correcta.','كلمة المرور الحالية غير صحيحة.'],['The new password needs at least 8 characters.','La contraseña nueva necesita al menos 8 caracteres.','كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل.'],['The two new passwords do not match.','Las dos contraseñas nuevas no coinciden.','كلمتا المرور الجديدتان غير متطابقتين.'],
+ ['Choose a password different from the current one.','Elegí una contraseña distinta a la actual.','اختر كلمة مرور مختلفة عن الحالية.'],['Password updated','Contraseña actualizada','تم تحديث كلمة المرور'],
+ ['You signed up with Google, so you can set a password here without the current one.','Te registraste con Google, así que podés crear una contraseña acá sin la actual.','سجّلت عبر Google، لذلك يمكنك تعيين كلمة مرور هنا دون إدخال الحالية.'],
+ ['Log out of this device','Cerrar sesión en este dispositivo','الخروج من هذا الجهاز'],['You can log back in with your email or Google.','Podés volver a ingresar con tu email o con Google.','يمكنك الدخول مجدداً بالبريد أو عبر Google.'],['Display name needs 2+ characters','El nombre necesita 2 caracteres o más','الاسم يحتاج حرفين على الأقل'],['Changes saved','Cambios guardados','تم حفظ التغييرات'],
+ ['Help centre','Centro de ayuda','مركز المساعدة'],['Or email {e}','O escribí a {e}','أو راسلنا على {e}'],['Contact support','Contactar a soporte','تواصل مع الدعم'],['Subject','Asunto','الموضوع'],
+ ['Offer not credited','Oferta no acreditada','عرض لم يُضف'],['Withdrawal question','Consulta sobre retiros','سؤال عن السحب'],['Account or login','Cuenta o ingreso','الحساب أو الدخول'],['Something else','Otra cosa','شيء آخر'],
+ ['Message','Mensaje','الرسالة'],['Offer name, the step you reached and when.','Nombre de la oferta, el paso al que llegaste y cuándo.','اسم العرض، المرحلة التي وصلتها، ومتى.'],['Send message','Enviar mensaje','إرسال الرسالة'],['Your messages','Tus mensajes','رسائلك'],['Open','Abierto','مفتوحة'],['Resolved','Resuelto','تم الحل'],['Amigo support:','Soporte Amigo:','دعم Amigo:'],
+ ['Add a few more details so we can help','Agregá algunos detalles más para poder ayudarte','أضف تفاصيل أكثر لنتمكن من مساعدتك'],['Message sent. We usually reply within a few hours','Mensaje enviado. Solemos responder en pocas horas','تم الإرسال. نرد عادةً خلال ساعات قليلة'],
+ ['That code is not valid or has expired','Ese código no es válido o venció','الكود غير صالح أو منتهي'],['This code has reached its limit','Este código llegó a su límite','وصل الكود للحد الأقصى'],['You already used this code','Ya usaste este código','استخدمت هذا الكود من قبل'],['+{c} coins from {code}','+{c} monedas con {code}','+{c} عملة من الكود {code}'],['The chest had {c} coins','El cofre tenía {c} monedas','الصندوق فيه {c} عملة'],
+ ['VPN or proxy detected.','Detectamos una VPN o proxy.','تم اكتشاف VPN أو بروكسي.'],['Earning is paused on this connection. Turn off your VPN and reload the page.','Las ganancias están pausadas en esta conexión. Apagá la VPN y recargá la página.','الربح متوقف على هذا الاتصال. أوقف VPN وأعد تحميل الصفحة.'],
+ ["We're making Amigo Cash better",'Estamos mejorando Amigo Cash','نعمل على تحسين Amigo Cash'],['Scheduled maintenance is under way. Your balance and pending rewards are safe. Please check back shortly.','Estamos en mantenimiento programado. Tu saldo y tus recompensas pendientes están a salvo. Volvé en un rato.','هناك صيانة مجدولة حالياً. رصيدك ومكافآتك المعلّقة بأمان. عد بعد قليل.'],
+ ['{n} cashed out {v} via {m}','{n} retiró {v} con {m}','{n} سحب {v} عبر {m}'],['{n} earned {c} on {o}','{n} ganó {c} en {o}','{n} ربح {c} من {o}'],
+ ['Welcome bonus','Bono de bienvenida','مكافأة الترحيب'],['Survey completed · {s}','Encuesta completada · {s}','استبيان مكتمل · {s}'],['Survey screen-out · {s}','Encuesta descartada · {s}','استبعاد من استبيان · {s}'],['Promo code {code}','Código promo {code}','كود مكافأة {code}'],['Withdrawal · {m}','Retiro · {m}','سحب · {m}'],
+ ['Referral commission from {n}','Comisión por referido de {n}','عمولة إحالة من {n}'],['Reversed by advertiser · {o}','Revertido por el anunciante · {o}','استرده المعلن · {o}'],['Refund · withdrawal rejected: {r}','Reintegro · retiro rechazado: {r}','استرجاع · رُفض السحب: {r}'],['{o} · {s}','{o} · {s}','{o} · {s}'],
+ ['VPN or proxy detected','Se detectó VPN o proxy','تم اكتشاف VPN أو بروكسي'],['Wallet address is invalid','La dirección de la billetera no es válida','عنوان المحفظة غير صالح'],['Multiple accounts on one device','Varias cuentas en un mismo dispositivo','عدة حسابات على جهاز واحد'],['Offer reversed by the advertiser','Oferta revertida por el anunciante','العرض استرده المعلن'],['VPN on every session','VPN en todas las sesiones','VPN في كل الجلسات'],
+ ['Weekend boost: every game offer pays 20% more until Sunday night.','Boost de finde: todas las ofertas de juegos pagan 20% más hasta el domingo a la noche.','عرض نهاية الأسبوع: كل عروض الألعاب تدفع 20% أكثر حتى ليلة الأحد.'],
+ /* offer content */
+ ['Install and open the game','Instalá y abrí el juego','ثبّت اللعبة وافتحها'],['Finish the tutorial','Terminá el tutorial','أنهِ الشرح التعليمي'],['Build your first castle','Construí tu primer castillo','ابنِ قلعتك الأولى'],['Open an account and make a first card purchase','Abrí una cuenta y hacé una primera compra con la tarjeta','افتح حساباً وأجرِ أول عملية شراء بالبطاقة'],
+ ['Create your club','Creá tu club','أنشئ ناديك'],['Create an account and link a bank','Creá una cuenta y vinculá un banco','أنشئ حساباً واربط حساباً بنكياً'],['Start a 30-day free trial','Empezá una prueba gratis de 30 días','ابدأ تجربة مجانية لمدة 30 يوماً'],['Unlock the third car','Desbloqueá el tercer auto','افتح السيارة الثالثة'],
+ ['Relaxing tile-matching puzzle set in a seaside town.','Puzzle relajante de unir fichas en un pueblo costero.','لغز مطابقة بلاطات هادئ في بلدة ساحلية.'],['Arcade flight shooter with daily boss raids.','Shooter de aviones arcade con jefes diarios.','لعبة طيران وإطلاق نار مع معارك زعماء يومية.'],
+ ['City-building strategy game. Long offer, highest payout.','Juego de estrategia y construcción de ciudades. Oferta larga, la que más paga.','لعبة استراتيجية لبناء المدن. عرض طويل وأعلى مكافأة.'],['Free digital bank account. Identity check required.','Cuenta bancaria digital gratis. Requiere verificar identidad.','حساب بنكي رقمي مجاني. يتطلب التحقق من الهوية.'],
+ ['Bubble shooter where every level is a new recipe.','Juego de burbujas donde cada nivel es una receta nueva.','لعبة فقاعات وكل مستوى فيها وصفة جديدة.'],['Football manager. Sign players, win the league.','Manager de fútbol. Fichá jugadores y ganá la liga.','لعبة إدارة كرة قدم. تعاقد مع لاعبين واربح الدوري.'],
+ ['Budgeting app. Free account.','App de presupuesto. Cuenta gratis.','تطبيق لإدارة الميزانية. حساب مجاني.'],['Movie streaming service. Cancel any time during the trial.','Servicio de streaming de películas. Cancelá cuando quieras durante la prueba.','خدمة بث أفلام. يمكنك الإلغاء في أي وقت خلال التجربة.'],
+ ['Match-3 adventure through crystal caves.','Aventura de combinar 3 por cuevas de cristal.','مغامرة مطابقة ثلاثية في كهوف الكريستال.'],['Grow crops, raise animals, restore the valley.','Cultivá, criá animales y restaurá el valle.','ازرع المحاصيل وربِّ الحيوانات وأعد إحياء الوادي.'],
+ ['Daily crossword-style word game.','Juego diario de palabras tipo crucigrama.','لعبة كلمات يومية بأسلوب الكلمات المتقاطعة.'],['Street racing with car upgrades.','Carreras callejeras con mejoras de autos.','سباقات شوارع مع ترقيات للسيارات.']
+];
+const STEP_RX=[
+ [/^Reach level (\d+)$/,'Llegá al nivel $1','صل إلى المستوى $1'],[/^Clear stage (\d+)$/,'Superá la etapa $1','اجتز المرحلة $1'],[/^Town Hall level (\d+)$/,'Ayuntamiento nivel $1','مبنى البلدية مستوى $1'],
+ [/^Win (\d+) matches$/,'Ganá $1 partidos','اربح $1 مباريات'],[/^Reach Division (\d+)$/,'Llegá a la División $1','صل إلى الدرجة $1'],[/^Play for (\d+) minutes$/,'Jugá $1 minutos','العب لمدة $1 دقيقة'],
+ [/^Reach chapter (\d+)$/,'Llegá al capítulo $1','صل إلى الفصل $1'],[/^Reach farm level (\d+)$/,'Llevá la granja al nivel $1','صل بالمزرعة إلى المستوى $1'],[/^Solve (\d+) puzzles$/,'Resolvé $1 acertijos','حل $1 لغزاً'],[/^Win (\d+) races$/,'Ganá $1 carreras','اربح $1 سباقات']
+];
+const DICT={es:{},ar:{}};L3.forEach(([en,es,ar])=>{DICT.es[en]=es;DICT.ar[en]=ar});
+const LANGS=[['en','EN'],['es','ES'],['ar','AR']];
+let LANG='en';try{const l=localStorage.getItem('amigo-lang');if(['en','es','ar'].includes(l))LANG=l}catch(e){}
+const fill=(s,v)=>v?s.replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?v[k]:m):s;
+const t=(k,v)=>fill(LANG==='en'?k:(DICT[LANG][k]||k),v);
+function tr(s){if(LANG==='en'||s==null)return s;if(DICT[LANG][s])return DICT[LANG][s];for(const r of STEP_RX)if(r[0].test(s))return s.replace(r[0],LANG==='es'?r[1]:r[2]);return s}
+function txText(x,translate){const d=x.desc;if(!d||typeof d==='string')return translate?tr(d):d;const a={};Object.keys(d.a||{}).forEach(k=>a[k]=translate?tr(d.a[k]):d.a[k]);return translate?t(d.k,a):fill(d.k,a)}
+const mName=m=>m==='amazon'?t('Amazon Gift Card'):METHODS[m].name;
+function cName(code){try{return new Intl.DisplayNames([LANG==='es'?'es-AR':LANG],{type:'region'}).of(code)}catch(e){return COUNTRY[code]||code}}
+function agoL(ts){const s=Math.max(1,Math.round((now()-ts)/1000));let n,u;if(s<60){n=s;u=0}else if(s<3600){n=Math.round(s/60);u=1}else if(s<86400){n=Math.round(s/3600);u=2}else{n=Math.round(s/86400);u=3}
+  if(LANG==='es')return 'hace '+n+' '+['s','min','h','d'][u];if(LANG==='ar')return 'قبل '+n+' '+['ث','د','س','يوم'][u];return n+['s','m','h','d'][u]+' ago'}
+const dateL=ts=>new Date(ts).toLocaleDateString(LANG==='es'?'es-AR':LANG==='ar'?'ar-u-nu-latn':'en-GB',{day:'2-digit',month:'short',year:'numeric'});
+function isDark(){const r=document.documentElement;return r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+try{const th=localStorage.getItem('amigo-theme');if(th==='dark'||th==='light')document.documentElement.dataset.theme=th}catch(e){}
+function themeBtn(){const d=isDark();return `<button class="iconbtn" data-act="toggleTheme" aria-label="${d?t('Switch to light mode'):t('Switch to dark mode')}" title="${d?t('Switch to light mode'):t('Switch to dark mode')}">${ic(d?'sun':'moon')}</button>`}
+function langSwitch(){return `<div class="langsw" role="group" aria-label="${t('Language')}">${LANGS.map(([k,l])=>`<button class="${LANG===k?'on':''}" data-act="setLang" data-l="${k}" aria-pressed="${LANG===k}" lang="${k}">${l}</button>`).join('')}</div>`}
+
 /* ---------- routing ---------- */
 const USER_ROUTES=['earn','surveys','cashout','referrals','leaderboard','activity','profile','help'];
-const ADMIN_ROUTES=['admin','admin-users','admin-withdrawals','admin-offers','admin-networks','admin-postbacks','admin-fraud','admin-promos','admin-tickets','admin-site'];
 const route=()=>(location.hash||'').replace('#','')||'home';
 function go(r){if(location.hash==='#'+r)render();else location.hash=r}
 let ui={offerTab:'all',actTab:'all',method:'usdt',amount:null,userQ:'',userFilter:'all',wdFilter:'pending',offerCat:'all',demoOpen:false};
 
 function render(){
-  const r=route();
-  document.documentElement.lang=r.startsWith('admin')?'ar':'en';
-  if(r.startsWith('admin')){renderAdmin(r)}
+  const r=route(),adm=r.startsWith('admin');
+  const lang=adm?'ar':LANG;
+  document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  if(adm){renderAdmin(r)}
   else if(S.settings.maintenance){renderMaintenance()}
-  else if(!me()||r==='home'){renderLanding()}
+  else if(r==='home')renderLanding();
   else renderUser(USER_ROUTES.includes(r)?r:'earn');
   renderDemoBar();
   save();
 }
 window.addEventListener('hashchange',()=>{closeModal();render();window.scrollTo(0,0)});
+function gate(){if(me())return false;authModal('signup',true);return true}
 
 /* ---------- ticker ---------- */
 function tickerItems(){
   const R=Math.random;const items=[];
-  for(let i=0;i<14;i++){const u=S.users[Math.floor(R()*S.users.length)];const o=S.offers[Math.floor(R()*S.offers.length)];const kind=R();
-    if(kind<.25){const m=Object.keys(METHODS)[Math.floor(R()*5)];items.push(`<span class="ticker-item"><b>${esc(u.name)}</b> cashed out <span class="amt">${money([2,5,5,10,20][Math.floor(R()*5)])}</span> via ${METHODS[m].name}</span>`)}
-    else items.push(`<span class="ticker-item"><b>${esc(u.name)}</b> earned <span class="amt"><span class="coin">A</span>${fmt(offerCoins(o,o.steps[0][1]+R()*.2))}</span> on ${esc(o.title)}</span>`)}
+  for(let i=0;i<14;i++){const u=S.users[Math.floor(R()*S.users.length)];const o=S.offers[Math.floor(R()*S.offers.length)];
+    if(R()<.25){const m=Object.keys(METHODS)[Math.floor(R()*5)];items.push(`<span class="ticker-item" dir="auto">${t('{n} cashed out {v} via {m}',{n:'<b>'+esc(u.name)+'</b>',v:`<span class="amt">${money([2,5,5,10,20][Math.floor(R()*5)])}</span>`,m:mName(m)})}</span>`)}
+    else items.push(`<span class="ticker-item" dir="auto">${t('{n} earned {c} on {o}',{n:'<b>'+esc(u.name)+'</b>',c:`<span class="amt"><span class="coin">A</span>${fmt(offerCoins(o,o.steps[0][1]+R()*.2))}</span>`,o:esc(o.title)})}</span>`)}
   return items.join('');
 }
 function tickerHTML(){const s=tickerItems();return `<div class="ticker" aria-label="Recent earnings"><div class="ticker-in">${s}${s}</div></div>`}
 
 /* ---------- landing ---------- */
-function logoHTML(){return `<a class="logo" href="#home" aria-label="Amigo Cash home"><b>amigo</b><i>cash</i></a>`}
-function bannerHTML(){return S.settings.banner.on&&S.settings.banner.text?`<div class="banner">${esc(S.settings.banner.text)}</div>`:''}
+function logoHTML(){return `<a class="logo" href="#home" aria-label="Amigo Cash"><b>amigo</b><i>cash</i></a>`}
+function bannerHTML(){return S.settings.banner.on&&S.settings.banner.text?`<div class="banner">${esc(tr(S.settings.banner.text))}</div>`:''}
+function authButtons(){return `<button class="btn ghost hide-xs" data-act="auth" data-mode="login">${t('Log in')}</button><button class="btn primary" data-act="auth" data-mode="signup">${t('Sign up')}</button>`}
 function renderLanding(){
   const o=S.offers[0];const done=2;
   const paidTotal=S.withdrawals.filter(w=>w.status==='paid').reduce((a,w)=>a+w.usd,0)+184300;
   const methodsOn=Object.keys(METHODS).filter(m=>S.settings.methods[m].on);
   $('#app').innerHTML=`
   ${bannerHTML()}
-  <header class="topbar"><div class="topbar-in">${logoHTML()}<div class="grow"></div>
-    ${me()?`<a class="btn primary" href="#earn">Open dashboard</a>`:`<button class="btn ghost" data-act="auth" data-mode="login">Log in</button><button class="btn primary" data-act="auth" data-mode="signup">Sign up free</button>`}
+  <header class="topbar"><div class="topbar-in">${logoHTML()}
+    <nav class="toplinks hide-sm">${[['earn','Earn'],['surveys','Surveys'],['leaderboard','Leaderboard'],['cashout','Cash out']].map(([k,l])=>`<a href="#${k}">${t(l)}</a>`).join('')}</nav>
+    <div class="grow"></div>${langSwitch()}${themeBtn()}
+    ${me()?`<a class="btn primary" href="#earn">${t('Open dashboard')}</a>`:authButtons()}
   </div></header>
   ${tickerHTML()}
   <section class="hero"><div class="wrap hero-grid">
     <div>
-      <div class="eyebrow">Rewards for your free time</div>
-      <h1>Play games. Try apps. <em>Get paid</em> in minutes.</h1>
-      <p class="lede">Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from $${Math.min(...methodsOn.map(m=>S.settings.methods[m].min))} in crypto or gift cards.</p>
-      <div class="hero-cta"><button class="btn primary lg" data-act="auth" data-mode="signup">Start earning</button><button class="btn ghost lg" data-act="demoLogin">Try the demo account</button></div>
+      <div class="eyebrow">${t('Rewards for your free time')}</div>
+      <h1>${t('Play games. Try apps.')} <em>${t('Get paid')}</em> ${t('in minutes.')}</h1>
+      <p class="lede">${t('Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from {min} in crypto or gift cards.',{min:money(Math.min(...methodsOn.map(m=>S.settings.methods[m].min)))})}</p>
+      <div class="hero-cta">${me()?`<a class="btn primary lg" href="#earn">${t('Open dashboard')}</a>`:`<button class="btn primary lg" data-act="auth" data-mode="signup">${t('Start earning')}</button>`}<a class="btn ghost lg" href="#earn">${t('Browse offers')}</a></div>
       <div class="proofrow">
-        <div><strong class="num">${money(paidTotal).replace('.00','')}</strong><span>paid to members</span></div>
-        <div><strong class="num">${fmt(S.users.length*1280)}</strong><span>members</span></div>
-        <div><strong class="num">4 min</strong><span>average crypto payout</span></div>
+        <div><strong class="num">${money(paidTotal).replace('.00','')}</strong><span>${t('paid to members')}</span></div>
+        <div><strong class="num">${fmt(S.users.length*1280)}</strong><span>${t('members')}</span></div>
+        <div><strong class="num">4 min</strong><span>${t('average crypto payout')}</span></div>
       </div>
     </div>
-    <div class="phone" aria-label="Example offer">
-      <div class="offer-head"><div class="appicon" style="background:${o.color}">${o.title[0]}</div><div class="grow"><div class="eyebrow">Featured game</div><h3 style="font-size:20px">${esc(o.title)}</h3><div class="small muted">${o.platform} · ${o.days} days to finish</div></div></div>
-      <div class="ms">${o.steps.map((s,i)=>`<div class="ms-item ${i<done?'done':i===done?'next':''}"><span class="ms-dot">${i<done?ic('check'):''}</span><span class="small" style="font-weight:${i===done?800:600}">${esc(s[0])}</span>${C(offerCoins(o,s[1]))}</div>`).join('')}</div>
-      <div class="row between" style="margin-top:12px;padding-top:14px;border-top:1px solid var(--line)"><span class="small muted">Total reward</span><span style="font-size:20px">${C(offerCoins(o))}</span></div>
+    <button class="phone" data-act="offer" data-id="${o.id}" aria-label="${esc(o.title)}">
+      <div class="offer-head"><div class="appicon" style="background:${o.color}">${o.title[0]}</div><div class="grow"><div class="eyebrow">${t('Featured game')}</div><h3 style="font-size:20px">${esc(o.title)}</h3><div class="small muted">${tr(o.platform)} · ${t('{d} days to finish',{d:o.days})}</div></div></div>
+      <div class="ms">${o.steps.map((s,i)=>`<div class="ms-item ${i<done?'done':i===done?'next':''}"><span class="ms-dot">${i<done?ic('check'):''}</span><span class="small" style="font-weight:${i===done?800:600}">${esc(tr(s[0]))}</span>${C(offerCoins(o,s[1]))}</div>`).join('')}</div>
+      <div class="row between" style="margin-top:12px;padding-top:14px;border-top:1px solid var(--line)"><span class="small muted">${t('Total reward')}</span><span style="font-size:20px">${C(offerCoins(o))}</span></div>
       <div class="small muted" style="margin-top:4px;text-align:end">≈ ${money(toUSD(offerCoins(o)))}</div>
-    </div>
+    </button>
   </div></section>
   <section class="section" style="background:var(--surface);border-block:1px solid var(--line)"><div class="wrap">
-    <div class="eyebrow">How it works</div><h2>Three steps from sign-up to payout</h2>
+    <div class="eyebrow">${t('How it works')}</div><h2>${t('Three steps from sign-up to payout')}</h2>
     <div class="steps">
-      <div class="step"><span class="n">01</span><h3>Choose an offer</h3><p>Games, app sign-ups and short surveys from ${S.networks.filter(n=>n.on).length} offer partners. Every task shows the exact coins before you start.</p></div>
-      <div class="step"><span class="n">02</span><h3>Reach the goal</h3><p>Play to a level, open an account or finish a survey. The advertiser confirms it and your coins arrive automatically.</p></div>
-      <div class="step"><span class="n">03</span><h3>Cash out</h3><p>${fmt(S.settings.coinsPerUSD)} coins = $1. Withdraw to USDT, Litecoin, Binance Pay or an Amazon gift card.</p></div>
+      <div class="step"><span class="n">01</span><h3>${t('Choose an offer')}</h3><p>${t('Games, app sign-ups and short surveys from {n} offer partners. Every task shows the exact coins before you start.',{n:S.networks.filter(n=>n.on).length})}</p></div>
+      <div class="step"><span class="n">02</span><h3>${t('Reach the goal')}</h3><p>${t('Play to a level, open an account or finish a survey. The advertiser confirms it and your coins arrive automatically.')}</p></div>
+      <div class="step"><span class="n">03</span><h3>${t('Cash out')}</h3><p>${t('{c} coins = $1. Withdraw to USDT, Litecoin, Binance Pay or an Amazon gift card.',{c:fmt(S.settings.coinsPerUSD)})}</p></div>
     </div>
   </div></section>
   <section class="section"><div class="wrap">
-    <div class="eyebrow">Payout options</div><h2>Your money, your way</h2>
-    <div class="methods">${Object.keys(METHODS).map(m=>{const M=METHODS[m],st=S.settings.methods[m];return `<div class="method" style="${st.on?'':'opacity:.55'}"><span class="mlogo" style="background:${M.color}">${M.short}</span><div class="grow"><div style="font-weight:800">${M.name}</div><div class="small muted">${st.on?'From '+money(st.min):'Coming soon'}</div></div></div>`}).join('')}</div>
+    <div class="eyebrow">${t('Payout options')}</div><h2>${t('Your money, your way')}</h2>
+    <div class="methods">${Object.keys(METHODS).map(m=>{const M=METHODS[m],st=S.settings.methods[m];return `<div class="method" style="${st.on?'':'opacity:.55'}"><span class="mlogo" style="background:${M.color}">${M.short}</span><div class="grow"><div style="font-weight:800">${mName(m)}</div><div class="small muted">${st.on?t('From {v}',{v:money(st.min)}):t('Coming soon')}</div></div></div>`}).join('')}</div>
   </div></section>
-  <section class="section" style="padding-top:8px"><div class="wrap faq" style="max-width:820px;margin-inline:0">
-    <div class="eyebrow">Questions</div><h2 style="margin-bottom:10px">Before you sign up</h2>
-    ${faqHTML()}
-  </div></section>
-  <footer class="footer"><div class="wrap row between wrap">
-    <span>© 2026 Amigo Cash. Members must be ${S.settings.minAge}+. Earnings depend on the offers you complete.</span>
-    <span class="row" style="gap:16px"><a href="#home">Terms</a><a href="#home">Privacy</a><a href="#home">Cookies</a></span>
+  <section class="section" style="padding-top:8px"><div class="wrap"><div class="faq faq-center">
+    <div class="eyebrow">${t('Questions')}</div><h2>${t('Before you sign up')}</h2>
+    <div class="faq-list">${faqHTML()}</div>
+  </div></div></section>
+  <footer class="footer"><div class="wrap row between wr">
+    <span>${t('© 2026 Amigo Cash. Members must be {age}+. Earnings depend on the offers you complete.',{age:S.settings.minAge})}</span>
+    <span class="row" style="gap:16px"><a href="#home">${t('Terms')}</a><a href="#home">${t('Privacy')}</a><a href="#home">${t('Cookies')}</a></span>
   </div></footer>`;
 }
 function faqHTML(){return [
- ['Is Amigo Cash free?','Yes. You never pay to join or to cash out. Advertisers pay us when you try their game or app, and we pass most of that payment to you.'],
- ['How much are coins worth?',`${fmt(S.settings.coinsPerUSD)} coins are worth $1.00. Every offer shows its reward in coins and in dollars.`],
- ['Why is some of my reward pending?',`Rewards of ${money(S.settings.holdThresholdUSD)} or more are held for ${S.settings.holdDays} days while the advertiser checks the conversion. After that they move to your balance automatically.`],
- ['Can I use a VPN?','No. Offer partners reject traffic from VPNs and proxies, so we pause earning on those connections to protect your account.'],
- ['How fast are payouts?','Crypto and Binance Pay withdrawals are usually sent within minutes. Your first withdrawal is reviewed by our team, normally within 24 hours.']
-].map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}
+ ['Is Amigo Cash free?',t('Yes. You never pay to join or to cash out. Advertisers pay us when you try their game or app, and we pass most of that payment to you.')],
+ ['Can I look around before signing up?',t('Yes. Browse every offer, survey and payout option first. You only need an account to start a task or cash out.')],
+ ['How much are coins worth?',t('{c} coins are worth $1.00. Every offer shows its reward in coins and in dollars.',{c:fmt(S.settings.coinsPerUSD)})],
+ ['Why is some of my reward pending?',t('Rewards of {v} or more are held for {d} days while the advertiser checks the conversion. After that they move to your balance automatically.',{v:money(S.settings.holdThresholdUSD),d:S.settings.holdDays})],
+ ['Can I use a VPN?',t('No. Offer partners reject traffic from VPNs and proxies, so we pause earning on those connections to protect your account.')],
+ ['How fast are payouts?',t('Crypto and Binance Pay withdrawals are usually sent within minutes. Your first withdrawal is reviewed by our team, normally within 24 hours.')]
+].map(([q,a])=>`<details><summary>${t(q)}</summary><p>${a}</p></details>`).join('')}
 
 /* ---------- auth ---------- */
-function authModal(mode){
-  if(mode==='signup'&&!S.settings.registration){modal('Sign-ups are paused','<p class="muted">New registrations are closed for a short while. Please try again later.</p>');return}
+function authModal(mode,gated){
+  if(mode==='signup'&&!S.settings.registration){modal(t('Sign-ups are paused'),`<p class="muted">${t('New registrations are closed for a short while. Please try again later.')}</p>`);return}
   const su=mode==='signup';
-  modal(su?'Create your account':'Welcome back',`
-   <button class="btn ghost block" data-act="googleAuth"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12h8"/></svg>Continue with Google</button>
-   <div class="row" style="gap:10px"><span style="flex:1;height:1px;background:var(--line)"></span><span class="tiny muted">or with email</span><span style="flex:1;height:1px;background:var(--line)"></span></div>
+  modal(su?t('Create your account'):t('Welcome back'),`
+   ${gated?`<div class="note">${ic('lock')}<span>${t('Create a free account to start earning. It takes 30 seconds.')}</span></div>`:''}
+   <button class="btn ghost block" data-act="googleAuth"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12h8"/></svg>${t('Continue with Google')}</button>
+   <div class="row" style="gap:10px"><span style="flex:1;height:1px;background:var(--line)"></span><span class="tiny muted">${t('or with email')}</span><span style="flex:1;height:1px;background:var(--line)"></span></div>
    <form data-form="${su?'signup':'login'}" class="stack" novalidate>
-    ${su?`<div class="field"><label for="f-name">Display name</label><input class="input" id="f-name" name="name" required placeholder="e.g. Sam R." maxlength="24"></div>`:''}
-    <div class="field"><label for="f-email">Email</label><input class="input" id="f-email" name="email" type="email" required placeholder="you@email.com"></div>
-    <div class="field"><label for="f-pass">Password</label><input class="input" id="f-pass" name="pass" type="password" required placeholder="At least 8 characters"></div>
-    ${su?`<div class="field"><label for="f-country">Country</label><select class="input" id="f-country" name="country">${Object.entries(COUNTRY).map(([k,v])=>`<option value="${k}" ${k==='US'?'selected':''}>${v}</option>`).join('')}</select></div>
-    <div class="field"><label for="f-ref">Referral code <span class="muted">(optional)</span></label><input class="input" id="f-ref" name="ref" placeholder="e.g. JAKE42"></div>
-    <label class="check"><input type="checkbox" name="age" id="f-age"> I am ${S.settings.minAge} or older and accept the Terms and Privacy Policy.</label>`:''}
+    ${su?`<div class="field"><label for="f-name">${t('Display name')}</label><input class="input" id="f-name" name="name" required placeholder="${t('e.g. Sam R.')}" maxlength="24"></div>`:''}
+    <div class="field"><label for="f-email">${t('Email')}</label><input class="input" id="f-email" name="email" type="email" dir="ltr" required placeholder="you@email.com"></div>
+    <div class="field"><div class="row between"><label for="f-pass">${t('Password')}</label>${su?'':`<a href="#home" class="small" data-act="forgot">${t('Forgot password?')}</a>`}</div><input class="input" id="f-pass" name="pass" type="password" required placeholder="${t('At least 8 characters')}"></div>
+    ${su?`<div class="field"><label for="f-country">${t('Country')}</label><select class="input" id="f-country" name="country">${Object.keys(COUNTRY).map(k=>`<option value="${k}" ${k===(LANG==='es'?'AR':'US')?'selected':''}>${cName(k)}</option>`).join('')}</select></div>
+    <div class="field"><label for="f-ref">${t('Referral code')} <span class="muted">${t('(optional)')}</span></label><input class="input" id="f-ref" name="ref" dir="ltr" placeholder="${t('e.g. JAKE42')}"></div>
+    <label class="check"><input type="checkbox" name="age" id="f-age"> ${t('I am {age} or older and accept the Terms and Privacy Policy.',{age:S.settings.minAge})}</label>`:''}
     <div class="small" id="auth-err" style="color:var(--bad)"></div>
-    <button class="btn primary block lg" type="submit">${su?'Create account':'Log in'}</button>
+    <button class="btn primary block lg" type="submit">${su?t('Create account'):t('Log in')}</button>
    </form>
-   <p class="small muted" style="text-align:center">${su?'Already a member? <a href="#home" data-act="auth" data-mode="login">Log in</a>':'New here? <a href="#home" data-act="auth" data-mode="signup">Create an account</a>'}</p>
-   ${su&&S.settings.welcomeBonus?`<div class="pill coin" style="align-self:center"><span class="coin">A</span>${fmt(S.settings.welcomeBonus)} welcome bonus on sign-up</div>`:''}`);
+   <p class="small muted" style="text-align:center">${su?`${t('Already a member?')} <a href="#home" data-act="auth" data-mode="login">${t('Log in')}</a>`:`${t('New here?')} <a href="#home" data-act="auth" data-mode="signup">${t('Create an account')}</a>`}</p>
+   ${su&&S.settings.welcomeBonus?`<div class="pill coin" style="align-self:center"><span class="coin">A</span>${t('{c} welcome bonus on sign-up',{c:fmt(S.settings.welcomeBonus)})}</div>`:''}
+   ${!su?`<p class="tiny muted" style="text-align:center">${t('Demo account:')} <span dir="ltr">demo@amigo.cash · demo1234</span></p>`:''}`);
 }
-function createUser(name,email,country,ref){
+function forgotModal(){modal(t('Reset your password'),`<form data-form="forgot" class="stack"><p class="small muted">${t('Enter your email and we will send you a reset link.')}</p><div class="field"><label for="fg-email">${t('Email')}</label><input class="input" id="fg-email" name="email" type="email" dir="ltr" placeholder="you@email.com"></div><button class="btn primary block" type="submit">${t('Send reset link')}</button></form>`)}
+function createUser(name,email,country,ref,pass){
   const refU=ref?S.users.find(u=>u.refCode===ref.toUpperCase().trim()):null;
-  const u={id:id('u'),name,email,country,joined:now(),earned:0,balance:0,pending:0,risk:S.vpn?72:8,flags:S.vpn?['VPN']:[],status:'active',device:'dv-'+Math.floor(Math.random()*1e6).toString(16),ip:'86.12.'+Math.floor(Math.random()*255)+'.'+Math.floor(Math.random()*255),vpn:S.vpn,refBy:refU?refU.id:null,refCode:(name.replace(/\W/g,'').slice(0,4)+Math.floor(Math.random()*90+10)).toUpperCase(),weekly:0,lastSeen:now(),paidOnce:false,twofa:false,isYou:true};
+  const u={id:id('u'),name,email,pass:pass||null,country,joined:now(),earned:0,balance:0,pending:0,risk:S.vpn?72:8,flags:S.vpn?['VPN']:[],status:'active',device:'dv-'+Math.floor(Math.random()*1e6).toString(16),ip:'86.12.'+Math.floor(Math.random()*255)+'.'+Math.floor(Math.random()*255),vpn:S.vpn,refBy:refU?refU.id:null,refCode:((name.replace(/[^A-Za-z]/g,'')||'AMIGO').slice(0,4)+Math.floor(Math.random()*90+10)).toUpperCase(),weekly:0,lastSeen:now(),paidOnce:false,twofa:false,isYou:true};
   S.users.unshift(u);S.me=u.id;
-  if(S.settings.welcomeBonus){u.balance+=S.settings.welcomeBonus;u.earned+=S.settings.welcomeBonus;addTx(u.id,'welcome','Welcome bonus',S.settings.welcomeBonus,'credited')}
+  if(S.settings.welcomeBonus){u.balance+=S.settings.welcomeBonus;u.earned+=S.settings.welcomeBonus;addTx(u.id,'welcome',{k:'Welcome bonus'},S.settings.welcomeBonus,'credited')}
   S.series[S.series.length-1].signups++;
   return u;
 }
@@ -628,43 +808,47 @@ function createUser(name,email,country,ref){
 /* ---------- user shell ---------- */
 const UNAV=[['earn','Earn','bolt'],['surveys','Surveys','survey'],['cashout','Cash out','wallet'],['referrals','Referrals','users'],['leaderboard','Leaderboard','trophy'],['activity','Activity','list'],['profile','Account','user'],['help','Help','help']];
 function renderUser(r){
-  const u=me();u.lastSeen=now();
-  const openT=S.tickets.filter(t=>t.uid===u.id&&t.replies.some(x=>x.from==='admin'&&!x.seen)).length;
+  const u=me();if(u)u.lastSeen=now();
+  const openT=u?S.tickets.filter(x=>x.uid===u.id&&x.replies.some(y=>y.from==='admin'&&!y.seen)).length:0;
   const pages={earn:pEarn,surveys:pSurveys,cashout:pCashout,referrals:pReferrals,leaderboard:pLeaderboard,activity:pActivity,profile:pProfile,help:pHelp};
+  const memberOnly=['activity','profile'];
   $('#app').innerHTML=`
   ${bannerHTML()}
-  <header class="topbar"><div class="topbar-in">${logoHTML()}<div class="grow"></div>
-    <div class="balance-chip"><span class="lbl small muted">Balance</span>${C(u.balance)}<a class="btn primary sm" href="#cashout">Cash out</a></div>
-    <button class="avatar" style="background:${avatarColor(u.name)}" data-act="nav" data-to="profile" aria-label="Account">${esc(u.name[0])}</button>
+  <header class="topbar"><div class="topbar-in">${logoHTML()}<div class="grow"></div>${langSwitch()}${themeBtn()}
+    ${u?`<div class="balance-chip"><span class="lbl small muted">${t('Balance')}</span>${C(u.balance)}<a class="btn primary sm" href="#cashout">${t('Cash out')}</a></div>
+    <button class="avatar" style="background:${avatarColor(u.name)}" data-act="nav" data-to="profile" aria-label="${t('Account')}">${esc(u.name[0])}</button>`:authButtons()}
   </div></header>
   <div class="shell">
     <nav class="side" aria-label="Main">
-      ${UNAV.map(([k,l,i])=>`<a class="navlink ${r===k?'on':''}" href="#${k}">${ic(i)}${l}${k==='help'&&openT?`<span class="badge">${openT}</span>`:''}</a>`).join('')}
+      ${UNAV.map(([k,l,i])=>`<a class="navlink ${r===k?'on':''}" href="#${k}">${ic(i)}${t(l)}${!u&&memberOnly.includes(k)?`<span class="lockic">${ic('lock')}</span>`:''}${k==='help'&&openT?`<span class="badge">${openT}</span>`:''}</a>`).join('')}
       <div class="sep"></div>
-      <div class="card flat" style="padding:14px;background:var(--surface-2);border:0">${levelCard(u,true)}</div>
-      <button class="navlink" data-act="logout" style="margin-top:auto">${ic('out')}Log out</button>
+      ${u?`<div class="card flat" style="padding:14px;background:var(--surface-2);border:0">${levelCard(u)}</div>
+      <button class="navlink" data-act="logout" style="margin-top:auto">${ic('out')}${t('Log out')}</button>`:
+      `<div class="card flat stack" style="padding:14px;background:var(--accent-soft);border:0;gap:8px"><b class="small">${t('Browsing as a guest')}</b><span class="tiny muted">${t('Sign up free to start offers, collect the daily chest and cash out.')}</span><button class="btn primary sm" data-act="auth" data-mode="signup">${t('Sign up free')}</button></div>`}
     </nav>
-    <main class="main"><div class="main-in">${vpnBlocked()?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft)"><div class="row">${ic('shield')}<div><b>VPN or proxy detected.</b> <span class="small">Earning is paused on this connection. Turn off your VPN and reload the page.</span></div></div></div>`:''}${pages[r](u)}</div></main>
+    <main class="main"><div class="main-in">${vpnBlocked()&&u?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft)"><div class="row">${ic('shield')}<div><b>${t('VPN or proxy detected.')}</b> <span class="small">${t('Earning is paused on this connection. Turn off your VPN and reload the page.')}</span></div></div></div>`:''}${!u&&memberOnly.includes(r)?lockedPage():pages[r](u)}</div></main>
   </div>
-  <nav class="bottomnav" aria-label="Main">${[['earn','Earn','bolt'],['surveys','Surveys','survey'],['cashout','Cash out','wallet'],['referrals','Invite','users'],['profile','Account','user']].map(([k,l,i])=>`<a href="#${k}" class="${r===k?'on':''}">${ic(i)}${l}</a>`).join('')}</nav>`;
+  <nav class="bottomnav" aria-label="Main">${[['earn','Earn','bolt'],['surveys','Surveys','survey'],['cashout','Cash out','wallet'],['referrals','Invite','users'],['profile','Account','user']].map(([k,l,i])=>`<a href="#${k}" class="${r===k?'on':''}">${ic(i)}${t(l)}</a>`).join('')}</nav>`;
 }
-function levelCard(u,compact){const L=levelOf(u.earned);const pct=L.next?Math.min(100,(u.earned-L.at)/(L.next.at-L.at)*100):100;
-  return `<div class="row between"><span class="small" style="font-weight:800">${L.n} level</span>${L.bonus?`<span class="pill accent">+${L.bonus}% bonus</span>`:''}</div>
+function lockedPage(){return `<div class="card empty" style="padding-block:56px">${ic('lock')}<h2 style="font-size:22px;color:var(--fg)">${t('This page is for members')}</h2><span>${t('Sign up or log in to see this page.')}</span><div class="row wr" style="justify-content:center"><button class="btn primary" data-act="auth" data-mode="signup">${t('Sign up free')}</button><button class="btn ghost" data-act="auth" data-mode="login">${t('Log in')}</button></div></div>`}
+function guestCard(){return `<div class="guestcard"><div class="grow"><h3 style="font-size:18px">${t('Browsing as a guest')}</h3><p class="small muted">${t('Sign up free to start offers, collect the daily chest and cash out.')}</p></div><div class="row wr"><button class="btn ghost" data-act="auth" data-mode="login">${t('Log in')}</button><button class="btn primary" data-act="auth" data-mode="signup">${t('Sign up free')}</button></div></div>`}
+function levelCard(u){const L=levelOf(u.earned);const pct=L.next?Math.min(100,(u.earned-L.at)/(L.next.at-L.at)*100):100;
+  return `<div class="row between"><span class="small" style="font-weight:800">${t('{lvl} level',{lvl:t(L.n)})}</span>${L.bonus?`<span class="pill accent">${t('+{b}% bonus',{b:L.bonus})}</span>`:''}</div>
   <div class="lvl" style="margin-top:8px"><i style="width:${pct}%"></i></div>
-  <div class="tiny muted" style="margin-top:6px">${L.next?`${fmt(L.next.at-u.earned)} coins to ${L.next.n}`:'Top level reached'}</div>`}
+  <div class="tiny muted" style="margin-top:6px">${L.next?t('{c} coins to {lvl}',{c:fmt(L.next.at-u.earned),lvl:t(L.next.n)}):t('Top level reached')}</div>`}
 function walletBar(u){
-  const today=S.tx.filter(t=>t.uid===u.id&&t.ts>now()-DAY&&t.coins>0&&t.type!=='withdraw'&&t.status!=='reversed').reduce((a,t)=>a+t.coins,0);
+  const today=S.tx.filter(x=>x.uid===u.id&&x.ts>now()-DAY&&x.coins>0&&x.type!=='withdraw'&&x.status!=='reversed').reduce((a,x)=>a+x.coins,0);
   return `<div class="walletbar">
-   <div><div class="s">Available</div><div class="v"><span class="coin">A</span>${fmt(u.balance)}</div><div class="s">≈ ${money(toUSD(u.balance))}</div></div>
-   <div><div class="s">Pending</div><div class="v" style="color:var(--warn)">${fmt(u.pending)}</div><div class="s">${u.pending?`<a href="#activity" style="color:inherit">Releases after ${S.settings.holdDays}-day check</a>`:'Nothing on hold'}</div></div>
-   <div><div class="s">Earned today</div><div class="v">${fmt(today)}</div><div class="s">≈ ${money(toUSD(today))}</div></div>
-   <div><div class="s">Lifetime</div><div class="v">${fmt(u.earned)}</div><div class="s">${levelOf(u.earned).n} member</div></div>
+   <div><div class="s">${t('Available')}</div><div class="v"><span class="coin">A</span>${fmt(u.balance)}</div><div class="s">≈ ${money(toUSD(u.balance))}</div></div>
+   <div><div class="s">${t('Pending')}</div><div class="v" style="color:var(--warn)">${fmt(u.pending)}</div><div class="s">${u.pending?`<a href="#activity" style="color:inherit">${t('Releases after {d}-day check',{d:S.settings.holdDays})}</a>`:t('Nothing on hold')}</div></div>
+   <div><div class="s">${t('Earned today')}</div><div class="v">${fmt(today)}</div><div class="s">≈ ${money(toUSD(today))}</div></div>
+   <div><div class="s">${t('Lifetime')}</div><div class="v">${fmt(u.earned)}</div><div class="s">${t('{lvl} member',{lvl:t(levelOf(u.earned).n)})}</div></div>
   </div>`}
-
-function offerCard(o){const prog=S.progress[S.me+':'+o.id];const started=prog!=null;
+const stepsLabel=n=>t(n===1?'{n} step':'{n} steps',{n});
+function offerCard(o){const prog=S.me?S.progress[S.me+':'+o.id]:null;const started=prog!=null;
   return `<button class="offer" data-act="offer" data-id="${o.id}">
-   <div class="offer-art" style="background:linear-gradient(135deg,${o.color},color-mix(in srgb,${o.color} 55%,#000))"><span class="tag">${CAT[o.cat]}${o.cat==='game'&&S.settings.banner.on&&S.settings.gameBoost?' · +'+S.settings.gameBoost+'%':''}</span><span class="mono">${esc(o.title.split(' ').map(w=>w[0]).join('').slice(0,2))}</span></div>
-   <div class="offer-body"><h4>${esc(o.title)}</h4><span class="tiny muted">${netById(o.net).name} · ${o.steps.length} step${o.steps.length>1?'s':''}</span>
+   <div class="offer-art" style="background:linear-gradient(135deg,${o.color},color-mix(in srgb,${o.color} 55%,#000))"><span class="tag">${t(CAT[o.cat])}${o.cat==='game'&&S.settings.banner.on&&S.settings.gameBoost?' · +'+S.settings.gameBoost+'%':''}</span><span class="mono">${esc(o.title.split(' ').map(w=>w[0]).join('').slice(0,2))}</span></div>
+   <div class="offer-body"><h4>${esc(o.title)}</h4><span class="tiny muted">${netById(o.net).name} · ${stepsLabel(o.steps.length)}</span>
    <div class="offer-foot">${C(offerCoins(o))}${started?`<span class="pill info">${prog}/${o.steps.length}</span>`:`<span class="tiny muted">${money(toUSD(offerCoins(o)))}</span>`}</div></div>
   </button>`}
 
@@ -672,66 +856,69 @@ function pEarn(u){
   const offers=liveOffers();
   const cats=['all','game','app','signup','finance','trial'].filter(c=>c==='all'||offers.some(o=>o.cat===c));
   const shown=offers.filter(o=>ui.offerCat==='all'||o.cat===ui.offerCat);
-  const inprog=offers.filter(o=>{const p=S.progress[S.me+':'+o.id];return p!=null&&p<o.steps.length});
-  const lastD=S.lastDaily[u.id]||0,canDaily=now()-lastD>DAY;
+  const inprog=u?offers.filter(o=>{const p=S.progress[S.me+':'+o.id];return p!=null&&p<o.steps.length}):[];
+  const lastD=u?(S.lastDaily[u.id]||0):0,canDaily=now()-lastD>DAY;
   return `
-  <div class="pagehead"><div><div class="eyebrow">Hi ${esc(u.name.split(' ')[0])}</div><h1>Earn coins</h1></div><span class="small muted">${fmt(S.settings.coinsPerUSD)} coins = $1.00</span></div>
-  ${walletBar(u)}
+  <div class="pagehead"><div><div class="eyebrow">${u?t('Hi {name}',{name:esc(u.name.split(' ')[0])}):t('Welcome')}</div><h1>${t('Earn coins')}</h1></div><span class="small muted">${t('{c} coins = $1.00',{c:fmt(S.settings.coinsPerUSD)})}</span></div>
+  ${u?walletBar(u):guestCard()}
   <div class="chest">
     <div class="chest-ico">${ic('gift')}</div>
-    <div class="grow"><h3 style="font-size:19px">Daily bonus chest</h3><p class="small muted">${canDaily?`Open it once a day for ${S.settings.dailyMin}–${S.settings.dailyMax} free coins.`:`Opened. Next chest in ${Math.ceil((lastD+DAY-now())/36e5)} hours.`}</p></div>
-    <button class="btn ${canDaily?'primary':'ghost'}" data-act="daily" ${canDaily?'':'disabled'}>${canDaily?'Open chest':'Come back later'}</button>
+    <div class="grow"><h3 style="font-size:19px">${t('Daily bonus chest')}</h3><p class="small muted">${canDaily?t('Open it once a day for {a}–{b} free coins.',{a:S.settings.dailyMin,b:S.settings.dailyMax}):t('Opened. Next chest in {h} hours.',{h:Math.ceil((lastD+DAY-now())/36e5)})}</p></div>
+    <button class="btn ${canDaily?'primary':'ghost'}" data-act="daily" ${canDaily?'':'disabled'}>${canDaily?t('Open chest'):t('Come back later')}</button>
   </div>
-  ${inprog.length?`<section class="stack"><div class="row between"><h2 style="font-size:20px">Continue where you left off</h2></div><div class="offers">${inprog.map(offerCard).join('')}</div></section>`:''}
+  ${inprog.length?`<section class="stack"><h2 style="font-size:20px">${t('Continue where you left off')}</h2><div class="offers">${inprog.map(offerCard).join('')}</div></section>`:''}
   <section class="stack">
-    <div class="row between wrap"><h2 style="font-size:20px">Featured offers</h2><div class="tabs" role="tablist">${cats.map(c=>`<button class="tab ${ui.offerCat===c?'on':''}" data-act="offerCat" data-c="${c}">${c==='all'?'All':CAT[c]}</button>`).join('')}</div></div>
-    ${shown.length?`<div class="offers">${shown.map(offerCard).join('')}</div>`:`<div class="card empty">No offers in this category right now.</div>`}
+    <div class="row between wr"><h2 style="font-size:20px">${t('Featured offers')}</h2><div class="tabs" role="tablist">${cats.map(c=>`<button class="tab ${ui.offerCat===c?'on':''}" data-act="offerCat" data-c="${c}">${c==='all'?t('All'):t(CAT[c])}</button>`).join('')}</div></div>
+    ${shown.length?`<div class="offers">${shown.map(offerCard).join('')}</div>`:`<div class="card empty">${t('No offers in this category right now.')}</div>`}
   </section>
   <section class="stack">
-    <h2 style="font-size:20px">Offer walls</h2><p class="small muted" style="margin-top:-6px">Hundreds more tasks from our partners. Rewards are shown in Amigo coins.</p>
-    <div class="walls">${S.networks.filter(n=>n.on).map(n=>`<button class="wall" data-act="wall" data-id="${n.id}"><span class="wl">${n.name}</span><span class="small muted">${n.kind}</span><span class="bar"><i style="width:${Math.min(100,shareFor(n.id)+20)}%"></i></span><span class="tiny muted">Rating ${(4.1+((n.name.length*7)%9)/10).toFixed(1)} · ${shareFor(n.id)}% to you</span></button>`).join('')}</div>
+    <h2 style="font-size:20px">${t('Offer walls')}</h2><p class="small muted" style="margin-top:-6px">${t('Hundreds more tasks from our partners. Rewards are shown in Amigo coins.')}</p>
+    <div class="walls">${S.networks.filter(n=>n.on).map(n=>`<button class="wall" data-act="wall" data-id="${n.id}"><span class="wl" dir="ltr">${n.name}</span><span class="small muted">${t(n.kind)}</span><span class="bar"><i style="width:${Math.min(100,shareFor(n.id)+20)}%"></i></span><span class="tiny muted">${t('Rating {r} · {s}% to you',{r:(4.1+((n.name.length*7)%9)/10).toFixed(1),s:shareFor(n.id)})}</span></button>`).join('')}</div>
   </section>
-  <section class="card row wrap">
-    <div class="grow"><h3 style="font-size:18px">Have a promo code?</h3><p class="small muted">Codes are shared on our Telegram channel and by creators.</p></div>
-    <form data-form="promo" class="row" style="flex-wrap:wrap"><input class="input" id="f-promo" name="code" placeholder="CODE" style="width:160px;text-transform:uppercase;font-family:var(--f-mono)"><button class="btn primary" type="submit">Redeem</button></form>
+  <section class="card row wr">
+    <div class="grow"><h3 style="font-size:18px">${t('Have a promo code?')}</h3><p class="small muted">${t('Codes are shared on our Telegram channel and by creators.')}</p></div>
+    <form data-form="promo" class="row" style="flex-wrap:wrap"><input class="input" id="f-promo" name="code" placeholder="CODE" dir="ltr" style="width:160px;text-transform:uppercase;font-family:var(--f-mono)"><button class="btn primary" type="submit">${t('Redeem')}</button></form>
   </section>`;
 }
 function offerModal(oid){
-  const o=S.offers.find(x=>x.id===oid),u=me();const key=S.me+':'+oid;const p=S.progress[key];
+  const o=S.offers.find(x=>x.id===oid),u=me();const p=u?S.progress[S.me+':'+oid]:null;
   const started=p!=null,finished=started&&p>=o.steps.length;
+  const allowed=!u||o.countries.includes(u.country);
   modal(esc(o.title),`
-   <div class="row"><div class="appicon" style="background:${o.color}">${o.title[0]}</div><div class="grow"><div class="row wrap" style="gap:6px"><span class="pill">${CAT[o.cat]}</span><span class="pill">${o.platform}</span><span class="pill">${netById(o.net).name}</span></div><p class="small muted" style="margin-top:6px">${esc(o.desc||'')}</p></div></div>
-   <div class="ms" style="margin-top:0">${o.steps.map((s,i)=>{const d=started&&i<p,nx=started?i===p:i===0;return `<div class="ms-item ${d?'done':nx?'next':''}"><span class="ms-dot">${d?ic('check'):''}</span><span class="small" style="font-weight:${nx?800:600}">${esc(s[0])}</span>${C(offerCoins(o,s[1]))}</div>`}).join('')}</div>
-   <div class="row between" style="padding-top:12px;border-top:1px solid var(--line)"><span class="muted">Total reward</span><span style="font-size:20px">${C(offerCoins(o))}</span></div>
-   <div class="small muted">Finish within ${o.days} days. Available in ${o.countries.join(', ')}. New users only. Rewards of ${money(S.settings.holdThresholdUSD)}+ are held for ${S.settings.holdDays} days.</div>
-   ${!o.countries.includes(u.country)?`<div class="pill bad">Not available in ${COUNTRY[u.country]||u.country}</div>`:''}
-   ${finished?`<div class="pill good" style="align-self:flex-start">${ic('check')} Completed</div>`:
-     !started?`<button class="btn primary lg block" data-act="startOffer" data-id="${o.id}" ${vpnBlocked()||!o.countries.includes(u.country)?'disabled':''}>Start offer</button>`:
-     `<div class="card flat" style="background:var(--surface-2);border:0;padding:14px"><div class="small"><b>Offer in progress.</b> On the live site the partner confirms each step automatically. In this demo you can trigger the confirmation yourself.</div></div>
-      <button class="btn primary lg block" data-act="stepOffer" data-id="${o.id}" ${vpnBlocked()?'disabled':''}>Simulate: “${esc(o.steps[p][0])}” confirmed</button>`}
-  `);
+   <div class="row"><div class="appicon" style="background:${o.color}">${o.title[0]}</div><div class="grow"><div class="row wr" style="gap:6px"><span class="pill">${t(CAT[o.cat])}</span><span class="pill">${tr(o.platform)}</span><span class="pill">${netById(o.net).name}</span></div><p class="small muted" style="margin-top:6px">${esc(tr(o.desc||''))}</p></div></div>
+   <div class="ms" style="margin-top:0">${o.steps.map((s,i)=>{const d=started&&i<p,nx=started?i===p:i===0;return `<div class="ms-item ${d?'done':nx?'next':''}"><span class="ms-dot">${d?ic('check'):''}</span><span class="small" style="font-weight:${nx?800:600}">${esc(tr(s[0]))}</span>${C(offerCoins(o,s[1]))}</div>`}).join('')}</div>
+   <div class="row between" style="padding-top:12px;border-top:1px solid var(--line)"><span class="muted">${t('Total reward')}</span><span style="font-size:20px">${C(offerCoins(o))}</span></div>
+   <div class="small muted">${t('Finish within {d} days. Available in {c}. New users only. Rewards of {v}+ are held for {h} days.',{d:o.days,c:o.countries.map(cName).join(', '),v:money(S.settings.holdThresholdUSD),h:S.settings.holdDays})}</div>
+   ${!allowed?`<div class="pill bad">${t('Not available in {c}',{c:cName(u.country)})}</div>`:''}
+   ${!u?`<button class="btn primary lg block" data-act="auth" data-mode="signup" data-gated="1">${ic('lock')}${t('Sign up to start this offer')}</button>`:
+     finished?`<div class="pill good" style="align-self:flex-start">${ic('check')} ${t('Completed')}</div>`:
+     !started?`<button class="btn primary lg block" data-act="startOffer" data-id="${o.id}" ${vpnBlocked()||!allowed?'disabled':''}>${t('Start offer')}</button>`:
+     `<div class="note">${ic('clock')}<span><b>${t('Offer in progress.')}</b> ${t('On the live site the partner confirms each step automatically. In this demo you can trigger the confirmation yourself.')}</span></div>
+      <button class="btn primary lg block" data-act="stepOffer" data-id="${o.id}" ${vpnBlocked()?'disabled':''}>${t('Simulate: “{s}” confirmed',{s:esc(tr(o.steps[p][0]))})}</button>`}
+  `,{nofocus:true});
 }
 function wallModal(nid){
   const n=netById(nid);const list=liveOffers().filter(o=>o.net===nid);
-  modal(n.name+' offer wall',`
-   <p class="small muted">On the live site this panel loads ${n.name}'s offer wall inside the page, with your member ID attached so every completion is credited to you automatically.</p>
-   <div class="code">https://wall.${n.id}.example/?app=amigo&subid=${esc(S.me)}</div>
-   ${list.length?`<div class="stack">${list.map(o=>`<button class="row card" style="padding:12px;cursor:pointer;text-align:start" data-act="offer" data-id="${o.id}"><div class="appicon" style="width:42px;height:42px;font-size:18px;background:${o.color}">${o.title[0]}</div><div class="grow"><b>${esc(o.title)}</b><div class="tiny muted">${CAT[o.cat]} · ${o.steps.length} steps</div></div>${C(offerCoins(o))}</button>`).join('')}</div>`:'<div class="empty">The partner\'s full catalog appears here on the live site.</div>'}
+  modal(t('{n} offer wall',{n:n.name}),`
+   <p class="small muted">${t("On the live site this panel loads {n}'s offer wall inside the page, with your member ID attached so every completion is credited to you automatically.",{n:n.name})}</p>
+   <div class="code">https://wall.${n.id}.example/?app=amigo&subid=${esc(S.me||'guest')}</div>
+   ${list.length?`<div class="stack">${list.map(o=>`<button class="row card" style="padding:12px;cursor:pointer;text-align:start" data-act="offer" data-id="${o.id}"><div class="appicon" style="width:42px;height:42px;font-size:18px;background:${o.color}">${o.title[0]}</div><div class="grow"><b>${esc(o.title)}</b><div class="tiny muted">${t(CAT[o.cat])} · ${stepsLabel(o.steps.length)}</div></div>${C(offerCoins(o))}</button>`).join('')}</div>`:`<div class="empty">${t("The partner's full catalog appears here on the live site.")}</div>`}
   `,{nofocus:true});
 }
 
 function pSurveys(u){
-  return `<div class="pagehead"><div><div class="eyebrow">Powered by BitLabs</div><h1>Surveys</h1></div><span class="small muted">Answer honestly. Rushed answers get screened out.</span></div>
-  <div class="tablewrap"><table><thead><tr><th>Topic</th><th>Length</th><th class="hide-sm">Rating</th><th class="r">Reward</th><th></th></tr></thead><tbody>
-  ${S.surveys.map(s=>`<tr><td><b>${s.topic}</b></td><td class="num">${s.mins} min</td><td class="hide-sm"><span class="row" style="gap:4px">${ic('star')}${s.rating}</span></td><td class="r">${C(surveyCoins(s))}</td><td class="r"><button class="btn primary sm" data-act="survey" data-id="${s.id}" ${vpnBlocked()?'disabled':''}>Start</button></td></tr>`).join('')}
+  return `<div class="pagehead"><div><div class="eyebrow">${t('Powered by BitLabs')}</div><h1>${t('Surveys')}</h1></div><span class="small muted">${t('Answer honestly. Rushed answers get screened out.')}</span></div>
+  ${u?'':guestCard()}
+  <div class="tablewrap"><table><thead><tr><th>${t('Topic')}</th><th>${t('Length')}</th><th class="hide-sm">${t('Rating')}</th><th class="r">${t('Reward')}</th><th></th></tr></thead><tbody>
+  ${S.surveys.map(s=>`<tr><td><b>${tr(s.topic)}</b></td><td class="num">${t('{m} min',{m:s.mins})}</td><td class="hide-sm"><span class="row" style="gap:4px">${ic('star')}${s.rating}</span></td><td class="r">${C(surveyCoins(s))}</td><td class="r"><button class="btn primary sm" data-act="survey" data-id="${s.id}" ${vpnBlocked()&&u?'disabled':''}>${u?'':ic('lock')}${t('Start')}</button></td></tr>`).join('')}
   </tbody></table></div>
-  <div class="card small muted">If a survey screens you out after a few questions you still receive a small consolation reward of 20 coins.</div>`;
+  <div class="card small muted">${t('If a survey screens you out after a few questions you still receive a small consolation reward of 20 coins.')}</div>`;
 }
 function surveyModal(sid){const s=S.surveys.find(x=>x.id===sid);
-  modal(s.topic,`<div class="row between"><span class="pill">${s.mins} minutes</span>${C(surveyCoins(s))}</div>
-   <p class="small muted">In the live site the survey opens from BitLabs. In this demo, pick an outcome to see how each one is credited.</p>
+  modal(tr(s.topic),`<div class="row between"><span class="pill">${t('{m} minutes',{m:s.mins})}</span>${C(surveyCoins(s))}</div>
+   <p class="small muted">${t('In the live site the survey opens from BitLabs. In this demo, pick an outcome to see how each one is credited.')}</p>
    <div class="lvl"><i style="width:40%"></i></div>
-   <div class="row wrap"><button class="btn primary grow" data-act="surveyDone" data-id="${s.id}" data-ok="1">Simulate: survey completed</button><button class="btn ghost grow" data-act="surveyDone" data-id="${s.id}" data-ok="0">Simulate: screened out</button></div>`)}
+   <div class="row wr"><button class="btn primary grow" data-act="surveyDone" data-id="${s.id}" data-ok="1">${t('Simulate: survey completed')}</button><button class="btn ghost grow" data-act="surveyDone" data-id="${s.id}" data-ok="0">${t('Simulate: screened out')}</button></div>`,{nofocus:true})}
 
 function pCashout(u){
   const ms=S.settings.methods;
@@ -740,115 +927,135 @@ function pCashout(u){
   const opts=[st.min,5,10,25,50].filter((v,i,a)=>v>=st.min&&a.indexOf(v)===i).sort((a,b)=>a-b);
   if(ui.amount==null||ui.amount<st.min)ui.amount=opts[0];
   const need=ui.amount*S.settings.coinsPerUSD;
-  const mine=S.withdrawals.filter(w=>w.uid===u.id);
-  return `<div class="pagehead"><div><div class="eyebrow">${fmt(S.settings.coinsPerUSD)} coins = $1.00</div><h1>Cash out</h1></div><div class="balance-chip" style="padding-inline-end:14px"><span class="small muted">Available</span>${C(u.balance)}<span class="small muted">${money(toUSD(u.balance))}</span></div></div>
+  const bal=u?u.balance:0;
+  const mine=u?S.withdrawals.filter(w=>w.uid===u.id):[];
+  const btn=!u?`<button class="btn primary lg" type="button" data-act="auth" data-mode="signup" data-gated="1">${ic('lock')}${t('Sign up to cash out')}</button>`:
+    `<button class="btn primary lg" type="submit" ${bal<need?'disabled':''}>${bal<need?t('You need {c} more coins',{c:fmt(need-bal)}):t('Withdraw {v} to {m}',{v:money(ui.amount-(st.fee||0)),m:mName(ui.method)})}</button>`;
+  return `<div class="pagehead"><div><div class="eyebrow">${t('{c} coins = $1.00',{c:fmt(S.settings.coinsPerUSD)})}</div><h1>${t('Cash out')}</h1></div>${u?`<div class="balance-chip" style="padding-inline:14px"><span class="small muted">${t('Available')}</span>${C(u.balance)}<span class="small muted">${money(toUSD(u.balance))}</span></div>`:''}</div>
+  ${u?'':guestCard()}
   <div class="split">
    <div class="stack">
-    <div class="eyebrow">1 · Choose a method</div>
-    <div class="methodpick">${Object.keys(METHODS).map(m=>{const X=METHODS[m],t=ms[m];return `<button class="mp ${ui.method===m?'on':''}" data-act="method" data-m="${m}" ${t.on?'':'disabled'}><span class="mlogo" style="background:${X.color}">${X.short}</span><span><b>${X.name}</b><br><span class="tiny muted">${t.on?'Min '+money(t.min)+(t.fee?' · fee '+money(t.fee):''):'Coming soon'}</span></span></button>`}).join('')}</div>
-    <div class="eyebrow" style="margin-top:8px">2 · Amount</div>
+    <div class="eyebrow">1 · ${t('Choose a method')}</div>
+    <div class="methodpick">${Object.keys(METHODS).map(m=>{const X=METHODS[m],q=ms[m];return `<button class="mp ${ui.method===m?'on':''}" data-act="method" data-m="${m}" ${q.on?'':'disabled'}><span class="mlogo" style="background:${X.color}">${X.short}</span><span><b>${mName(m)}</b><br><span class="tiny muted">${q.on?t('Min {v}',{v:money(q.min)})+(q.fee?' · '+t('fee {v}',{v:money(q.fee)}):''):t('Coming soon')}</span></span></button>`}).join('')}</div>
+    <div class="eyebrow" style="margin-top:8px">2 · ${t('Amount')}</div>
     <div class="amtpick">${opts.map(v=>`<button class="${ui.amount===v?'on':''}" data-act="amount" data-v="${v}">$${v}</button>`).join('')}</div>
     <form data-form="withdraw" class="stack" style="margin-top:8px">
-     <div class="field"><label for="f-addr">3 · ${M.field}</label><input class="input" id="f-addr" name="addr" placeholder="${M.ph}" style="font-family:var(--f-mono)" value="${ui.method==='amazon'||ui.method==='paypal'?esc(u.email):''}"></div>
-     <button class="btn primary lg" type="submit" ${u.balance<need?'disabled':''}>${u.balance<need?`You need ${fmt(need-u.balance)} more coins`:`Withdraw ${money(ui.amount-(st.fee||0))} to ${M.name}`}</button>
+     <div class="field"><label for="f-addr">3 · ${t(M.field)}</label><input class="input" id="f-addr" name="addr" placeholder="${M.ph}" dir="ltr" style="font-family:var(--f-mono)" value="${u&&(ui.method==='amazon'||ui.method==='paypal')?esc(u.email):''}"></div>
+     ${btn}
     </form>
    </div>
    <aside class="card stack">
-    <h3 style="font-size:17px">Summary</h3>
-    <div class="row between small"><span class="muted">Coins deducted</span>${C(need)}</div>
-    <div class="row between small"><span class="muted">Network fee</span><span class="num">${money(st.fee||0)}</span></div>
-    <div class="row between"><b>You receive</b><b class="num">${money(ui.amount-(st.fee||0))}</b></div>
-    <div class="small muted" style="border-top:1px solid var(--line);padding-top:12px">${!u.paidOnce&&S.settings.firstWithdrawManual?'Your first withdrawal is checked by our team, usually within 24 hours. After that, small withdrawals are sent automatically.':`Withdrawals up to ${money(S.settings.autoApproveUnderUSD)} are sent automatically.`}</div>
+    <h3 style="font-size:17px">${t('Summary')}</h3>
+    <div class="row between small"><span class="muted">${t('Coins deducted')}</span>${C(need)}</div>
+    <div class="row between small"><span class="muted">${t('Network fee')}</span><span class="num">${money(st.fee||0)}</span></div>
+    <div class="row between"><b>${t('You receive')}</b><b class="num">${money(ui.amount-(st.fee||0))}</b></div>
+    <div class="small muted" style="border-top:1px solid var(--line);padding-top:12px">${(!u||!u.paidOnce)&&S.settings.firstWithdrawManual?t('Your first withdrawal is checked by our team, usually within 24 hours. After that, small withdrawals are sent automatically.'):t('Withdrawals up to {v} are sent automatically.',{v:money(S.settings.autoApproveUnderUSD)})}</div>
    </aside>
   </div>
-  <section class="stack"><h2 style="font-size:20px">Your withdrawals</h2>
-  ${mine.length?`<div class="tablewrap"><table><thead><tr><th>Date</th><th>Method</th><th class="r">Amount</th><th>Status</th></tr></thead><tbody>${mine.map(w=>`<tr><td class="small">${ago(w.ts)}</td><td>${METHODS[w.method].name}<div class="tiny muted num">${esc(w.addr)}</div></td><td class="r num">${money(w.usd)}</td><td>${wdPill(w.status)}${w.note?`<div class="tiny muted">${esc(w.note)}</div>`:''}</td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty">${ic('wallet')}<span>No withdrawals yet. Your first one is a few offers away.</span></div>`}
-  </section>`;
+  ${u?`<section class="stack"><h2 style="font-size:20px">${t('Your withdrawals')}</h2>
+  ${mine.length?`<div class="tablewrap"><table><thead><tr><th>${t('Date')}</th><th>${t('Method')}</th><th class="r">${t('Amount')}</th><th>${t('Status')}</th></tr></thead><tbody>${mine.map(w=>`<tr><td class="small">${agoL(w.ts)}</td><td>${mName(w.method)}<div class="tiny muted num" dir="ltr">${esc(w.addr)}</div></td><td class="r num">${money(w.usd)}</td><td>${wdPill(w.status)}${w.note?`<div class="tiny muted">${esc(tr(w.note))}</div>`:''}</td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty">${ic('wallet')}<span>${t('No withdrawals yet. Your first one is a few offers away.')}</span></div>`}
+  </section>`:''}`;
 }
-const wdPill=s=>({pending:'<span class="pill warn">Processing</span>',paid:'<span class="pill good">Sent</span>',rejected:'<span class="pill bad">Rejected · refunded</span>'}[s]);
+const wdPill=s=>({pending:`<span class="pill warn">${t('Processing')}</span>`,paid:`<span class="pill good">${t('Sent')}</span>`,rejected:`<span class="pill bad">${t('Rejected · refunded')}</span>`}[s]);
 
 function pReferrals(u){
-  const friends=S.users.filter(x=>x.refBy===u.id);
-  const earned=S.tx.filter(t=>t.uid===u.id&&t.type==='ref').reduce((a,t)=>a+t.coins,0);
-  const link='https://amigo.cash/r/'+u.refCode;
-  return `<div class="pagehead"><div><div class="eyebrow">Invite friends</div><h1>Earn ${S.settings.refPercent}% of everything they earn. For life.</h1></div></div>
-  <div class="card stack">
-   <div class="field"><label for="f-reflink">Your invite link</label><div class="row"><input class="input num" id="f-reflink" readonly value="${link}"><button class="btn primary" data-act="copy" data-text="${link}">${ic('copy')}Copy</button></div></div>
-   <div class="row wrap small muted">Code: <span class="cc" style="font-size:13px">${u.refCode}</span> · Friends get ${fmt(S.settings.welcomeBonus)} bonus coins when they join with it.</div>
+  const friends=u?S.users.filter(x=>x.refBy===u.id):[];
+  const earned=u?S.tx.filter(x=>x.uid===u.id&&x.type==='ref').reduce((a,x)=>a+x.coins,0):0;
+  const link='https://amigo.cash/r/'+(u?u.refCode:'YOURCODE');
+  return `<div class="pagehead"><div><div class="eyebrow">${t('Invite friends')}</div><h1>${t('Earn {p}% of everything they earn. For life.',{p:S.settings.refPercent})}</h1></div></div>
+  ${u?`<div class="card stack">
+   <div class="field"><label for="f-reflink">${t('Your invite link')}</label><div class="row"><input class="input num" id="f-reflink" readonly dir="ltr" value="${link}"><button class="btn primary" data-act="copy" data-text="${link}">${ic('copy')}${t('Copy')}</button></div></div>
+   <div class="row wr small muted">${t('Code:')} <span class="cc" style="font-size:13px">${u.refCode}</span> · ${t('Friends get {c} bonus coins when they join with it.',{c:fmt(S.settings.welcomeBonus)})}</div>
+  </div>`:`<div class="guestcard"><div class="grow"><h3 style="font-size:18px">${t('Your invite link')}</h3><p class="small muted">${t('Sign up to get your personal invite link.')}</p></div><button class="btn primary" data-act="auth" data-mode="signup">${t('Sign up free')}</button></div>`}
+  <div class="walletbar three">
+   <div><div class="s">${t('Friends joined')}</div><div class="v">${friends.length}</div></div>
+   <div><div class="s">${t('Earned from friends')}</div><div class="v"><span class="coin">A</span>${fmt(earned)}</div></div>
+   <div><div class="s">${t('Your commission')}</div><div class="v">${S.settings.refPercent}%</div></div>
   </div>
-  <div class="walletbar" style="grid-template-columns:repeat(3,1fr)">
-   <div><div class="s">Friends joined</div><div class="v">${friends.length}</div></div>
-   <div><div class="s">Earned from friends</div><div class="v"><span class="coin">A</span>${fmt(earned)}</div></div>
-   <div><div class="s">Your commission</div><div class="v">${S.settings.refPercent}%</div></div>
-  </div>
-  <section class="stack"><div class="row between wrap"><h2 style="font-size:20px">Your friends</h2><button class="btn ghost sm" data-act="simFriend">${ic('plus')}Demo: a friend joins and completes an offer</button></div>
-  ${friends.length?`<div class="tablewrap"><table><thead><tr><th>Friend</th><th>Joined</th><th class="r">They earned</th><th class="r">You got</th></tr></thead><tbody>${friends.map(f=>`<tr><td><b>${esc(f.name)}</b></td><td class="small">${ago(f.joined)}</td><td class="r">${C(f.earned)}</td><td class="r">${C(Math.round(f.earned*S.settings.refPercent/100))}</td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty">${ic('users')}<span>No friends yet. Share your link on TikTok, Discord or with family.</span></div>`}
-  </section>`;
+  ${u?`<section class="stack"><div class="row between wr"><h2 style="font-size:20px">${t('Your friends')}</h2><button class="btn ghost sm" data-act="simFriend">${ic('plus')}${t('Demo: a friend joins and completes an offer')}</button></div>
+  ${friends.length?`<div class="tablewrap"><table><thead><tr><th>${t('Friend')}</th><th>${t('Joined')}</th><th class="r">${t('They earned')}</th><th class="r">${t('You got')}</th></tr></thead><tbody>${friends.map(f=>`<tr><td><b>${esc(f.name)}</b></td><td class="small">${agoL(f.joined)}</td><td class="r">${C(f.earned)}</td><td class="r">${C(Math.round(f.earned*S.settings.refPercent/100))}</td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty">${ic('users')}<span>${t('No friends yet. Share your link on TikTok, Discord or with family.')}</span></div>`}
+  </section>`:''}`;
 }
 
 function pLeaderboard(u){
   const list=[...S.users].filter(x=>x.status==='active').sort((a,b)=>(b.weekly||0)-(a.weekly||0));
-  const top=list.slice(0,10);const myRank=list.findIndex(x=>x.id===u.id)+1;
+  const top=list.slice(0,10);const myRank=u?list.findIndex(x=>x.id===u.id)+1:0;
   const end=new Date();end.setDate(end.getDate()+((7-end.getDay())%7||7));end.setHours(23,59,0,0);
   const hrs=Math.round((end-now())/36e5);
   const pool=S.settings.prizes.reduce((a,b)=>a+b,0);
-  return `<div class="pagehead"><div><div class="eyebrow">Weekly race · ${money(pool)} prize pool</div><h1>Leaderboard</h1></div><span class="pill accent">${ic('clock')}Ends in ${Math.floor(hrs/24)}d ${hrs%24}h</span></div>
-  <div class="podium">${top.slice(0,3).map((x,i)=>`<div class="pod ${i===0?'g1':''}"><span class="rk num">#${i+1}</span><b>${esc(x.name)}${x.id===u.id?' (you)':''}</b>${C(x.weekly||0)}<span class="pill coin">Prize ${money(S.settings.prizes[i]||0)}</span></div>`).join('')}</div>
-  <div class="tablewrap"><table><thead><tr><th>Rank</th><th>Member</th><th class="r">Coins this week</th><th class="r">Prize</th></tr></thead><tbody>
-  ${top.slice(3).map((x,i)=>`<tr ${x.id===u.id?'style="background:var(--accent-soft)"':''}><td class="num">#${i+4}</td><td>${esc(x.name)} <span class="cc">${x.country}</span></td><td class="r">${C(x.weekly||0)}</td><td class="r num">${money(S.settings.prizes[i+3]||0)}</td></tr>`).join('')}
-  ${myRank>10?`<tr style="background:var(--accent-soft)"><td class="num">#${myRank}</td><td><b>You</b></td><td class="r">${C(u.weekly||0)}</td><td class="r small muted">${fmt((top[9].weekly||0)-(u.weekly||0)+1)} to top 10</td></tr>`:''}
-  </tbody></table></div>`;
+  const isMe=x=>u&&x.id===u.id;
+  return `<div class="pagehead"><div><div class="eyebrow">${t('Weekly race · {v} prize pool',{v:money(pool)})}</div><h1>${t('Leaderboard')}</h1></div><span class="pill accent">${ic('clock')}${t('Ends in {d}d {h}h',{d:Math.floor(hrs/24),h:hrs%24})}</span></div>
+  <div class="podium">${top.slice(0,3).map((x,i)=>`<div class="pod ${i===0?'g1':''}"><span class="rk num">#${i+1}</span><b>${esc(x.name)}${isMe(x)?' '+t('(you)'):''}</b>${C(x.weekly||0)}<span class="pill coin">${t('Prize {v}',{v:money(S.settings.prizes[i]||0)})}</span></div>`).join('')}</div>
+  <div class="tablewrap"><table><thead><tr><th>${t('Rank')}</th><th>${t('Member')}</th><th class="r">${t('Coins this week')}</th><th class="r">${t('Prize')}</th></tr></thead><tbody>
+  ${top.slice(3).map((x,i)=>`<tr ${isMe(x)?'style="background:var(--accent-soft)"':''}><td class="num">#${i+4}</td><td>${esc(x.name)} <span class="cc">${x.country}</span></td><td class="r">${C(x.weekly||0)}</td><td class="r num">${money(S.settings.prizes[i+3]||0)}</td></tr>`).join('')}
+  ${myRank>10?`<tr style="background:var(--accent-soft)"><td class="num">#${myRank}</td><td><b>${t('You')}</b></td><td class="r">${C(u.weekly||0)}</td><td class="r small muted">${t('{c} to top 10',{c:fmt((top[9].weekly||0)-(u.weekly||0)+1)})}</td></tr>`:''}
+  </tbody></table></div>
+  ${u?'':guestCard()}`;
 }
 
 function pActivity(u){
-  const all=S.tx.filter(t=>t.uid===u.id);
-  const list=all.filter(t=>ui.actTab==='all'||t.status===ui.actTab);
-  const pend=all.filter(t=>t.status==='pending'&&t.type!=='withdraw');
-  return `<div class="pagehead"><div><h1>Activity</h1></div>${pend.length?`<button class="btn ghost sm" data-act="release">${ic('clock')}Demo: skip the ${S.settings.holdDays}-day hold</button>`:''}</div>
-  <div class="tabs">${[['all','All'],['credited','Credited'],['pending','Pending'],['reversed','Reversed']].map(([k,l])=>`<button class="tab ${ui.actTab===k?'on':''}" data-act="actTab" data-t="${k}">${l}</button>`).join('')}</div>
-  ${list.length?`<div class="tablewrap"><table><thead><tr><th>When</th><th>Activity</th><th>Status</th><th class="r">Coins</th></tr></thead><tbody>
-  ${list.map(t=>`<tr><td class="small">${ago(t.ts)}</td><td>${esc(t.desc)}</td><td>${{credited:'<span class="pill good">Credited</span>',pending:`<span class="pill warn">Pending${t.release?' · '+Math.max(1,Math.ceil((t.release-now())/DAY))+'d':''}</span>`,reversed:'<span class="pill bad">Reversed</span>',paid:'<span class="pill info">Paid out</span>'}[t.status]||t.status}</td><td class="r"><span class="amt" style="color:${t.coins<0?'var(--bad)':'var(--good)'}">${t.coins>0?'+':''}${fmt(t.coins)}</span></td></tr>`).join('')}
-  </tbody></table></div>`:`<div class="card empty">${ic('list')}<span>Nothing here yet.</span></div>`}`;
+  const all=S.tx.filter(x=>x.uid===u.id);
+  const list=all.filter(x=>ui.actTab==='all'||x.status===ui.actTab);
+  const pend=all.filter(x=>x.status==='pending'&&x.type!=='withdraw');
+  const st={credited:`<span class="pill good">${t('Credited')}</span>`,reversed:`<span class="pill bad">${t('Reversed')}</span>`,paid:`<span class="pill info">${t('Paid out')}</span>`};
+  return `<div class="pagehead"><div><h1>${t('Activity')}</h1></div>${pend.length?`<button class="btn ghost sm" data-act="release">${ic('clock')}${t('Demo: skip the {d}-day hold',{d:S.settings.holdDays})}</button>`:''}</div>
+  <div class="tabs">${[['all','All'],['credited','Credited'],['pending','Pending'],['reversed','Reversed']].map(([k,l])=>`<button class="tab ${ui.actTab===k?'on':''}" data-act="actTab" data-t="${k}">${t(l)}</button>`).join('')}</div>
+  ${list.length?`<div class="tablewrap"><table><thead><tr><th>${t('When')}</th><th>${t('Activity')}</th><th>${t('Status')}</th><th class="r">${t('Coins')}</th></tr></thead><tbody>
+  ${list.map(x=>`<tr><td class="small">${agoL(x.ts)}</td><td>${esc(txText(x,true))}</td><td>${x.status==='pending'?`<span class="pill warn">${t('Pending')}${x.release?' · '+Math.max(1,Math.ceil((x.release-now())/DAY))+'d':''}</span>`:(st[x.status]||x.status)}</td><td class="r"><span class="amt" dir="ltr" style="color:${x.coins<0?'var(--bad)':'var(--good)'}">${x.coins>0?'+':''}${fmt(x.coins)}</span></td></tr>`).join('')}
+  </tbody></table></div>`:`<div class="card empty">${ic('list')}<span>${t('Nothing here yet.')}</span></div>`}`;
 }
 
 function pProfile(u){
-  return `<div class="pagehead"><h1>Account</h1></div>
+  return `<div class="pagehead"><h1>${t('Account')}</h1></div>
   <div class="grid2">
    <div class="card stack">
-    <div class="row"><span class="avatar" style="width:56px;height:56px;font-size:22px;background:${avatarColor(u.name)}">${esc(u.name[0])}</span><div><h3 style="font-size:20px">${esc(u.name)}</h3><div class="small muted">Member since ${dateStr(u.joined)} · <span class="cc">${u.country}</span></div></div></div>
+    <div class="row"><span class="avatar" style="width:56px;height:56px;font-size:22px;background:${avatarColor(u.name)}">${esc(u.name[0])}</span><div><h3 style="font-size:20px">${esc(u.name)}</h3><div class="small muted">${t('Member since {d}',{d:dateL(u.joined)})} · <span class="cc">${u.country}</span></div></div></div>
     ${levelCard(u)}
-    <div class="small muted">Level bonuses: ${LEVELS.map(l=>`${l.n} ${l.bonus?'+'+l.bonus+'%':''}`).join(' · ')}</div>
+    <div class="small muted">${t('Level bonuses:')} ${LEVELS.map(l=>`${t(l.n)} ${l.bonus?'+'+l.bonus+'%':''}`).join(' · ')}</div>
    </div>
    <form class="card stack" data-form="profile">
-    <h3 style="font-size:17px">Details</h3>
-    <div class="field"><label for="p-name">Display name</label><input class="input" id="p-name" name="name" value="${esc(u.name)}" maxlength="24"></div>
-    <div class="field"><label for="p-email">Email</label><input class="input" id="p-email" name="email" type="email" value="${esc(u.email)}"></div>
-    <div class="setrow"><div><b class="small">Two-factor login</b><div class="tiny muted">Required for withdrawals over $50</div></div><label class="switch"><input type="checkbox" name="twofa" id="p-2fa" ${u.twofa?'checked':''}><span></span></label></div>
-    <button class="btn primary" type="submit">Save changes</button>
+    <h3 style="font-size:17px">${t('Details')}</h3>
+    <div class="field"><label for="p-name">${t('Display name')}</label><input class="input" id="p-name" name="name" value="${esc(u.name)}" maxlength="24"></div>
+    <div class="field"><label for="p-email">${t('Email')}</label><input class="input" id="p-email" name="email" type="email" dir="ltr" value="${esc(u.email)}"></div>
+    <div class="setrow"><div><b class="small">${t('Two-factor login')}</b><div class="tiny muted">${t('Required for withdrawals over $50')}</div></div><label class="switch"><input type="checkbox" name="twofa" id="p-2fa" ${u.twofa?'checked':''}><span></span></label></div>
+    <button class="btn primary" type="submit">${t('Save changes')}</button>
    </form>
   </div>
-  <div class="card row wrap between"><div><b>Log out of this device</b><div class="small muted">You can log back in with your email or Google.</div></div><button class="btn ghost" data-act="logout">${ic('out')}Log out</button></div>`;
+  <form class="card stack" data-form="password" novalidate>
+   <h3 style="font-size:17px">${t('Change password')}</h3>
+   ${u.pass?'':`<div class="note">${ic('lock')}<span>${t('You signed up with Google, so you can set a password here without the current one.')}</span></div>`}
+   <div class="pwgrid">
+    ${u.pass?`<div class="field"><label for="pw-cur">${t('Current password')}</label><input class="input" id="pw-cur" name="cur" type="password" autocomplete="current-password"></div>`:''}
+    <div class="field"><label for="pw-new">${t('New password')}</label><input class="input" id="pw-new" name="nw" type="password" autocomplete="new-password" placeholder="${t('At least 8 characters')}"></div>
+    <div class="field"><label for="pw-rep">${t('Repeat new password')}</label><input class="input" id="pw-rep" name="rep" type="password" autocomplete="new-password"></div>
+   </div>
+   <div class="small" id="pw-err" style="color:var(--bad)"></div>
+   <div><button class="btn primary" type="submit">${t('Update password')}</button></div>
+  </form>
+  <div class="card row wr between"><div><b>${t('Log out of this device')}</b><div class="small muted">${t('You can log back in with your email or Google.')}</div></div><button class="btn ghost" data-act="logout">${ic('out')}${t('Log out')}</button></div>`;
 }
 
 function pHelp(u){
-  const mine=S.tickets.filter(t=>t.uid===u.id);
-  mine.forEach(t=>t.replies.forEach(r=>r.seen=true));
-  return `<div class="pagehead"><h1>Help centre</h1><span class="small muted">Or email ${esc(S.settings.supportEmail)}</span></div>
+  const mine=u?S.tickets.filter(x=>x.uid===u.id):[];
+  mine.forEach(x=>x.replies.forEach(r=>r.seen=true));
+  const subs=['Offer not credited','Withdrawal question','Account or login','Something else'];
+  return `<div class="pagehead"><h1>${t('Help centre')}</h1><span class="small muted">${t('Or email {e}',{e:'<span dir="ltr">'+esc(S.settings.supportEmail)+'</span>'})}</span></div>
   <div class="split">
    <div class="faq card" style="padding-block:4px">${faqHTML()}</div>
    <form class="card stack" data-form="ticket">
-    <h3 style="font-size:17px">Contact support</h3>
-    <div class="field"><label for="t-sub">Subject</label><select class="input" id="t-sub" name="subject"><option>Offer not credited</option><option>Withdrawal question</option><option>Account or login</option><option>Something else</option></select></div>
-    <div class="field"><label for="t-body">Message</label><textarea class="input" id="t-body" name="body" placeholder="Offer name, the step you reached and when."></textarea></div>
-    <button class="btn primary" type="submit">Send message</button>
+    <h3 style="font-size:17px">${t('Contact support')}</h3>
+    <div class="field"><label for="t-sub">${t('Subject')}</label><select class="input" id="t-sub" name="subject">${subs.map(s=>`<option value="${s}">${t(s)}</option>`).join('')}</select></div>
+    <div class="field"><label for="t-body">${t('Message')}</label><textarea class="input" id="t-body" name="body" placeholder="${t('Offer name, the step you reached and when.')}"></textarea></div>
+    <button class="btn primary" type="submit">${u?'':ic('lock')}${t('Send message')}</button>
    </form>
   </div>
-  ${mine.length?`<section class="stack"><h2 style="font-size:20px">Your messages</h2>${mine.map(t=>`<div class="card stack" style="gap:8px"><div class="row between"><b>${esc(t.subject)}</b>${t.status==='open'?'<span class="pill warn">Open</span>':'<span class="pill good">Resolved</span>'}</div><p class="small">${esc(t.body)}</p>${t.replies.map(r=>`<div class="small" style="padding:10px 12px;border-radius:10px;background:var(--accent-soft)"><b>Amigo support:</b> ${esc(r.text)}</div>`).join('')}</div>`).join('')}</section>`:''}`;
+  ${mine.length?`<section class="stack"><h2 style="font-size:20px">${t('Your messages')}</h2>${mine.map(x=>`<div class="card stack" style="gap:8px"><div class="row between"><b>${esc(tr(x.subject))}</b>${x.status==='open'?`<span class="pill warn">${t('Open')}</span>`:`<span class="pill good">${t('Resolved')}</span>`}</div><p class="small">${esc(x.body)}</p>${x.replies.map(r=>`<div class="small" style="padding:10px 12px;border-radius:6px;background:var(--accent-soft)"><b>${t('Amigo support:')}</b> ${esc(r.text)}</div>`).join('')}</div>`).join('')}</section>`:''}`;
 }
 
 function renderMaintenance(){
-  $('#app').innerHTML=`<header class="topbar"><div class="topbar-in">${logoHTML()}</div></header><div class="maint"><div class="stack" style="align-items:center;max-width:440px"><div class="chest-ico">${ic('sliders')}</div><h1 style="font-size:34px">We're making Amigo Cash better</h1><p class="muted">Scheduled maintenance is under way. Your balance and pending rewards are safe. Please check back shortly.</p></div></div>`;
+  $('#app').innerHTML=`<header class="topbar"><div class="topbar-in">${logoHTML()}<div class="grow"></div>${langSwitch()}${themeBtn()}</div></header><div class="maint"><div class="stack" style="align-items:center;max-width:440px"><div class="chest-ico">${ic('sliders')}</div><h1 style="font-size:34px">${t("We're making Amigo Cash better")}</h1><p class="muted">${t('Scheduled maintenance is under way. Your balance and pending rewards are safe. Please check back shortly.')}</p></div></div>`;
 }
+
 
 /* =================== ADMIN =================== */
 const ANAV=[['admin','نظرة عامة','grid'],['admin-users','المستخدمون','users'],['admin-withdrawals','السحوبات','wallet'],['admin-offers','العروض','game'],['admin-networks','شبكات العروض','plug'],['admin-postbacks','سجل التأكيدات','inbox'],['admin-fraud','مكافحة الاحتيال','shield'],['admin-promos','أكواد المكافآت','tag'],['admin-tickets','الدعم الفني','chat'],['admin-site','إعدادات الموقع','sliders']];
@@ -861,6 +1068,7 @@ function renderAdmin(r){
   $('#app').innerHTML=`<div class="admin">
    <header class="topbar"><div class="topbar-in">${logoHTML()}<span class="pill accent">لوحة الإدارة</span><div class="grow"></div>
     ${S.settings.maintenance?'<span class="pill warn">وضع الصيانة مفعّل</span>':''}
+    ${themeBtn()}
     <a class="btn sm" href="#home" style="background:rgba(255,255,255,.1);color:inherit">${ic('eye')}<span class="hide-sm">عرض الموقع</span></a>
     <button class="btn sm" data-act="adminLogout" style="background:rgba(255,255,255,.1);color:inherit">${ic('out')}<span class="hide-sm">خروج</span></button>
    </div></header>
@@ -878,7 +1086,7 @@ function renderAdminLogin(){
    <div class="row between">${logoHTML()}<span class="pill accent">الإدارة</span></div>
    <h1 style="font-size:24px">دخول لوحة التحكم</h1>
    <div class="field"><label for="a-email">البريد الإلكتروني</label><input class="input" id="a-email" name="email" dir="ltr" value="admin@amigo.cash"></div>
-   <div class="field"><label for="a-pass">كلمة المرور</label><input class="input" id="a-pass" name="pass" type="password" dir="ltr" value="admin123"></div>
+   <div class="field"><label for="a-pass">كلمة المرور</label><input class="input" id="a-pass" name="pass" type="password" value="admin123"></div>
    <div class="field"><label for="a-otp">رمز التحقق الثنائي (2FA)</label><input class="input num" id="a-otp" name="otp" dir="ltr" value="482 913" inputmode="numeric"></div>
    <div class="small" id="a-err" style="color:var(--bad)"></div>
    <button class="btn primary lg" type="submit">دخول</button>
@@ -924,8 +1132,8 @@ function aOverview(){
    <div class="kpi"><div class="k">مستخدمون نشطون (7 أيام)</div><div class="v">${fmt(s.active)}</div><div class="d muted">من أصل ${nAr(S.users.length)} · تسجيلات اليوم ${nAr(S.series[29].signups)}</div></div>
   </div>
   <div class="chartbox stack">
-   <div class="row between wrap"><h3 style="font-size:17px">الإيراد مقابل ما يُدفع للمستخدمين (يومياً)</h3><div class="legend"><span><i style="background:var(--accent)"></i>إيراد الشبكات</span><span><i style="background:var(--info)"></i>حصة المستخدمين</span><span><i style="background:var(--bad)"></i>استردادات</span></div></div>
-   ${chartSVG(S.series,['rev','paid','rv'],['var(--accent)','var(--info)','var(--bad)'])}
+   <div class="row between wr"><h3 style="font-size:17px">الإيراد مقابل ما يُدفع للمستخدمين (يومياً)</h3><div class="legend"><span><i style="background:var(--accent)"></i>إيراد الشبكات</span><span><i style="background:var(--coin)"></i>حصة المستخدمين</span><span><i style="background:var(--bad)"></i>استردادات</span></div></div>
+   ${chartSVG(S.series,['rev','paid','rv'],['var(--accent)','var(--coin)','var(--bad)'])}
   </div>
   <div class="grid2">
    <div class="card stack"><h3 style="font-size:17px">الإيراد حسب الدولة</h3>${ctry.map(([c,p])=>`<div class="hbar"><span>${COUNTRY_AR[c]||c}</span><span class="t"><i style="width:${p/46*100}%"></i></span><span class="num" dir="ltr" style="text-align:left">${money(s.rev*p/100)}</span></div>`).join('')}<p class="tiny muted">أمريكا وبريطانيا = <span dir="ltr">73%</span> من الإيراد. عروض الـ Tier 1 تدفع 5–40 دولار للعرض.</p></div>
@@ -947,7 +1155,7 @@ function aUsers(){
   if(ui.userFilter==='banned')list=list.filter(u=>u.status==='banned');
   if(ui.userFilter==='new')list=list.filter(u=>now()-u.joined<7*DAY);
   return `<div class="pagehead"><div><h1>المستخدمون</h1><p class="small muted">${nAr(S.users.length)} حساب · اضغط على أي مستخدم للتفاصيل والتحكم</p></div></div>
-  <div class="row wrap"><form data-form="userSearch" class="grow" style="min-width:220px"><input class="input" id="a-q" name="q" placeholder="ابحث بالاسم أو الإيميل أو الـ IP…" value="${esc(ui.userQ)}"></form>
+  <div class="row wr"><form data-form="userSearch" class="grow" style="min-width:220px"><input class="input" id="a-q" name="q" placeholder="ابحث بالاسم أو الإيميل أو الـ IP…" value="${esc(ui.userQ)}"></form>
    <div class="tabs">${[['all','الكل'],['flagged','مشبوهون'],['banned','محظورون'],['new','جدد (7 أيام)']].map(([k,l])=>`<button class="tab ${ui.userFilter===k?'on':''}" data-act="userFilter" data-f="${k}">${l}</button>`).join('')}</div></div>
   <div class="tablewrap"><table><thead><tr><th>المستخدم</th><th>الدولة</th><th>الرصيد</th><th class="hide-sm">إجمالي الأرباح</th><th>الخطورة</th><th>الحالة</th></tr></thead><tbody>
   ${list.slice(0,60).map(u=>`<tr style="cursor:pointer" data-act="userDetail" data-id="${u.id}"><td><div class="row" style="gap:10px"><span class="avatar" style="width:30px;height:30px;font-size:12px;background:${avatarColor(u.name)}">${esc(u.name[0])}</span><div style="min-width:0"><b>${esc(u.name)}</b>${u.isYou?' <span class="pill accent">حسابك التجريبي</span>':''}<div class="tiny muted" dir="ltr" style="text-align:right">${esc(u.email)}</div></div></div></td><td><span class="cc">${u.country}</span></td><td>${C(u.balance)}</td><td class="hide-sm">${C(u.earned)}</td><td>${riskHTML(u.risk)}${u.flags.map(f=>` <span class="pill bad">${f}</span>`).join('')}</td><td>${u.status==='banned'?'<span class="pill bad">محظور</span>':'<span class="pill good">نشط</span>'}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا يوجد نتائج</td></tr>'}
@@ -957,7 +1165,7 @@ function userDetail(uid){
   const u=userById(uid);const tx=S.tx.filter(t=>t.uid===uid).slice(0,12);const wd=S.withdrawals.filter(w=>w.uid===uid);
   const same=S.users.filter(x=>x.id!==u.id&&(x.ip===u.ip||x.device===u.device));
   modal(esc(u.name),`
-   <div class="row wrap">${u.status==='banned'?'<span class="pill bad">محظور</span>':'<span class="pill good">نشط</span>'}<span class="cc">${u.country}</span><span class="pill">${levelOf(u.earned).ar}</span>${u.flags.map(f=>`<span class="pill bad">${f}</span>`).join('')}</div>
+   <div class="row wr">${u.status==='banned'?'<span class="pill bad">محظور</span>':'<span class="pill good">نشط</span>'}<span class="cc">${u.country}</span><span class="pill">${levelOf(u.earned).ar}</span>${u.flags.map(f=>`<span class="pill bad">${f}</span>`).join('')}</div>
    <div class="grid3">
     <div class="kpi"><div class="k">الرصيد المتاح</div><div class="v" style="font-size:20px">${fmt(u.balance)}</div><div class="d muted" dir="ltr" style="text-align:right">${money(toUSD(u.balance))}</div></div>
     <div class="kpi"><div class="k">معلّق</div><div class="v" style="font-size:20px">${fmt(u.pending)}</div></div>
@@ -973,15 +1181,15 @@ function userDetail(uid){
    </div>
    <form data-form="adjust" class="card flat stack" style="gap:10px"><input type="hidden" name="uid" value="${u.id}">
     <b>تعديل الرصيد يدوياً</b>
-    <div class="row wrap"><input class="input num" name="coins" id="adj-coins" type="number" placeholder="مثال: 500 أو ‎-500" style="flex:1;min-width:120px" dir="ltr"><input class="input" name="reason" id="adj-reason" placeholder="السبب (يظهر للمستخدم)" style="flex:2;min-width:160px"><button class="btn primary" type="submit">تطبيق</button></div>
+    <div class="row wr"><input class="input num" name="coins" id="adj-coins" type="number" placeholder="مثال: 500 أو ‎-500" style="flex:1;min-width:120px" dir="ltr"><input class="input" name="reason" id="adj-reason" placeholder="السبب (يظهر للمستخدم)" style="flex:2;min-width:160px"><button class="btn primary" type="submit">تطبيق</button></div>
    </form>
-   <div class="row wrap">
+   <div class="row wr">
     ${u.status==='banned'?`<button class="btn good" data-act="ban" data-id="${u.id}" data-v="0">رفع الحظر</button>`:`<button class="btn bad" data-act="ban" data-id="${u.id}" data-v="1">حظر الحساب</button>`}
     ${u.flags.length?`<button class="btn ghost" data-act="clearFlags" data-id="${u.id}">مسح العلامات (موثوق)</button>`:''}
     ${u.pending?`<button class="btn ghost" data-act="adminRelease" data-id="${u.id}">تحرير الرصيد المعلّق</button>`:''}
    </div>
    <b>آخر الحركات</b>
-   ${tx.length?`<div class="tablewrap"><table><tbody>${tx.map(t=>`<tr><td class="small">${agoAr(t.ts)}</td><td class="small">${TYPE_AR[t.type]||t.type} · <span dir="ltr">${esc(t.desc)}</span></td><td><span class="amt" style="color:${t.coins<0?'var(--bad)':'var(--good)'}" dir="ltr">${t.coins>0?'+':''}${fmt(t.coins)}</span></td><td>${t.status==='pending'?'<span class="pill warn">معلّق</span>':t.status==='reversed'?'<span class="pill bad">مسترد</span>':'<span class="pill good">مضاف</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted small">لا يوجد حركات</div>'}
+   ${tx.length?`<div class="tablewrap"><table><tbody>${tx.map(t=>`<tr><td class="small">${agoAr(t.ts)}</td><td class="small">${TYPE_AR[t.type]||t.type} · <span dir="ltr">${esc(txText(t,false))}</span></td><td><span class="amt" style="color:${t.coins<0?'var(--bad)':'var(--good)'}" dir="ltr">${t.coins>0?'+':''}${fmt(t.coins)}</span></td><td>${t.status==='pending'?'<span class="pill warn">معلّق</span>':t.status==='reversed'?'<span class="pill bad">مسترد</span>':'<span class="pill good">مضاف</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted small">لا يوجد حركات</div>'}
    ${wd.length?`<b>السحوبات</b><div class="tablewrap"><table><tbody>${wd.map(w=>`<tr><td class="small">${agoAr(w.ts)}</td><td>${METHODS[w.method].name}</td><td>${usdAr(w.usd)}</td><td>${wdPillAr(w.status)}</td></tr>`).join('')}</tbody></table></div>`:''}
   `,{wide:true,ar:true,nofocus:true});
 }
@@ -1015,7 +1223,7 @@ function offerEditModal(oid){
    <div class="field"><label for="o-countries">الدول المسموحة (رموز مفصولة بمسافة)</label><input class="input num" id="o-countries" name="countries" dir="ltr" value="${o.countries.join(' ')}"></div>
    <div class="field"><label for="o-desc">وصف قصير (إنجليزي)</label><input class="input" id="o-desc" name="desc" dir="ltr" value="${esc(o.desc||'')}"></div>
    <div class="field"><label for="o-steps">المراحل: كل سطر "اسم المرحلة | نسبة من المبلغ"</label><textarea class="input num" id="o-steps" name="steps" dir="ltr" style="min-height:110px">${o.steps.map(s=>s[0]+' | '+Math.round(s[1]*100)+'%').join('\n')}</textarea></div>
-   <div class="row between wrap">${oid?`<button class="btn bad" type="button" data-act="offerDelete" data-id="${o.id}">حذف العرض</button>`:'<span></span>'}<button class="btn primary" type="submit">حفظ</button></div>
+   <div class="row between wr">${oid?`<button class="btn bad" type="button" data-act="offerDelete" data-id="${o.id}">حذف العرض</button>`:'<span></span>'}<button class="btn primary" type="submit">حفظ</button></div>
   </form>`,{ar:true,wide:true});
 }
 function aNetworks(){
@@ -1057,13 +1265,13 @@ function aFraud(){
     <button class="btn primary" type="submit" style="margin-top:12px">حفظ القواعد</button>
    </form>
    <div class="card stack"><h3 style="font-size:17px">حسابات تحتاج انتباه (${flagged.length})</h3>
-    ${flagged.slice(0,10).map(u=>`<button class="row between" style="padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;text-align:start" data-act="userDetail" data-id="${u.id}"><span><b>${esc(u.name)}</b> <span class="cc">${u.country}</span><br>${u.flags.map(f=>`<span class="pill bad">${f}</span>`).join(' ')||'<span class="tiny muted">خطورة مرتفعة</span>'}</span>${riskHTML(u.risk)}</button>`).join('')}
+    ${flagged.slice(0,10).map(u=>`<button class="row between" style="padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer;text-align:start" data-act="userDetail" data-id="${u.id}"><span><b>${esc(u.name)}</b> <span class="cc">${u.country}</span><br>${u.flags.map(f=>`<span class="pill bad">${f}</span>`).join(' ')||'<span class="tiny muted">خطورة مرتفعة</span>'}</span>${riskHTML(u.risk)}</button>`).join('')}
    </div>
   </div>`;
 }
 function aPromos(){
   return `<div class="pagehead"><div><h1>أكواد المكافآت</h1><p class="small muted">أكواد توزعها على تيليغرام أو مع المؤثرين. كل مستخدم يستخدم الكود مرة وحدة.</p></div></div>
-  <form class="card row wrap" data-form="promoNew" style="align-items:flex-end">
+  <form class="card row wr" data-form="promoNew" style="align-items:flex-end">
    <div class="field"><label for="pr-code">الكود</label><input class="input num" id="pr-code" name="code" dir="ltr" placeholder="SUMMER26" style="text-transform:uppercase" required></div>
    <div class="field"><label for="pr-coins">عدد الكوينز</label><input class="input num" id="pr-coins" name="coins" type="number" dir="ltr" value="500"></div>
    <div class="field"><label for="pr-max">عدد الاستخدامات</label><input class="input num" id="pr-max" name="max" type="number" dir="ltr" value="100"></div>
@@ -1076,10 +1284,10 @@ function aPromos(){
 function aTickets(){
   const list=[...S.tickets].sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||b.ts-a.ts);
   return `<div class="pagehead"><div><h1>الدعم الفني</h1><p class="small muted">رسائل المستخدمين من صفحة Help. ردّك يظهر للمستخدم مباشرة بحسابه.</p></div></div>
-  ${list.map(t=>{const u=userById(t.uid);return `<div class="card stack" style="gap:10px"><div class="row between wrap"><div><b dir="ltr">${esc(t.subject)}</b><div class="tiny muted">${u?esc(u.name):''} · ${agoAr(t.ts)}</div></div>${t.status==='open'?'<span class="pill warn">مفتوحة</span>':'<span class="pill good">مغلقة</span>'}</div>
+  ${list.map(t=>{const u=userById(t.uid);return `<div class="card stack" style="gap:10px"><div class="row between wr"><div><b dir="ltr">${esc(t.subject)}</b><div class="tiny muted">${u?esc(u.name):''} · ${agoAr(t.ts)}</div></div>${t.status==='open'?'<span class="pill warn">مفتوحة</span>':'<span class="pill good">مغلقة</span>'}</div>
    <p dir="ltr" style="text-align:left">${esc(t.body)}</p>
-   ${t.replies.map(r=>`<div class="small" dir="ltr" style="text-align:left;padding:10px 12px;border-radius:10px;background:var(--accent-soft)"><b>You:</b> ${esc(r.text)}</div>`).join('')}
-   ${t.status==='open'?`<form class="row wrap" data-form="reply"><input type="hidden" name="id" value="${t.id}"><input class="input grow" name="text" id="rp-${t.id}" dir="ltr" placeholder="Write a reply in English…" style="min-width:200px"><button class="btn primary" type="submit">رد وإغلاق</button>${u?`<button class="btn ghost" type="button" data-act="userDetail" data-id="${u.id}">ملف المستخدم</button>`:''}</form>`:''}
+   ${t.replies.map(r=>`<div class="small" dir="ltr" style="text-align:left;padding:10px 12px;border-radius:6px;background:var(--accent-soft)"><b>You:</b> ${esc(r.text)}</div>`).join('')}
+   ${t.status==='open'?`<form class="row wr" data-form="reply"><input type="hidden" name="id" value="${t.id}"><input class="input grow" name="text" id="rp-${t.id}" dir="ltr" placeholder="Write a reply in English…" style="min-width:200px"><button class="btn primary" type="submit">رد وإغلاق</button>${u?`<button class="btn ghost" type="button" data-act="userDetail" data-id="${u.id}">ملف المستخدم</button>`:''}</form>`:''}
   </div>`}).join('')}`;
 }
 function aSite(){
@@ -1121,108 +1329,117 @@ function renderDemoBar(){
   $('#demobar').innerHTML=`<button class="demobtn" data-act="demoToggle" aria-expanded="${ui.demoOpen}"><i></i>تجربة</button>
   ${ui.demoOpen?`<div class="demopanel">
    <div class="small" style="font-weight:700">أدوات التجربة (لا تظهر بالموقع الحقيقي)</div>
-   <a class="btn ${!isA?'primary':''}" href="#${me()?'earn':'home'}">${ic('home')}الموقع كمستخدم</a>
+   <a class="btn ${!isA?'primary':''}" href="#home">${ic('home')}الموقع كزائر / مستخدم</a>
    <a class="btn ${isA?'primary':''}" href="#admin">${ic('grid')}لوحة الإدارة</a>
    <button class="btn" data-act="toggleVPN">${ic('globe')}${S.vpn?'إيقاف محاكاة VPN':'محاكاة دخول عبر VPN'}</button>
-   <button class="btn" data-act="toggleTheme">${ic('eye')}تبديل الوضع الفاتح/الداكن</button>
    <button class="btn bad" data-act="resetDemo">${ic('x')}إعادة ضبط كل البيانات</button>
   </div>`:''}`;
 }
 
 /* ---------- actions ---------- */
+function offerDesc(o,st){return {k:'{o} · {s}',a:{o:o.title,s:st[0]}}}
 const ACT={
   closeModal,
   closeBackdrop:(d,el,e)=>{if(e.target===el)closeModal()},
   nav:d=>go(d.to),
-  auth:d=>authModal(d.mode),
-  googleAuth:()=>{const u=createUser('Sam R.','sam.r@gmail.example','US','');closeModal();toast('Signed in with Google. '+fmt(S.settings.welcomeBonus)+' welcome coins added','good');go('earn')},
-  demoLogin:()=>{if(!me())createUser('Demo Player','demo@amigo.cash','US','');go('earn');toast('You are in the demo account','good')},
+  auth:d=>authModal(d.mode,d.gated==='1'),
+  forgot:()=>forgotModal(),
+  setLang:d=>{LANG=d.l;try{localStorage.setItem('amigo-lang',LANG)}catch(e){}closeModal();render()},
+  toggleTheme:()=>{const d=!isDark();document.documentElement.dataset.theme=d?'dark':'light';try{localStorage.setItem('amigo-theme',d?'dark':'light')}catch(e){}render()},
+  googleAuth:()=>{createUser('Sam R.','sam.r@gmail.example',LANG==='es'?'AR':'US','',null);closeModal();toast(t('Signed in with Google. {c} welcome coins added',{c:fmt(S.settings.welcomeBonus)}),'good');if(route()==='home')go('earn');else render()},
   logout:()=>{S.me=null;go('home')},
   offerCat:d=>{ui.offerCat=d.c;render()},
   offer:d=>offerModal(d.id),
   wall:d=>wallModal(d.id),
-  startOffer:d=>{S.progress[S.me+':'+d.id]=0;save();offerModal(d.id);render();toast('Offer started. Install the app from the link to begin.')},
-  stepOffer:d=>{
+  startOffer:d=>{if(gate())return;S.progress[S.me+':'+d.id]=0;save();render();offerModal(d.id);toast(t('Offer started. Install the app from the link to begin.'))},
+  stepOffer:d=>{if(gate())return;
     const o=S.offers.find(x=>x.id===d.id),u=me(),k=S.me+':'+d.id,p=S.progress[k];
     const st=o.steps[p],coins=offerCoins(o,st[1]);
-    const t=credit(u,coins,'offer',o.title+' · '+st[0],{net:o.net});
+    const tx=credit(u,coins,'offer',offerDesc(o,st),{net:o.net});
     S.progress[k]=p+1;o.completions++;
-    const pb={id:id('pb'),net:o.net,uid:u.id,offer:o.title+' · '+st[0],payout:+(o.payout*st[1]).toFixed(2),coins,ts:now(),ip:u.ip,status:'ok',txid:'TX'+Date.now(),live:true,tx:t.id};
+    const pb={id:id('pb'),net:o.net,uid:u.id,offer:o.title+' · '+st[0],payout:+(o.payout*st[1]).toFixed(2),coins,ts:now(),ip:u.ip,status:'ok',txid:'TX'+Date.now(),live:true,tx:tx.id};
     S.postbacks.unshift(pb);const n=netById(o.net);n.rev=+(n.rev+pb.payout).toFixed(2);
-    save();offerModal(d.id);render();
-    toast(t.status==='pending'?`${fmt(coins)} coins added as pending (${S.settings.holdDays}-day check)`:`+${fmt(coins)} coins added to your balance`,'good');
+    save();render();offerModal(d.id);
+    toast(tx.status==='pending'?t('{c} coins added as pending ({d}-day check)',{c:fmt(coins),d:S.settings.holdDays}):t('+{c} coins added to your balance',{c:fmt(coins)}),'good');
   },
-  survey:d=>surveyModal(d.id),
+  survey:d=>{if(gate())return;surveyModal(d.id)},
   surveyDone:d=>{const s=S.surveys.find(x=>x.id===d.id),u=me();const ok=d.ok==='1';const c=ok?surveyCoins(s):20;
-    credit(u,c,'survey',(ok?'Survey completed · ':'Survey screen-out · ')+s.topic,{net:'bitlabs'});
+    credit(u,c,'survey',{k:ok?'Survey completed · {s}':'Survey screen-out · {s}',a:{s:s.topic}},{net:'bitlabs'});
     S.postbacks.unshift({id:id('pb'),net:'bitlabs',uid:u.id,offer:'Survey · '+s.topic,payout:ok?s.payout:0.03,coins:c,ts:now(),ip:u.ip,status:'ok',txid:'BL'+Date.now(),live:true});
-    closeModal();render();toast(`+${fmt(c)} coins ${ok?'for the survey':'consolation reward'}`,'good')},
-  daily:()=>{const u=me();const c=Math.round(S.settings.dailyMin+Math.random()*(S.settings.dailyMax-S.settings.dailyMin));S.lastDaily[u.id]=now();credit(u,c,'bonus','Daily bonus chest');render();toast(`The chest had ${fmt(c)} coins`,'good')},
+    closeModal();render();toast(t(ok?'+{c} coins for the survey':'+{c} coins consolation reward',{c:fmt(c)}),'good')},
+  daily:()=>{if(gate())return;const u=me();const c=Math.round(S.settings.dailyMin+Math.random()*(S.settings.dailyMax-S.settings.dailyMin));S.lastDaily[u.id]=now();credit(u,c,'bonus',{k:'Daily bonus chest'});render();toast(t('The chest had {c} coins',{c:fmt(c)}),'good')},
   method:d=>{ui.method=d.m;ui.amount=null;render()},
   amount:d=>{ui.amount=+d.v;render()},
   actTab:d=>{ui.actTab=d.t;render()},
-  release:()=>{const n=releaseHolds(me());render();toast(`${fmt(n)} coins moved to your balance`,'good')},
-  copy:d=>{const done=()=>toast('Link copied','good');try{navigator.clipboard.writeText(d.text).then(done,()=>{const i=$('#f-reflink');i&&i.select();toast('Press Ctrl+C to copy')})}catch(e){const i=$('#f-reflink');i&&i.select()}},
-  simFriend:()=>{const u=me();const names=['Mike T.','Jess P.','Tom W.','Amy L.','Ben K.'];const f={id:id('u'),name:names[Math.floor(Math.random()*names.length)],email:'friend'+Math.floor(Math.random()*999)+'@example.com',country:'GB',joined:now(),earned:0,balance:0,pending:0,risk:12,flags:[],status:'active',device:'dv-'+Math.floor(Math.random()*1e6).toString(16),ip:'81.2.'+Math.floor(Math.random()*255)+'.9',vpn:false,refBy:u.id,refCode:'FR'+Math.floor(Math.random()*999),weekly:0,lastSeen:now(),paidOnce:false};S.users.push(f);
-    f.balance+=S.settings.welcomeBonus;f.earned+=S.settings.welcomeBonus;const o=S.offers[1];credit(f,offerCoins(o,.2),'offer',o.title+' · Clear stage 15',{net:o.net});render();toast(`${f.name} joined with your link and earned. Your ${S.settings.refPercent}% was added.`,'good')},
+  release:()=>{const n=releaseHolds(me());render();toast(t('{c} coins moved to your balance',{c:fmt(n)}),'good')},
+  copy:d=>{const fb=()=>{const i=$('#f-reflink');if(i)i.select();toast(t('Press Ctrl+C to copy'))};try{navigator.clipboard.writeText(d.text).then(()=>toast(t('Link copied'),'good'),fb)}catch(e){fb()}},
+  simFriend:()=>{if(gate())return;const u=me();const names=['Mike T.','Jess P.','Tom W.','Amy L.','Ben K.'];const f={id:id('u'),name:names[Math.floor(Math.random()*names.length)],email:'friend'+Math.floor(Math.random()*999)+'@example.com',country:'GB',joined:now(),earned:0,balance:0,pending:0,risk:12,flags:[],status:'active',device:'dv-'+Math.floor(Math.random()*1e6).toString(16),ip:'81.2.'+Math.floor(Math.random()*255)+'.9',vpn:false,refBy:u.id,refCode:'FR'+Math.floor(Math.random()*999),weekly:0,lastSeen:now(),paidOnce:false};S.users.push(f);
+    f.balance+=S.settings.welcomeBonus;f.earned+=S.settings.welcomeBonus;const o=S.offers[1];credit(f,offerCoins(o,.2),'offer',offerDesc(o,o.steps[1]),{net:o.net});render();toast(t('{n} joined with your link and earned. Your {p}% was added.',{n:f.name,p:S.settings.refPercent}),'good')},
   toggleVPN:()=>{S.vpn=!S.vpn;const u=me();if(u&&S.vpn){u.vpn=true;if(!u.flags.includes('VPN'))u.flags.push('VPN');u.risk=Math.max(u.risk,72)}render();toast(S.vpn?'محاكاة VPN مفعّلة':'محاكاة VPN متوقفة')},
-  toggleTheme:()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark'},
   resetDemo:(d,el)=>{if(el.dataset.confirm!=='1'){el.dataset.confirm='1';el.innerHTML=ic('x')+'اضغط مرة ثانية للتأكيد';return}try{localStorage.removeItem(KEY)}catch(e){}S=seed();ui.demoOpen=false;go('home');toast('رجعت البيانات للبداية')},
   demoToggle:()=>{ui.demoOpen=!ui.demoOpen;renderDemoBar()},
   /* admin */
   adminLogout:()=>{S.admin=false;go('admin')},
   userFilter:d=>{ui.userFilter=d.f;render()},
   userDetail:d=>userDetail(d.id),
-  ban:d=>{const u=userById(d.id);u.status=d.v==='1'?'banned':'active';render();userDetail(u.id);toast(d.v==='1'?'تم حظر الحساب':'تم رفع الحظر')},
+  ban:d=>{const u=userById(d.id);u.status=d.v==='1'?'banned':'active';if(d.v==='1'&&S.me===u.id)S.me=null;render();userDetail(u.id);toast(d.v==='1'?'تم حظر الحساب':'تم رفع الحظر')},
   clearFlags:d=>{const u=userById(d.id);u.flags=[];u.risk=Math.min(u.risk,20);u.vpn=false;render();userDetail(u.id);toast('تم وضع الحساب كموثوق','good')},
   adminRelease:d=>{const u=userById(d.id);const n=releaseHolds(u);render();userDetail(u.id);toast('تم تحرير '+fmt(n)+' كوين','good')},
   wdFilter:d=>{ui.wdFilter=d.f;render()},
-  wd:d=>{const w=S.withdrawals.find(x=>x.id===d.id);w.status='paid';const u=userById(w.uid);if(u)u.paidOnce=true;S.tx.forEach(t=>{if(t.wid===w.id)t.status='paid'});render();toast('تم تأكيد الدفع '+money(w.usd),'good')},
+  wd:d=>{const w=S.withdrawals.find(x=>x.id===d.id);w.status='paid';const u=userById(w.uid);if(u)u.paidOnce=true;S.tx.forEach(x=>{if(x.wid===w.id)x.status='paid'});render();toast('تم تأكيد الدفع '+money(w.usd),'good')},
   wdReject:d=>{const w=S.withdrawals.find(x=>x.id===d.id);
-    modal('رفض السحب',`<form data-form="wdReject" class="stack"><input type="hidden" name="id" value="${w.id}"><p class="small muted">المبلغ يرجع لرصيد المستخدم تلقائياً، والسبب يظهر له.</p><div class="field"><label for="rj-r">السبب (إنجليزي)</label><select class="input" id="rj-r" name="reason" dir="ltr"><option>VPN or proxy detected</option><option>Wallet address is invalid</option><option>Multiple accounts on one device</option><option>Offer reversed by the advertiser</option></select></div><button class="btn bad" type="submit">رفض وإرجاع الرصيد</button></form>`,{ar:true})},
-  approveSafe:()=>{let n=0;S.withdrawals.forEach(w=>{const u=userById(w.uid);if(w.status==='pending'&&u&&u.risk<50&&!u.flags.length){w.status='paid';u.paidOnce=true;S.tx.forEach(t=>{if(t.wid===w.id)t.status='paid'});n++}});render();toast(n?`تمت الموافقة على ${n} طلبات`:'ما في طلبات منخفضة الخطورة','good')},
+    modal('رفض السحب',`<form data-form="wdReject" class="stack"><input type="hidden" name="id" value="${w.id}"><p class="small muted">المبلغ يرجع لرصيد المستخدم تلقائياً، والسبب يظهر له بلغته.</p><div class="field"><label for="rj-r">السبب</label><select class="input" id="rj-r" name="reason"><option value="VPN or proxy detected">تم اكتشاف VPN أو بروكسي</option><option value="Wallet address is invalid">عنوان المحفظة غير صالح</option><option value="Multiple accounts on one device">عدة حسابات على جهاز واحد</option><option value="Offer reversed by the advertiser">العرض استرده المعلن</option></select></div><button class="btn bad" type="submit">رفض وإرجاع الرصيد</button></form>`,{ar:true})},
+  approveSafe:()=>{let n=0;S.withdrawals.forEach(w=>{const u=userById(w.uid);if(w.status==='pending'&&u&&u.risk<50&&!u.flags.length){w.status='paid';u.paidOnce=true;S.tx.forEach(x=>{if(x.wid===w.id)x.status='paid'});n++}});render();toast(n?`تمت الموافقة على ${n} طلبات`:'ما في طلبات منخفضة الخطورة','good')},
   offerEdit:d=>offerEditModal(d.id),
   offerDelete:d=>{S.offers=S.offers.filter(o=>o.id!==d.id);closeModal();render();toast('تم حذف العرض')},
   reverse:d=>{const p=S.postbacks.find(x=>x.id===d.id);p.status='reversed';const u=userById(p.uid);
-    if(u){const t=p.tx&&S.tx.find(x=>x.id===p.tx);if(t&&t.status==='pending'){u.pending=Math.max(0,u.pending-t.coins);t.status='reversed'}else{u.balance-=p.coins;if(t)t.status='reversed'}
-      addTx(u.id,'reversal','Reversed by advertiser · '+p.offer,-p.coins,'reversed');u.risk=Math.min(99,u.risk+15);if(!u.flags.includes('Reversal'))u.flags.push('Reversal')}
+    if(u){const tx=p.tx&&S.tx.find(x=>x.id===p.tx);if(tx&&tx.status==='pending'){u.pending=Math.max(0,u.pending-tx.coins);tx.status='reversed'}else{u.balance-=p.coins;if(tx)tx.status='reversed'}
+      addTx(u.id,'reversal',{k:'Reversed by advertiser · {o}',a:{o:p.offer}},-p.coins,'reversed');u.risk=Math.min(99,u.risk+15);if(!u.flags.includes('Reversal'))u.flags.push('Reversal')}
     render();toast('تم الاسترداد وخصم '+fmt(p.coins)+' كوين من المستخدم')}
 };
 const FORM={
   signup:(f)=>{const name=(f.get('name')||'').trim(),email=(f.get('email')||'').trim(),pass=f.get('pass')||'';const err=$('#auth-err');
-    if(name.length<2)return err.textContent='Enter a display name with at least 2 characters.';
-    if(!/^\S+@\S+\.\S+$/.test(email))return err.textContent='Enter a valid email address, like you@email.com.';
-    if(pass.length<8)return err.textContent='Your password needs at least 8 characters.';
-    if(!f.get('age'))return err.textContent=`Confirm that you are ${S.settings.minAge} or older to continue.`;
-    if(S.users.some(u=>u.email.toLowerCase()===email.toLowerCase()))return err.textContent='An account with this email already exists. Log in instead.';
-    const u=createUser(name,email,f.get('country'),f.get('ref'));closeModal();go('earn');toast(`Welcome, ${name.split(' ')[0]}! ${fmt(S.settings.welcomeBonus)} coins added`,'good');if(u.refBy)toast('Referral code applied')},
-  login:(f)=>{const email=(f.get('email')||'').trim().toLowerCase();const u=S.users.find(x=>x.email.toLowerCase()===email);const err=$('#auth-err');
-    if(!u)return err.textContent='No account uses this email. Check the spelling or create an account.';
-    if(u.status==='banned')return err.textContent='This account is suspended. Contact support for details.';
-    S.me=u.id;closeModal();go('earn')},
-  promo:(f)=>{const code=(f.get('code')||'').trim().toUpperCase();const p=S.promos.find(x=>x.code===code);const u=me();
-    if(!p||!p.on)return toast('That code is not valid or has expired','bad');
-    if(p.uses>=p.max)return toast('This code has reached its limit','bad');
-    if(S.tx.some(t=>t.uid===u.id&&t.type==='promo'&&t.code===code))return toast('You already used this code','bad');
-    p.uses++;credit(u,p.coins,'promo','Promo code '+code,{code});render();toast(`+${fmt(p.coins)} coins from ${code}`,'good')},
-  withdraw:(f)=>{const u=me();const addr=(f.get('addr')||'').trim();const m=ui.method,st=S.settings.methods[m];const usd=ui.amount;const coins=usd*S.settings.coinsPerUSD;
-    if(u.status==='banned')return toast('Your account is suspended','bad');
-    if(vpnBlocked())return toast('Turn off your VPN to cash out','bad');
-    if(addr.length<6)return toast('Enter your '+METHODS[m].field.toLowerCase(),'bad');
-    if(u.balance<coins)return toast('Not enough coins for this amount','bad');
+    if(name.length<2)return err.textContent=t('Enter a display name with at least 2 characters.');
+    if(!/^\S+@\S+\.\S+$/.test(email))return err.textContent=t('Enter a valid email address, like you@email.com.');
+    if(pass.length<8)return err.textContent=t('Your password needs at least 8 characters.');
+    if(!f.get('age'))return err.textContent=t('Confirm that you are {age} or older to continue.',{age:S.settings.minAge});
+    if(S.users.some(u=>u.email.toLowerCase()===email.toLowerCase()))return err.textContent=t('An account with this email already exists. Log in instead.');
+    const u=createUser(name,email,f.get('country'),f.get('ref'),pass);closeModal();if(route()==='home')go('earn');else render();toast(t('Welcome, {name}! {c} coins added',{name:esc(name.split(' ')[0]),c:fmt(S.settings.welcomeBonus)}),'good');if(u.refBy)toast(t('Referral code applied'))},
+  login:(f)=>{const email=(f.get('email')||'').trim().toLowerCase();const pass=f.get('pass')||'';const u=S.users.find(x=>x.email.toLowerCase()===email);const err=$('#auth-err');
+    if(!u)return err.textContent=t('No account uses this email. Check the spelling or create an account.');
+    if(u.pass&&u.pass!==pass)return err.textContent=t('Wrong password. Try again or reset it.');
+    if(u.status==='banned')return err.textContent=t('This account is suspended. Contact support for details.');
+    S.me=u.id;closeModal();if(route()==='home')go('earn');else render()},
+  forgot:()=>{closeModal();toast(t('If an account uses this email, a reset link is on its way.'),'good')},
+  password:(f)=>{const u=me();const err=$('#pw-err');const cur=f.get('cur')||'',nw=f.get('nw')||'',rep=f.get('rep')||'';
+    if(u.pass&&cur!==u.pass)return err.textContent=t('Your current password is not correct.');
+    if(nw.length<8)return err.textContent=t('The new password needs at least 8 characters.');
+    if(nw!==rep)return err.textContent=t('The two new passwords do not match.');
+    if(u.pass&&nw===u.pass)return err.textContent=t('Choose a password different from the current one.');
+    u.pass=nw;render();toast(t('Password updated'),'good')},
+  promo:(f)=>{if(gate())return;const code=(f.get('code')||'').trim().toUpperCase();const p=S.promos.find(x=>x.code===code);const u=me();
+    if(!p||!p.on)return toast(t('That code is not valid or has expired'),'bad');
+    if(p.uses>=p.max)return toast(t('This code has reached its limit'),'bad');
+    if(S.tx.some(x=>x.uid===u.id&&x.type==='promo'&&x.code===code))return toast(t('You already used this code'),'bad');
+    p.uses++;credit(u,p.coins,'promo',{k:'Promo code {code}',a:{code}},{code});render();toast(t('+{c} coins from {code}',{c:fmt(p.coins),code}),'good')},
+  withdraw:(f)=>{if(gate())return;const u=me();const addr=(f.get('addr')||'').trim();const m=ui.method;const usd=ui.amount;const coins=usd*S.settings.coinsPerUSD;
+    if(u.status==='banned')return toast(t('Your account is suspended'),'bad');
+    if(vpnBlocked())return toast(t('Turn off your VPN to cash out'),'bad');
+    if(addr.length<6)return toast(t('Enter your {f}',{f:t(METHODS[m].field)}),'bad');
+    if(u.balance<coins)return toast(t('Not enough coins for this amount'),'bad');
     u.balance-=coins;
     const auto=u.paidOnce&&usd<=S.settings.autoApproveUnderUSD&&u.risk<50&&!u.flags.length;
     const first=!u.paidOnce;
     const w={id:id('w'),uid:u.id,method:m,usd,coins,addr,status:auto?'paid':'pending',ts:now(),note:'',first};
-    S.withdrawals.unshift(w);addTx(u.id,'withdraw','Withdrawal · '+METHODS[m].name,-coins,auto?'paid':'pending',{wid:w.id});
+    S.withdrawals.unshift(w);addTx(u.id,'withdraw',{k:'Withdrawal · {m}',a:{m:METHODS[m].name==='Amazon Gift Card'?'Amazon Gift Card':METHODS[m].name}},-coins,auto?'paid':'pending',{wid:w.id});
     if(auto)u.paidOnce=true;
-    render();toast(auto?`${money(usd)} sent to your ${METHODS[m].name}`:`Withdrawal requested. ${first&&S.settings.firstWithdrawManual?'We review first payouts within 24 hours.':'Processing now.'}`,'good')},
-  profile:(f)=>{const u=me();const n=(f.get('name')||'').trim();if(n.length<2)return toast('Display name needs 2+ characters','bad');u.name=n;u.email=(f.get('email')||u.email).trim();u.twofa=!!f.get('twofa');render();toast('Changes saved','good')},
-  ticket:(f)=>{const body=(f.get('body')||'').trim();if(body.length<10)return toast('Add a few more details so we can help','bad');S.tickets.unshift({id:id('k'),uid:S.me,subject:f.get('subject'),body,status:'open',ts:now(),replies:[]});render();toast('Message sent. We usually reply within a few hours','good')},
+    render();toast(auto?t('{v} sent to your {m}',{v:money(usd),m:mName(m)}):t('Withdrawal requested.')+' '+(first&&S.settings.firstWithdrawManual?t('We review first payouts within 24 hours.'):t('Processing now.')),'good')},
+  profile:(f)=>{const u=me();const n=(f.get('name')||'').trim();if(n.length<2)return toast(t('Display name needs 2+ characters'),'bad');u.name=n;u.email=(f.get('email')||u.email).trim();u.twofa=!!f.get('twofa');render();toast(t('Changes saved'),'good')},
+  ticket:(f)=>{if(gate())return;const body=(f.get('body')||'').trim();if(body.length<10)return toast(t('Add a few more details so we can help'),'bad');S.tickets.unshift({id:id('k'),uid:S.me,subject:f.get('subject'),body,status:'open',ts:now(),replies:[]});render();toast(t('Message sent. We usually reply within a few hours'),'good')},
   adminLogin:(f)=>{if(f.get('email')==='admin@amigo.cash'&&f.get('pass')==='admin123'){S.admin=true;render()}else $('#a-err').textContent='البيانات غير صحيحة'},
   userSearch:(f)=>{ui.userQ=f.get('q')||'';render();const i=$('#a-q');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},
   adjust:(f)=>{const u=userById(f.get('uid'));const c=parseInt(f.get('coins'),10);if(!c)return toast('أدخل عدد كوينز','bad');u.balance+=c;if(c>0)u.earned+=c;addTx(u.id,'adjust',(f.get('reason')||'Balance adjustment by support'),c,'credited');render();userDetail(u.id);toast('تم تعديل الرصيد '+(c>0?'+':'')+fmt(c),'good')},
-  wdReject:(f)=>{const w=S.withdrawals.find(x=>x.id===f.get('id'));w.status='rejected';w.note=f.get('reason');const u=userById(w.uid);if(u){u.balance+=w.coins;addTx(u.id,'adjust','Refund · withdrawal rejected: '+w.note,w.coins,'credited')}S.tx.forEach(t=>{if(t.wid===w.id)t.status='reversed'});closeModal();render();toast('تم الرفض وإرجاع الرصيد')},
+  wdReject:(f)=>{const w=S.withdrawals.find(x=>x.id===f.get('id'));w.status='rejected';w.note=f.get('reason');const u=userById(w.uid);if(u){u.balance+=w.coins;addTx(u.id,'adjust',{k:'Refund · withdrawal rejected: {r}',a:{r:w.note}},w.coins,'credited')}S.tx.forEach(x=>{if(x.wid===w.id)x.status='reversed'});closeModal();render();toast('تم الرفض وإرجاع الرصيد')},
   offerSave:(f)=>{const idv=f.get('id');const steps=(f.get('steps')||'').split('\n').map(l=>l.split('|')).filter(a=>a[0].trim()).map(a=>[a[0].trim(),(parseFloat(a[1])||0)/100]);
     const tot=steps.reduce((a,s)=>a+s[1],0);if(!steps.length||Math.abs(tot-1)>0.02)return toast('مجموع نسب المراحل لازم يساوي 100% (حالياً '+Math.round(tot*100)+'%)','bad');
     const data={title:f.get('title').trim(),net:f.get('net'),cat:f.get('cat'),payout:+f.get('payout'),color:f.get('color'),days:+f.get('days')||14,countries:(f.get('countries')||'').toUpperCase().split(/[\s,]+/).filter(Boolean),desc:f.get('desc'),steps};
@@ -1232,7 +1449,7 @@ const FORM={
   netSave:(f)=>{const n=netById(f.get('id'));n.on=!!f.get('on');const sh=f.get('share');n.share=sh===''?null:Math.max(0,Math.min(100,+sh));n.secret=f.get('secret');render();toast('تم حفظ إعدادات '+n.name,'good')},
   fraudSave:(f)=>{const st=S.settings;st.blockVPN=!!f.get('blockVPN');st.firstWithdrawManual=!!f.get('firstWithdrawManual');['holdThresholdUSD','holdDays','autoApproveUnderUSD','maxAccountsPerDevice','autoBanRisk'].forEach(k=>st[k]=+f.get(k));render();toast('تم حفظ القواعد','good')},
   promoNew:(f)=>{const code=(f.get('code')||'').trim().toUpperCase().replace(/\s/g,'');if(!code)return;if(S.promos.some(p=>p.code===code))return toast('الكود موجود','bad');S.promos.unshift({code,coins:+f.get('coins')||0,uses:0,max:+f.get('max')||1,on:true});render();toast('تم إنشاء الكود '+code,'good')},
-  reply:(f)=>{const t=S.tickets.find(x=>x.id===f.get('id'));const text=(f.get('text')||'').trim();if(!text)return toast('اكتب الرد','bad');t.replies.push({from:'admin',text,ts:now()});t.status='closed';render();toast('تم إرسال الرد','good')},
+  reply:(f)=>{const tk=S.tickets.find(x=>x.id===f.get('id'));const text=(f.get('text')||'').trim();if(!text)return toast('اكتب الرد','bad');tk.replies.push({from:'admin',text,ts:now()});tk.status='closed';render();toast('تم إرسال الرد','good')},
   siteSave:(f)=>{const st=S.settings;['coinsPerUSD','userShare','refPercent','welcomeBonus','dailyMin','dailyMax','gameBoost'].forEach(k=>st[k]=Math.max(0,+f.get(k)||0));
     if(st.coinsPerUSD<1)st.coinsPerUSD=1;st.userShare=Math.min(100,st.userShare);
     st.prizes=(f.get('prizes')||'').split(',').map(x=>+x||0);
@@ -1249,11 +1466,10 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
 document.addEventListener('submit',e=>{const f=e.target;if(!f.dataset.form)return;e.preventDefault();FORM[f.dataset.form](new FormData(f),f)});
 document.addEventListener('change',e=>{const el=e.target.closest('[data-change]');if(el)CHG[el.dataset.change](el)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(!document.documentElement.dataset.theme)render()})}catch(e){}
 
 /* auto-release holds that have passed their date */
-S.users.forEach(u=>{S.tx.forEach(t=>{if(t.uid===u.id&&t.status==='pending'&&t.release&&t.release<now()){t.status='credited';u.pending=Math.max(0,u.pending-t.coins);u.balance+=t.coins}})});
-/* refresh ticker contents now and then without re-rendering the page */
-setInterval(()=>{const t=document.querySelector('.ticker-in');if(t&&!document.hidden){/* keep animation running; content refresh only on navigation */}},10000);
+S.users.forEach(u=>{S.tx.forEach(x=>{if(x.uid===u.id&&x.status==='pending'&&x.release&&x.release<now()){x.status='credited';u.pending=Math.max(0,u.pending-x.coins);u.balance+=x.coins}})});
 render();
 })();
 </script>

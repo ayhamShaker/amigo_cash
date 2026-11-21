@@ -1,0 +1,1259 @@
+<title>Amigo Cash</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: app shell — sidebar + content on desktop, bottom tab bar on phones; admin is an RTL control room with the same tokens. */
+:root{
+  --bg:#F3F4F7; --surface:#FFFFFF; --surface-2:#ECEEF3; --line:#DFE2E9; --fg:#151823; --muted:#5F6678;
+  --accent:#FF5A36; --accent-ink:#FFFFFF; --accent-soft:#FFE7E0;
+  --coin:#D99A00; --coin-soft:#FFF3D3; --coin-face:#FFC21A;
+  --good:#118A47; --good-soft:#DCF4E6; --warn:#A86A00; --warn-soft:#FFF0D2; --bad:#C93030; --bad-soft:#FCE1E1; --info:#2F5BD8; --info-soft:#E2E9FF;
+  --ink-band:#151823; --ink-band-fg:#F3F4F7;
+  --shadow:0 1px 2px rgba(21,24,35,.06),0 8px 24px rgba(21,24,35,.06);
+  --f-display:'Bricolage Grotesque','Manrope',system-ui,sans-serif;
+  --f-body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --f-ar:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
+  --r:14px; --r-sm:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1016; --surface:#161922; --surface-2:#1E222D; --line:#2A2F3C; --fg:#ECEEF4; --muted:#949AAD;
+  --accent:#FF6B48; --accent-ink:#FFFFFF; --accent-soft:#3B1D15;
+  --coin:#FFC233; --coin-soft:#3A2E10; --coin-face:#FFC21A;
+  --good:#3FD07F; --good-soft:#12301F; --warn:#F2B443; --warn-soft:#3A2B0D; --bad:#FF6B6B; --bad-soft:#3A1717; --info:#7C9BFF; --info-soft:#1A2448;
+  --ink-band:#1E222D; --ink-band-fg:#ECEEF4; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1016; --surface:#161922; --surface-2:#1E222D; --line:#2A2F3C; --fg:#ECEEF4; --muted:#949AAD;
+  --accent:#FF6B48; --accent-ink:#FFFFFF; --accent-soft:#3B1D15;
+  --coin:#FFC233; --coin-soft:#3A2E10; --coin-face:#FFC21A;
+  --good:#3FD07F; --good-soft:#12301F; --warn:#F2B443; --warn-soft:#3A2B0D; --bad:#FF6B6B; --bad-soft:#3A1717; --info:#7C9BFF; --info-soft:#1A2448;
+  --ink-band:#1E222D; --ink-band-fg:#ECEEF4; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
+h1,h2,h3,h4{font-family:var(--f-display);margin:0;line-height:1.1;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.tiny{font-size:12px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:12px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:12px}
+.grow{flex:1;min-width:0}
+.hide-sm{}
+[dir="ltr"]{unicode-bidi:isolate}
+
+/* coin glyph */
+.coin{display:inline-grid;place-items:center;width:1.05em;height:1.05em;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE38A,var(--coin-face) 55%,#D48A00);color:#6B4300;font:800 .62em/1 var(--f-display);vertical-align:-.14em;box-shadow:inset 0 -1px 0 rgba(0,0,0,.2);flex:none}
+.amt{display:inline-flex;align-items:center;gap:.3em;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:999px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;background:var(--surface-2);color:var(--fg);text-decoration:none;transition:transform .12s,background .15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border-color:var(--line)}
+.btn.good{background:var(--good);color:#fff}
+.btn.bad{background:var(--bad-soft);color:var(--bad)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.btn.lg{padding:14px 26px;font-size:16px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.iconbtn{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* inputs */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:700}
+.input,select.input,textarea.input{width:100%;padding:11px 14px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface);outline:none}
+.input:focus{border-color:var(--accent)}
+textarea.input{min-height:90px;resize:vertical}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer}
+.check input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px}
+.switch{position:relative;width:42px;height:24px;flex:none}
+.switch input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer;z-index:1}
+.switch span{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:.15s}
+.switch span::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.switch input:checked+span{background:var(--good)}
+.switch input:checked+span::after{inset-inline-start:21px}
+.switch input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+
+/* surfaces */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card.flat{box-shadow:none}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--surface-2);color:var(--muted)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.info{background:var(--info-soft);color:var(--info)}
+.pill.accent{background:var(--accent-soft);color:var(--accent)}
+.pill.coin{background:var(--coin-soft);color:var(--coin)}
+.cc{display:inline-block;font:700 11px/1 var(--f-mono);padding:3px 5px;border-radius:5px;background:var(--surface-2);color:var(--muted);letter-spacing:.02em}
+
+/* table */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:start;font-size:12px;font-weight:700;color:var(--muted);padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface)}
+td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--surface-2) 50%,transparent)}
+td.r,th.r{text-align:end}
+
+/* ===== landing ===== */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-in{display:flex;align-items:center;gap:16px;height:64px;max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.logo{display:inline-flex;align-items:baseline;gap:6px;font:800 23px/1 var(--f-display);letter-spacing:-.03em;text-decoration:none;color:var(--fg);cursor:pointer}
+.logo b{font-weight:800}
+.logo i{font-style:normal;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:4px 7px 3px;border-radius:6px;transform:translateY(-3px)}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ticker{background:var(--ink-band);color:var(--ink-band-fg);overflow:hidden;white-space:nowrap;font-size:13px}
+.ticker-in{display:flex;gap:28px;padding-block:9px;animation:tick 40s linear infinite;width:max-content}
+.ticker-item{display:inline-flex;align-items:center;gap:8px;opacity:.92}
+.ticker-item .amt{color:var(--coin-face)}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker-in{animation:none}}
+
+.hero{padding-block:56px 40px}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(40px,6vw,72px);font-weight:800;letter-spacing:-.035em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .lede{font-size:18px;color:var(--muted);max-width:520px;margin-top:18px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.proofrow{display:flex;gap:28px;flex-wrap:wrap;margin-top:34px}
+.proofrow div{display:flex;flex-direction:column}
+.proofrow strong{font:800 26px/1.1 var(--f-display)}
+.proofrow span{font-size:13px;color:var(--muted)}
+
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:18px;box-shadow:var(--shadow);max-width:400px;margin-inline:auto;width:100%}
+.phone .offer-head{display:flex;gap:14px;align-items:center}
+.ms{display:flex;flex-direction:column;gap:0;margin-top:16px}
+.ms-item{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:10px 0;position:relative}
+.ms-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;z-index:1}
+.ms-item.done .ms-dot{background:var(--good);border-color:var(--good);color:#fff}
+.ms-item.next .ms-dot{border-color:var(--accent)}
+.ms-item:not(:last-child)::before{content:"";position:absolute;left:10px;top:32px;bottom:-12px;width:2px;background:var(--line)}
+[dir="rtl"] .ms-item:not(:last-child)::before{left:auto;right:10px}
+.ms-item.done:not(:last-child)::before{background:var(--good)}
+.ms-dot svg{width:12px;height:12px;stroke-width:3}
+
+.section{padding-block:56px}
+.section h2{font-size:clamp(28px,3.6vw,40px);font-weight:800;letter-spacing:-.025em}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+.step{padding:24px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.step .n{font:800 15px/1 var(--f-mono);color:var(--accent)}
+.step h3{font-size:21px;margin-top:14px}
+.step p{color:var(--muted);margin-top:8px}
+.methods{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:24px}
+.method{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.mlogo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:#fff;font:800 11px/1 var(--f-display);letter-spacing:-.01em;flex:none;text-align:center}
+.faq details{border-bottom:1px solid var(--line);padding:16px 0}
+.faq summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::after{content:"+";font:700 20px/1 var(--f-mono);color:var(--accent)}
+.faq details[open] summary::after{content:"−"}
+.faq details p{margin-top:10px;color:var(--muted);max-width:68ch}
+.footer{border-top:1px solid var(--line);padding-block:28px;margin-top:24px;font-size:13px;color:var(--muted)}
+.banner{background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:14px;text-align:center;padding:9px 16px}
+
+/* ===== app shell ===== */
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:calc(100% - 64px)}
+.side{border-inline-end:1px solid var(--line);background:var(--surface);padding:18px 12px;position:sticky;top:calc(64px + env(safe-area-inset-top,0px));height:calc(100vh - 64px);overflow:auto;display:flex;flex-direction:column;gap:2px}
+.navlink{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:700;font-size:14px;cursor:pointer;border:0;background:none;width:100%;text-align:start}
+.navlink:hover{background:var(--surface-2);color:var(--fg)}
+.navlink.on{background:var(--accent-soft);color:var(--accent)}
+.navlink .badge{margin-inline-start:auto;font:700 11px/1 var(--f-mono);background:var(--accent);color:var(--accent-ink);padding:4px 7px;border-radius:99px}
+.side .sep{height:1px;background:var(--line);margin:10px 6px}
+.main{min-width:0;padding-block:28px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.main-in{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.pagehead h1{font-size:clamp(26px,3vw,34px);font-weight:800}
+.balance-chip{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 14px;border-radius:99px;background:var(--surface-2);font-weight:700}
+.balance-chip .amt{font-size:15px}
+.balance-chip .btn{padding:7px 14px}
+.avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:800 14px/1 var(--f-display);color:#fff;flex:none;cursor:pointer;border:0}
+.bottomnav{display:none}
+
+.walletbar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.walletbar>div{padding:16px 18px;border-inline-end:1px solid var(--line);min-width:0}
+.walletbar>div:last-child{border-inline-end:0}
+.walletbar .v{font:700 22px/1.2 var(--f-mono);font-variant-numeric:tabular-nums;margin-top:4px;display:flex;align-items:center;gap:6px}
+.walletbar .s{font-size:12px;color:var(--muted)}
+
+.offers{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.offer{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden;cursor:pointer;text-align:start;padding:0;transition:transform .15s,border-color .15s}
+.offer:hover{transform:translateY(-2px);border-color:var(--accent)}
+.offer-art{aspect-ratio:16/10;position:relative;display:grid;place-items:center;overflow:hidden;max-width:100%}
+.offer-art .mono{font:800 46px/1 var(--f-display);color:rgba(255,255,255,.92);letter-spacing:-.04em;text-shadow:0 2px 10px rgba(0,0,0,.18)}
+.offer-art .tag{position:absolute;top:10px;inset-inline-start:10px;background:rgba(0,0,0,.45);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;backdrop-filter:blur(4px)}
+.offer-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.offer-body h4{font-family:var(--f-body);font-size:15px;font-weight:800;letter-spacing:0}
+.offer-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:6px}
+.offer-foot .amt{font-size:16px}
+.appicon{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;font:800 24px/1 var(--f-display);color:#fff;flex:none}
+
+.walls{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.wall{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:16px;cursor:pointer;text-align:start;display:flex;flex-direction:column;gap:10px;transition:border-color .15s}
+.wall:hover{border-color:var(--accent)}
+.wall .wl{font:800 18px/1 var(--f-display);letter-spacing:-.02em}
+.wall .bar{height:4px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.wall .bar i{display:block;height:100%;background:var(--accent)}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:13px;cursor:pointer}
+.tab.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.split{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+.methodpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.mp{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--r);border:2px solid var(--line);background:var(--surface);cursor:pointer;text-align:start;position:relative}
+.mp.on{border-color:var(--accent)}
+.mp[disabled]{opacity:.5;cursor:not-allowed}
+.amtpick{display:flex;gap:8px;flex-wrap:wrap}
+.amtpick button{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font:700 14px/1 var(--f-mono);cursor:pointer}
+.amtpick button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+.chest{display:flex;gap:18px;align-items:center;padding:20px;border-radius:var(--r);background:linear-gradient(120deg,var(--coin-soft),var(--accent-soft));border:1px solid var(--line)}
+.chest-ico{width:64px;height:64px;border-radius:16px;background:var(--coin-face);display:grid;place-items:center;color:#6B4300;flex:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
+.chest-ico svg{width:34px;height:34px;stroke-width:2}
+
+.lvl{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.lvl i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--coin-face))}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pod{padding:18px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pod .rk{font:800 34px/1 var(--f-display)}
+.pod.g1{border-color:var(--coin-face)}
+.empty{padding:36px 20px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+
+/* modal + toast */
+.backdrop{position:fixed;inset:0;background:rgba(10,12,18,.55);z-index:100;display:grid;place-items:center;padding:16px;animation:fade .15s}
+.modal{background:var(--surface);border-radius:20px;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:pop .18s}
+.modal.wide{max-width:760px}
+.modal-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-h h3{font-size:20px}
+.modal-b{padding:20px;display:flex;flex-direction:column;gap:16px}
+@keyframes fade{from{opacity:0}}
+@keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}}
+.toasts{position:fixed;z-index:200;top:calc(76px + env(safe-area-inset-top,0px));inset-inline-end:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--fg);color:var(--bg);padding:12px 16px;border-radius:12px;font-weight:700;font-size:14px;box-shadow:var(--shadow);max-width:340px;animation:pop .2s;display:flex;gap:10px;align-items:center}
+.toast.good{background:var(--good);color:#fff}
+.toast.bad{background:var(--bad);color:#fff}
+
+/* demo bar */
+.demobar{position:fixed;z-index:150;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));font-family:var(--f-ar);direction:rtl}
+.demobtn{display:flex;align-items:center;gap:8px;background:var(--ink-band);color:var(--ink-band-fg);border:1px solid var(--line);border-radius:99px;padding:10px 16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);font-size:14px}
+.demobtn i{width:8px;height:8px;border-radius:50%;background:var(--accent);display:block}
+.demopanel{position:absolute;bottom:52px;left:0;width:300px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 20px 50px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}
+.demopanel .btn{justify-content:flex-start;font-family:var(--f-ar)}
+
+/* ===== admin (RTL, Arabic) ===== */
+.admin{font-family:var(--f-ar);direction:rtl}
+.admin h1,.admin h2,.admin h3,.admin h4{font-family:var(--f-ar);letter-spacing:0}
+.admin .btn,.admin .input,.admin .tab,.admin .pill,.admin .navlink{font-family:var(--f-ar)}
+.admin .topbar{background:var(--ink-band);color:var(--ink-band-fg);border-color:transparent}
+.admin .topbar .logo{color:var(--ink-band-fg)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{padding:16px 18px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);min-width:0}
+.kpi .k{font-size:13px;color:var(--muted);font-weight:600}
+.kpi .v{font:700 26px/1.2 var(--f-mono);font-variant-numeric:tabular-nums;margin-top:6px;direction:ltr;text-align:end}
+.kpi .d{font-size:12px;margin-top:4px}
+.admin .kpi .v{text-align:right}
+.chartbox{padding:18px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.chartbox svg text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.legend{display:flex;gap:16px;font-size:13px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:3px;border-radius:2px;display:inline-block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.hbar{display:grid;grid-template-columns:70px 1fr 90px;gap:10px;align-items:center;font-size:14px;padding:6px 0}
+.hbar .t{height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.hbar .t i{display:block;height:100%;background:var(--accent);border-radius:5px}
+.risk{display:inline-flex;align-items:center;gap:6px;font:700 13px/1 var(--f-mono)}
+.risk i{width:36px;height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;display:block}
+.risk i b{display:block;height:100%}
+.setgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.setrow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.setrow:last-child{border-bottom:0}
+.code{font:500 12px/1.6 var(--f-mono);background:var(--surface-2);padding:10px 12px;border-radius:10px;overflow-x:auto;direction:ltr;text-align:left;white-space:pre}
+.maint{min-height:70vh;display:grid;place-items:center;text-align:center;padding:40px 16px}
+
+@media (max-width:1000px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .split{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+}
+@media (max-width:820px){
+  .hero-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .shell{grid-template-columns:1fr}
+  .side{display:none}
+  .bottomnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;z-index:45;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+  .bottomnav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;font-size:11px;font-weight:700;color:var(--muted);text-decoration:none}
+  .bottomnav a.on{color:var(--accent)}
+  .demobar{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .walletbar{grid-template-columns:1fr 1fr}
+  .walletbar>div:nth-child(2){border-inline-end:0}
+  .walletbar>div:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .grid2,.grid3,.setgrid{grid-template-columns:1fr}
+  .hide-sm{display:none!important}
+  .adminnav{display:flex!important;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .adminnav .navlink{width:auto;white-space:nowrap;background:var(--surface);border:1px solid var(--line)}
+  .podium{grid-template-columns:1fr}
+}
+@media (max-width:480px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi .v{font-size:20px}
+  .offers{grid-template-columns:1fr 1fr;gap:10px}
+  .offer-art .mono{font-size:34px}
+  .balance-chip .lbl,.balance-chip .btn{display:none}
+  .balance-chip{padding:6px 12px}
+  .logo{font-size:20px}
+}
+.adminnav{display:none}
+</style>
+
+<div id="app"></div>
+<div id="modal-root"></div>
+<div class="toasts" id="toasts"></div>
+<div class="demobar" id="demobar"></div>
+
+<script>
+(function(){
+'use strict';
+/* ---------- utilities ---------- */
+const KEY='amigo-cash-demo-v1';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const money=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const now=()=>Date.now();
+const DAY=864e5;
+let uidN=1000;
+const id=p=>p+(Date.now().toString(36).slice(-5))+(uidN++).toString(36);
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function ago(ts){const s=Math.max(1,Math.round((now()-ts)/1000));if(s<60)return s+'s ago';const m=Math.round(s/60);if(m<60)return m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';return Math.round(h/24)+'d ago'}
+function agoAr(ts){const s=Math.max(1,Math.round((now()-ts)/1000));if(s<60)return 'قبل '+s+' ث';const m=Math.round(s/60);if(m<60)return 'قبل '+m+' د';const h=Math.round(m/60);if(h<24)return 'قبل '+h+' س';return 'قبل '+Math.round(h/24)+' يوم'}
+function dateStr(ts){return new Date(ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}
+
+const IC={
+ bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+ survey:'<path d="M9 3h6v3H9z"/><path d="M7 5H5v16h14V5h-2"/><path d="M9 11h6M9 15h4"/>',
+ wallet:'<path d="M3 7h16a2 2 0 012 2v9a2 2 0 01-2 2H3z"/><path d="M3 7l12-4v4"/><path d="M16 13.5h2"/>',
+ users:'<circle cx="9" cy="7" r="4"/><path d="M1.5 21a7.5 7.5 0 0115 0"/><path d="M16 3.3a4 4 0 010 7.4M22.5 21a7 7 0 00-4.5-6.5"/>',
+ trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+ user:'<circle cx="12" cy="7" r="5"/><path d="M3 22a9 9 0 0118 0"/>',
+ help:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 3-3 3M12 17h.01"/>',
+ grid:'<path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>',
+ shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',
+ tag:'<path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L2 12V2h10l8.6 8.6a2 2 0 010 2.8z"/><path d="M7 7h.01"/>',
+ plug:'<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 01-12 0zM12 18v4"/>',
+ inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v7H2v-7z"/>',
+ chat:'<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
+ sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+ gift:'<path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>',
+ out:'<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>',
+ check:'<path d="M20 6L9 17l-5-5"/>',
+ x:'<path d="M18 6L6 18M6 6l12 12"/>',
+ copy:'<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V4a1 1 0 011-1h11"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ star:'<path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
+ game:'<rect x="2" y="6" width="20" height="12" rx="6"/><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/>',
+ eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/>',
+ lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>',
+ home:'<path d="M3 10l9-7 9 7v11H3z"/><path d="M9 21v-7h6v7"/>'
+};
+const ic=(n,cls)=>`<svg class="i ${cls||''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||''}</svg>`;
+const C=n=>`<span class="amt"><span class="coin">A</span>${fmt(n)}</span>`;
+
+/* ---------- static catalog ---------- */
+const COUNTRY={US:'United States',GB:'United Kingdom',CA:'Canada',AU:'Australia',DE:'Germany',FR:'France',NL:'Netherlands',BR:'Brazil',IN:'India',EG:'Egypt',AE:'UAE',SA:'Saudi Arabia'};
+const COUNTRY_AR={US:'أمريكا',GB:'بريطانيا',CA:'كندا',AU:'أستراليا',DE:'ألمانيا',FR:'فرنسا',NL:'هولندا',BR:'البرازيل',IN:'الهند',EG:'مصر',AE:'الإمارات',SA:'السعودية'};
+const METHODS={
+ usdt:{name:'USDT',sub:'Tether · TRC20',field:'TRC20 wallet address',ph:'TXk2…9fQa',color:'#1B9C75',short:'USDT'},
+ ltc:{name:'Litecoin',sub:'LTC network',field:'Litecoin address',ph:'ltc1q…',color:'#345D9D',short:'LTC'},
+ btc:{name:'Bitcoin',sub:'BTC network',field:'Bitcoin address',ph:'bc1q…',color:'#E8870E',short:'BTC'},
+ binance:{name:'Binance Pay',sub:'Instant transfer',field:'Binance Pay ID',ph:'354 120 987',color:'#C99A06',short:'PAY'},
+ amazon:{name:'Amazon Gift Card',sub:'US / UK store',field:'Email for the code',ph:'you@email.com',color:'#232F3E',short:'GIFT'},
+ paypal:{name:'PayPal',sub:'USD balance',field:'PayPal email',ph:'you@email.com',color:'#1D4ED8',short:'PP'}
+};
+const LEVELS=[{n:'Bronze',ar:'برونزي',at:0,bonus:0},{n:'Silver',ar:'فضي',at:10000,bonus:1},{n:'Gold',ar:'ذهبي',at:50000,bonus:2},{n:'Platinum',ar:'بلاتيني',at:150000,bonus:3},{n:'Diamond',ar:'ماسي',at:500000,bonus:5}];
+const CAT={game:'Game',app:'App',signup:'Sign-up',finance:'Finance',trial:'Free trial'};
+const CAT_AR={game:'لعبة',app:'تطبيق',signup:'تسجيل',finance:'مالي',trial:'تجربة مجانية'};
+const TYPE_AR={offer:'عرض',survey:'استبيان',bonus:'مكافأة يومية',ref:'إحالة',withdraw:'سحب',reversal:'استرداد',promo:'كود',adjust:'تعديل يدوي',welcome:'ترحيب',contest:'مسابقة'};
+
+function levelOf(earned){let L=LEVELS[0],i=0;LEVELS.forEach((l,k)=>{if(earned>=l.at){L=l;i=k}});return {...L,i,next:LEVELS[i+1]}}
+function avatarColor(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return `hsl(${h} 62% 48%)`}
+
+/* ---------- seed ---------- */
+function seed(){
+  const R=mulberry32(20261121);
+  const pick=a=>a[Math.floor(R()*a.length)];
+  const t0=now();
+  const S={v:1,me:null,admin:false,vpn:false,lastDaily:{},progress:{},tickets:[],feed:[]};
+  S.settings={
+    siteName:'Amigo Cash',coinsPerUSD:1000,userShare:70,refPercent:10,welcomeBonus:250,
+    dailyMin:10,dailyMax:150,holdThresholdUSD:5,holdDays:7,
+    blockVPN:true,maxAccountsPerDevice:1,autoBanRisk:90,firstWithdrawManual:true,autoApproveUnderUSD:10,
+    maintenance:false,registration:true,minAge:18,
+    banner:{on:true,text:'Weekend boost: every game offer pays 20% more until Sunday night.'},
+    gameBoost:20,
+    prizes:[50,25,15,10,5,5,5,5,5,5],
+    supportEmail:'support@amigo.cash',
+    methods:{usdt:{on:true,min:2,fee:0},ltc:{on:true,min:1,fee:0},btc:{on:true,min:10,fee:0.5},binance:{on:true,min:1,fee:0},amazon:{on:true,min:5,fee:0},paypal:{on:false,min:5,fee:0}}
+  };
+  S.networks=[
+    {id:'torox',name:'Torox',kind:'Games',on:true,share:null,secret:'tx_9f3a71c2',rev:9840,reversal:3.1},
+    {id:'adgem',name:'AdGem',kind:'Mixed offers',on:true,share:null,secret:'ag_51be0d77',rev:7120,reversal:4.4},
+    {id:'mychips',name:'MyChips',kind:'Play-time games',on:true,share:null,secret:'mc_0c8e66a1',rev:5310,reversal:2.6},
+    {id:'revu',name:'RevU',kind:'Sign-ups & trials',on:true,share:65,secret:'rv_7a2d4f90',rev:3890,reversal:6.8},
+    {id:'bitlabs',name:'BitLabs',kind:'Surveys',on:true,share:null,secret:'bl_e41f2a38',rev:2470,reversal:5.2},
+    {id:'cpalead',name:'CPAlead',kind:'Mixed offers',on:false,share:null,secret:'cp_3b90ac15',rev:0,reversal:0}
+  ];
+  const O=(title,net,cat,payout,color,steps,extra)=>({id:'o'+title.replace(/\W/g,'').slice(0,8).toLowerCase(),title,net,cat,payout,color,steps,on:true,featured:false,countries:['US','GB','CA','AU'],platform:'Android · iOS',days:14,completions:Math.floor(R()*900+40),...extra});
+  S.offers=[
+    O('Tile Harbor','torox','game',18,'#1FA899',[['Install and open the game',.02],['Reach level 20',.13],['Reach level 75',.35],['Reach level 200',.5]],{featured:true,desc:'Relaxing tile-matching puzzle set in a seaside town.'}),
+    O('Sky Raiders 3D','adgem','game',42,'#4A5BE0',[['Finish the tutorial',.03],['Clear stage 15',.17],['Clear stage 40',.3],['Clear stage 80',.5]],{featured:true,desc:'Arcade flight shooter with daily boss raids.'}),
+    O('Kingdom Ledger','mychips','game',65,'#8B3FD1',[['Build your first castle',.02],['Town Hall level 6',.13],['Town Hall level 10',.3],['Town Hall level 14',.55]],{featured:true,days:30,desc:'City-building strategy game. Long offer, highest payout.'}),
+    O('NeoBank Card','revu','finance',35,'#0F7B6C',[['Open an account and make a first card purchase',1]],{featured:true,countries:['US','GB'],platform:'Web · Mobile',days:30,desc:'Free digital bank account. Identity check required.'}),
+    O('Bubble Bistro','torox','game',9,'#E8577B',[['Reach level 10',.2],['Reach level 50',.8]],{desc:'Bubble shooter where every level is a new recipe.'}),
+    O('Goal Kings Manager','adgem','game',25,'#2E9E3E',[['Create your club',.04],['Win 10 matches',.26],['Reach Division 3',.7]],{desc:'Football manager. Sign players, win the league.'}),
+    O('Budget Buddy','revu','signup',6,'#F08A24',[['Create an account and link a bank',1]],{countries:['US'],platform:'iOS · Android',days:7,desc:'Budgeting app. Free account.'}),
+    O('StreamBox','revu','trial',12,'#D93A3A',[['Start a 30-day free trial',1]],{countries:['US','GB','CA'],platform:'Web',days:7,desc:'Movie streaming service. Cancel any time during the trial.'}),
+    O('Crystal Quest Saga','mychips','game',30,'#2C8BE0',[['Play for 30 minutes',.05],['Reach chapter 5',.35],['Reach chapter 12',.6]],{desc:'Match-3 adventure through crystal caves.'}),
+    O('Farm Valley Stories','torox','game',22,'#7BA428',[['Reach farm level 8',.15],['Reach farm level 25',.35],['Reach farm level 45',.5]],{desc:'Grow crops, raise animals, restore the valley.'}),
+    O('Word Garden','adgem','game',4,'#B5852E',[['Solve 50 puzzles',1]],{desc:'Daily crossword-style word game.'}),
+    O('Turbo Drift Racing','cpalead','game',15,'#333C4E',[['Win 5 races',.2],['Unlock the third car',.8]],{on:true,desc:'Street racing with car upgrades.'})
+  ];
+  S.surveys=Array.from({length:8},(_,i)=>({id:'s'+i,mins:Math.round(5+R()*20),payout:+(0.6+R()*2.9).toFixed(2),rating:+(3.4+R()*1.6).toFixed(1),topic:pick(['Shopping habits','Streaming services','Mobile games','Travel plans','Personal finance','Food & delivery','Cars & driving','Technology'])}));
+  const first=['Jake','Emily','Olivia','Liam','Noah','Ava','Mason','Sophia','Harry','Isla','George','Amelia','Ethan','Mia','Lucas','Chloe','Jack','Grace','Ryan','Ella','Daniel','Lily','Oscar','Zoe','Leo','Ruby','Charlie','Freya','Logan','Poppy','Carter','Harper','Alfie','Evie','Owen','Layla','Henry','Nora','Theo','Aria','Mateo','Hannah'];
+  const ctry=()=>{const r=R();return r<.46?'US':r<.71?'GB':r<.80?'CA':r<.88?'AU':r<.92?'DE':pick(['FR','NL','BR','EG','IN','AE'])};
+  S.users=first.map((f,i)=>{
+    const L=String.fromCharCode(65+Math.floor(R()*26));
+    const earned=Math.floor(Math.pow(R(),2.2)*260000)+800;
+    const vpn=R()<.1;
+    const risk=vpn?Math.floor(60+R()*38):Math.floor(R()*45);
+    const flags=[];if(vpn)flags.push('VPN');if(risk>75&&R()<.6)flags.push('Multi-account');if(risk>70&&R()<.4)flags.push('Fast completions');
+    return {id:'u'+(101+i),name:f+' '+L+'.',email:(f+'.'+L+(10+i)).toLowerCase()+'@example.com',country:ctry(),joined:t0-Math.floor(R()*170+1)*DAY,earned,balance:Math.floor(R()*Math.min(earned,24000)),pending:R()<.3?Math.floor(R()*9000):0,risk,flags,status:risk>92?'banned':'active',device:'dv-'+Math.floor(R()*1e6).toString(16),ip:`${Math.floor(R()*200+20)}.${Math.floor(R()*255)}.${Math.floor(R()*255)}.${Math.floor(R()*255)}`,vpn,refBy:null,refCode:(f.slice(0,4)+Math.floor(R()*90+10)).toUpperCase(),weekly:Math.floor(R()*R()*40000),lastSeen:t0-Math.floor(R()*72)*36e5,paidOnce:R()<.7};
+  });
+  S.tx=[];S.withdrawals=[];S.postbacks=[];
+  for(let k=0;k<70;k++){
+    const u=pick(S.users),o=pick(S.offers),st=pick(o.steps),coins=Math.round(o.payout*st[1]*700);
+    const ts=t0-Math.floor(R()*20*DAY);
+    S.tx.push({id:'t'+k,uid:u.id,type:'offer',desc:o.title+' · '+st[0],coins,status:R()<.08?'reversed':'credited',ts,net:o.net});
+    S.postbacks.push({id:'pb'+k,net:o.net,uid:u.id,offer:o.title,payout:+(o.payout*st[1]).toFixed(2),coins,ts,ip:u.ip,status:R()<.06?'reversed':'ok',txid:'TX'+Math.floor(R()*1e9)});
+  }
+  S.postbacks.sort((a,b)=>b.ts-a.ts);
+  const mk=Object.keys(METHODS).filter(m=>m!=='paypal');
+  for(let k=0;k<34;k++){
+    const u=pick(S.users),usd=pick([1,2,2,5,5,5,10,10,15,20,25,50]),m=pick(mk);
+    const status=k<7?'pending':(R()<.1?'rejected':'paid');
+    const ts=t0-(k<7?Math.floor(R()*30)*36e5:Math.floor(R()*28*DAY));
+    S.withdrawals.push({id:'w'+k,uid:u.id,method:m,usd,coins:usd*1000,addr:m==='amazon'?u.email:(m==='usdt'?'TX'+Math.floor(R()*1e12).toString(36)+'…':m==='binance'?String(Math.floor(R()*9e8+1e8)):'ltc1q'+Math.floor(R()*1e12).toString(36)+'…'),status,ts,note:status==='rejected'?'VPN on every session':'',first:!u.paidOnce});
+  }
+  S.withdrawals.sort((a,b)=>b.ts-a.ts);
+  S.series=Array.from({length:30},(_,i)=>{const rev=140+i*10.5+R()*70;return {d:t0-(29-i)*DAY,rev:+rev.toFixed(2),paid:+(rev*(0.66+R()*0.06)).toFixed(2),rv:+(rev*(0.02+R()*0.04)).toFixed(2),signups:Math.floor(18+i*1.6+R()*14)}});
+  S.promos=[{code:'WELCOME500',coins:500,uses:312,max:1000,on:true},{code:'AMIGO2026',coins:1000,uses:48,max:100,on:true},{code:'TIKTOK25',coins:250,uses:100,max:100,on:false}];
+  S.tickets=[
+    {id:'k1',uid:'u104',subject:'Offer not credited',body:'I reached level 75 in Tile Harbor two days ago and still have not received the coins.',status:'open',ts:t0-5*36e5,replies:[]},
+    {id:'k2',uid:'u117',subject:'Withdrawal still pending',body:'My first USDT withdrawal has been pending since yesterday.',status:'open',ts:t0-14*36e5,replies:[]},
+    {id:'k3',uid:'u109',subject:'Change payout email',body:'Can I change my Amazon delivery email?',status:'closed',ts:t0-3*DAY,replies:[{from:'admin',text:'Done. Your next gift card will go to the new address.',ts:t0-2.8*DAY}]}
+  ];
+  return S;
+}
+
+/* ---------- state ---------- */
+let S;
+try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):null}catch(e){S=null}
+if(!S||S.v!==1)S=seed();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const me=()=>S.users.find(u=>u.id===S.me)||null;
+const userById=id=>S.users.find(u=>u.id===id);
+const netById=id=>S.networks.find(n=>n.id===id);
+const shareFor=net=>{const n=netById(net);return n&&n.share!=null?n.share:S.settings.userShare};
+function offerCoins(o,frac){
+  const boost=o.cat==='game'&&S.settings.banner.on&&S.settings.gameBoost?1+S.settings.gameBoost/100:1;
+  return Math.round(o.payout*(frac==null?1:frac)*shareFor(o.net)/100*S.settings.coinsPerUSD*boost);
+}
+const surveyCoins=s=>Math.round(s.payout*shareFor('bitlabs')/100*S.settings.coinsPerUSD);
+const toUSD=c=>c/S.settings.coinsPerUSD;
+const liveOffers=()=>S.offers.filter(o=>o.on&&netById(o.net)?.on);
+
+/* ---------- toasts / modal ---------- */
+function toast(msg,kind){const el=document.createElement('div');el.className='toast '+(kind||'');el.innerHTML=(kind==='good'?ic('check'):'')+'<span>'+msg+'</span>';$('#toasts').appendChild(el);setTimeout(()=>el.remove(),3400)}
+function modal(title,body,opts){opts=opts||{};$('#modal-root').innerHTML=`<div class="backdrop" data-act="closeBackdrop"><div class="modal ${opts.wide?'wide':''} ${opts.ar?'admin':''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="modal-h"><h3>${title}</h3><button class="iconbtn" data-act="closeModal" aria-label="Close">${ic('x')}</button></div><div class="modal-b">${body}</div></div></div>`;const f=$('#modal-root input:not([type=hidden]),#modal-root textarea');if(f&&!opts.nofocus)setTimeout(()=>f.focus(),30)}
+function closeModal(){$('#modal-root').innerHTML=''}
+
+/* ---------- money movements ---------- */
+function addTx(uid,type,desc,coins,status,extra){const t={id:id('t'),uid,type,desc,coins,status,ts:now(),...(extra||{})};S.tx.unshift(t);return t}
+function credit(u,coins,type,desc,extra){
+  const holdC=S.settings.holdThresholdUSD*S.settings.coinsPerUSD;
+  const hold=(type==='offer'||type==='survey')&&coins>=holdC;
+  const t=addTx(u.id,type,desc,coins,hold?'pending':'credited',{...(extra||{}),release:hold?now()+S.settings.holdDays*DAY:null});
+  if(hold)u.pending+=coins;else u.balance+=coins;
+  u.earned+=coins;u.weekly=(u.weekly||0)+coins;
+  if(u.refBy&&(type==='offer'||type==='survey')){const r=userById(u.refBy);if(r){const rc=Math.round(coins*S.settings.refPercent/100);r.balance+=rc;r.earned+=rc;addTx(r.id,'ref','Referral commission from '+u.name,rc,'credited')}}
+  return t;
+}
+function releaseHolds(u){let n=0;S.tx.forEach(t=>{if(t.uid===u.id&&t.status==='pending'&&t.type!=='withdraw'){t.status='credited';u.pending=Math.max(0,u.pending-t.coins);u.balance+=t.coins;n+=t.coins}});return n}
+function vpnBlocked(){return S.vpn&&S.settings.blockVPN}
+
+/* ---------- routing ---------- */
+const USER_ROUTES=['earn','surveys','cashout','referrals','leaderboard','activity','profile','help'];
+const ADMIN_ROUTES=['admin','admin-users','admin-withdrawals','admin-offers','admin-networks','admin-postbacks','admin-fraud','admin-promos','admin-tickets','admin-site'];
+const route=()=>(location.hash||'').replace('#','')||'home';
+function go(r){if(location.hash==='#'+r)render();else location.hash=r}
+let ui={offerTab:'all',actTab:'all',method:'usdt',amount:null,userQ:'',userFilter:'all',wdFilter:'pending',offerCat:'all',demoOpen:false};
+
+function render(){
+  const r=route();
+  document.documentElement.lang=r.startsWith('admin')?'ar':'en';
+  if(r.startsWith('admin')){renderAdmin(r)}
+  else if(S.settings.maintenance){renderMaintenance()}
+  else if(!me()||r==='home'){renderLanding()}
+  else renderUser(USER_ROUTES.includes(r)?r:'earn');
+  renderDemoBar();
+  save();
+}
+window.addEventListener('hashchange',()=>{closeModal();render();window.scrollTo(0,0)});
+
+/* ---------- ticker ---------- */
+function tickerItems(){
+  const R=Math.random;const items=[];
+  for(let i=0;i<14;i++){const u=S.users[Math.floor(R()*S.users.length)];const o=S.offers[Math.floor(R()*S.offers.length)];const kind=R();
+    if(kind<.25){const m=Object.keys(METHODS)[Math.floor(R()*5)];items.push(`<span class="ticker-item"><b>${esc(u.name)}</b> cashed out <span class="amt">${money([2,5,5,10,20][Math.floor(R()*5)])}</span> via ${METHODS[m].name}</span>`)}
+    else items.push(`<span class="ticker-item"><b>${esc(u.name)}</b> earned <span class="amt"><span class="coin">A</span>${fmt(offerCoins(o,o.steps[0][1]+R()*.2))}</span> on ${esc(o.title)}</span>`)}
+  return items.join('');
+}
+function tickerHTML(){const s=tickerItems();return `<div class="ticker" aria-label="Recent earnings"><div class="ticker-in">${s}${s}</div></div>`}
+
+/* ---------- landing ---------- */
+function logoHTML(){return `<a class="logo" href="#home" aria-label="Amigo Cash home"><b>amigo</b><i>cash</i></a>`}
+function bannerHTML(){return S.settings.banner.on&&S.settings.banner.text?`<div class="banner">${esc(S.settings.banner.text)}</div>`:''}
+function renderLanding(){
+  const o=S.offers[0];const done=2;
+  const paidTotal=S.withdrawals.filter(w=>w.status==='paid').reduce((a,w)=>a+w.usd,0)+184300;
+  const methodsOn=Object.keys(METHODS).filter(m=>S.settings.methods[m].on);
+  $('#app').innerHTML=`
+  ${bannerHTML()}
+  <header class="topbar"><div class="topbar-in">${logoHTML()}<div class="grow"></div>
+    ${me()?`<a class="btn primary" href="#earn">Open dashboard</a>`:`<button class="btn ghost" data-act="auth" data-mode="login">Log in</button><button class="btn primary" data-act="auth" data-mode="signup">Sign up free</button>`}
+  </div></header>
+  ${tickerHTML()}
+  <section class="hero"><div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Rewards for your free time</div>
+      <h1>Play games. Try apps. <em>Get paid</em> in minutes.</h1>
+      <p class="lede">Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from $${Math.min(...methodsOn.map(m=>S.settings.methods[m].min))} in crypto or gift cards.</p>
+      <div class="hero-cta"><button class="btn primary lg" data-act="auth" data-mode="signup">Start earning</button><button class="btn ghost lg" data-act="demoLogin">Try the demo account</button></div>
+      <div class="proofrow">
+        <div><strong class="num">${money(paidTotal).replace('.00','')}</strong><span>paid to members</span></div>
+        <div><strong class="num">${fmt(S.users.length*1280)}</strong><span>members</span></div>
+        <div><strong class="num">4 min</strong><span>average crypto payout</span></div>
+      </div>
+    </div>
+    <div class="phone" aria-label="Example offer">
+      <div class="offer-head"><div class="appicon" style="background:${o.color}">${o.title[0]}</div><div class="grow"><div class="eyebrow">Featured game</div><h3 style="font-size:20px">${esc(o.title)}</h3><div class="small muted">${o.platform} · ${o.days} days to finish</div></div></div>
+      <div class="ms">${o.steps.map((s,i)=>`<div class="ms-item ${i<done?'done':i===done?'next':''}"><span class="ms-dot">${i<done?ic('check'):''}</span><span class="small" style="font-weight:${i===done?800:600}">${esc(s[0])}</span>${C(offerCoins(o,s[1]))}</div>`).join('')}</div>
+      <div class="row between" style="margin-top:12px;padding-top:14px;border-top:1px solid var(--line)"><span class="small muted">Total reward</span><span style="font-size:20px">${C(offerCoins(o))}</span></div>
+      <div class="small muted" style="margin-top:4px;text-align:end">≈ ${money(toUSD(offerCoins(o)))}</div>
+    </div>
+  </div></section>
+  <section class="section" style="background:var(--surface);border-block:1px solid var(--line)"><div class="wrap">
+    <div class="eyebrow">How it works</div><h2>Three steps from sign-up to payout</h2>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><h3>Choose an offer</h3><p>Games, app sign-ups and short surveys from ${S.networks.filter(n=>n.on).length} offer partners. Every task shows the exact coins before you start.</p></div>
+      <div class="step"><span class="n">02</span><h3>Reach the goal</h3><p>Play to a level, open an account or finish a survey. The advertiser confirms it and your coins arrive automatically.</p></div>
+      <div class="step"><span class="n">03</span><h3>Cash out</h3><p>${fmt(S.settings.coinsPerUSD)} coins = $1. Withdraw to USDT, Litecoin, Binance Pay or an Amazon gift card.</p></div>
+    </div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="eyebrow">Payout options</div><h2>Your money, your way</h2>
+    <div class="methods">${Object.keys(METHODS).map(m=>{const M=METHODS[m],st=S.settings.methods[m];return `<div class="method" style="${st.on?'':'opacity:.55'}"><span class="mlogo" style="background:${M.color}">${M.short}</span><div class="grow"><div style="font-weight:800">${M.name}</div><div class="small muted">${st.on?'From '+money(st.min):'Coming soon'}</div></div></div>`}).join('')}</div>
+  </div></section>
+  <section class="section" style="padding-top:8px"><div class="wrap faq" style="max-width:820px;margin-inline:0">
+    <div class="eyebrow">Questions</div><h2 style="margin-bottom:10px">Before you sign up</h2>
+    ${faqHTML()}
+  </div></section>
+  <footer class="footer"><div class="wrap row between wrap">
+    <span>© 2026 Amigo Cash. Members must be ${S.settings.minAge}+. Earnings depend on the offers you complete.</span>
+    <span class="row" style="gap:16px"><a href="#home">Terms</a><a href="#home">Privacy</a><a href="#home">Cookies</a></span>
+  </div></footer>`;
+}
+function faqHTML(){return [
+ ['Is Amigo Cash free?','Yes. You never pay to join or to cash out. Advertisers pay us when you try their game or app, and we pass most of that payment to you.'],
+ ['How much are coins worth?',`${fmt(S.settings.coinsPerUSD)} coins are worth $1.00. Every offer shows its reward in coins and in dollars.`],
+ ['Why is some of my reward pending?',`Rewards of ${money(S.settings.holdThresholdUSD)} or more are held for ${S.settings.holdDays} days while the advertiser checks the conversion. After that they move to your balance automatically.`],
+ ['Can I use a VPN?','No. Offer partners reject traffic from VPNs and proxies, so we pause earning on those connections to protect your account.'],
+ ['How fast are payouts?','Crypto and Binance Pay withdrawals are usually sent within minutes. Your first withdrawal is reviewed by our team, normally within 24 hours.']
+].map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}
+
+/* ---------- auth ---------- */
+function authModal(mode){
+  if(mode==='signup'&&!S.settings.registration){modal('Sign-ups are paused','<p class="muted">New registrations are closed for a short while. Please try again later.</p>');return}
+  const su=mode==='signup';
+  modal(su?'Create your account':'Welcome back',`
+   <button class="btn ghost block" data-act="googleAuth"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12h8"/></svg>Continue with Google</button>
+   <div class="row" style="gap:10px"><span style="flex:1;height:1px;background:var(--line)"></span><span class="tiny muted">or with email</span><span style="flex:1;height:1px;background:var(--line)"></span></div>
+   <form data-form="${su?'signup':'login'}" class="stack" novalidate>
+    ${su?`<div class="field"><label for="f-name">Display name</label><input class="input" id="f-name" name="name" required placeholder="e.g. Sam R." maxlength="24"></div>`:''}
+    <div class="field"><label for="f-email">Email</label><input class="input" id="f-email" name="email" type="email" required placeholder="you@email.com"></div>
+    <div class="field"><label for="f-pass">Password</label><input class="input" id="f-pass" name="pass" type="password" required placeholder="At least 8 characters"></div>
+    ${su?`<div class="field"><label for="f-country">Country</label><select class="input" id="f-country" name="country">${Object.entries(COUNTRY).map(([k,v])=>`<option value="${k}" ${k==='US'?'selected':''}>${v}</option>`).join('')}</select></div>
+    <div class="field"><label for="f-ref">Referral code <span class="muted">(optional)</span></label><input class="input" id="f-ref" name="ref" placeholder="e.g. JAKE42"></div>
+    <label class="check"><input type="checkbox" name="age" id="f-age"> I am ${S.settings.minAge} or older and accept the Terms and Privacy Policy.</label>`:''}
+    <div class="small" id="auth-err" style="color:var(--bad)"></div>
+    <button class="btn primary block lg" type="submit">${su?'Create account':'Log in'}</button>
+   </form>
+   <p class="small muted" style="text-align:center">${su?'Already a member? <a href="#home" data-act="auth" data-mode="login">Log in</a>':'New here? <a href="#home" data-act="auth" data-mode="signup">Create an account</a>'}</p>
+   ${su&&S.settings.welcomeBonus?`<div class="pill coin" style="align-self:center"><span class="coin">A</span>${fmt(S.settings.welcomeBonus)} welcome bonus on sign-up</div>`:''}`);
+}
+function createUser(name,email,country,ref){
+  const refU=ref?S.users.find(u=>u.refCode===ref.toUpperCase().trim()):null;
+  const u={id:id('u'),name,email,country,joined:now(),earned:0,balance:0,pending:0,risk:S.vpn?72:8,flags:S.vpn?['VPN']:[],status:'active',device:'dv-'+Math.floor(Math.random()*1e6).toString(16),ip:'86.12.'+Math.floor(Math.random()*255)+'.'+Math.floor(Math.random()*255),vpn:S.vpn,refBy:refU?refU.id:null,refCode:(name.replace(/\W/g,'').slice(0,4)+Math.floor(Math.random()*90+10)).toUpperCase(),weekly:0,lastSeen:now(),paidOnce:false,twofa:false,isYou:true};
+  S.users.unshift(u);S.me=u.id;
+  if(S.settings.welcomeBonus){u.balance+=S.settings.welcomeBonus;u.earned+=S.settings.welcomeBonus;addTx(u.id,'welcome','Welcome bonus',S.settings.welcomeBonus,'credited')}
+  S.series[S.series.length-1].signups++;
+  return u;
+}
+
+/* ---------- user shell ---------- */
+const UNAV=[['earn','Earn','bolt'],['surveys','Surveys','survey'],['cashout','Cash out','wallet'],['referrals','Referrals','users'],['leaderboard','Leaderboard','trophy'],['activity','Activity','list'],['profile','Account','user'],['help','Help','help']];
+function renderUser(r){
+  const u=me();u.lastSeen=now();
+  const openT=S.tickets.filter(t=>t.uid===u.id&&t.replies.some(x=>x.from==='admin'&&!x.seen)).length;
+  const pages={earn:pEarn,surveys:pSurveys,cashout:pCashout,referrals:pReferrals,leaderboard:pLeaderboard,activity:pActivity,profile:pProfile,help:pHelp};
+  $('#app').innerHTML=`
+  ${bannerHTML()}
+  <header class="topbar"><div class="topbar-in">${logoHTML()}<div class="grow"></div>
+    <div class="balance-chip"><span class="lbl small muted">Balance</span>${C(u.balance)}<a class="btn primary sm" href="#cashout">Cash out</a></div>
+    <button class="avatar" style="background:${avatarColor(u.name)}" data-act="nav" data-to="profile" aria-label="Account">${esc(u.name[0])}</button>
+  </div></header>
+  <div class="shell">
+    <nav class="side" aria-label="Main">
+      ${UNAV.map(([k,l,i])=>`<a class="navlink ${r===k?'on':''}" href="#${k}">${ic(i)}${l}${k==='help'&&openT?`<span class="badge">${openT}</span>`:''}</a>`).join('')}
+      <div class="sep"></div>
+      <div class="card flat" style="padding:14px;background:var(--surface-2);border:0">${levelCard(u,true)}</div>
+      <button class="navlink" data-act="logout" style="margin-top:auto">${ic('out')}Log out</button>
+    </nav>
+    <main class="main"><div class="main-in">${vpnBlocked()?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft)"><div class="row">${ic('shield')}<div><b>VPN or proxy detected.</b> <span class="small">Earning is paused on this connection. Turn off your VPN and reload the page.</span></div></div></div>`:''}${pages[r](u)}</div></main>
+  </div>
+  <nav class="bottomnav" aria-label="Main">${[['earn','Earn','bolt'],['surveys','Surveys','survey'],['cashout','Cash out','wallet'],['referrals','Invite','users'],['profile','Account','user']].map(([k,l,i])=>`<a href="#${k}" class="${r===k?'on':''}">${ic(i)}${l}</a>`).join('')}</nav>`;
+}
+function levelCard(u,compact){const L=levelOf(u.earned);const pct=L.next?Math.min(100,(u.earned-L.at)/(L.next.at-L.at)*100):100;
+  return `<div class="row between"><span class="small" style="font-weight:800">${L.n} level</span>${L.bonus?`<span class="pill accent">+${L.bonus}% bonus</span>`:''}</div>
+  <div class="lvl" style="margin-top:8px"><i style="width:${pct}%"></i></div>
+  <div class="tiny muted" style="margin-top:6px">${L.next?`${fmt(L.next.at-u.earned)} coins to ${L.next.n}`:'Top level reached'}</div>`}
+function walletBar(u){
+  const today=S.tx.filter(t=>t.uid===u.id&&t.ts>now()-DAY&&t.coins>0&&t.type!=='withdraw'&&t.status!=='reversed').reduce((a,t)=>a+t.coins,0);
+  return `<div class="walletbar">
+   <div><div class="s">Available</div><div class="v"><span class="coin">A</span>${fmt(u.balance)}</div><div class="s">≈ ${money(toUSD(u.balance))}</div></div>
+   <div><div class="s">Pending</div><div class="v" style="color:var(--warn)">${fmt(u.pending)}</div><div class="s">${u.pending?`<a href="#activity" style="color:inherit">Releases after ${S.settings.holdDays}-day check</a>`:'Nothing on hold'}</div></div>
+   <div><div class="s">Earned today</div><div class="v">${fmt(today)}</div><div class="s">≈ ${money(toUSD(today))}</div></div>
+   <div><div class="s">Lifetime</div><div class="v">${fmt(u.earned)}</div><div class="s">${levelOf(u.earned).n} member</div></div>
+  </div>`}
+
+function offerCard(o){const prog=S.progress[S.me+':'+o.id];const started=prog!=null;
+  return `<button class="offer" data-act="offer" data-id="${o.id}">
+   <div class="offer-art" style="background:linear-gradient(135deg,${o.color},color-mix(in srgb,${o.color} 55%,#000))"><span class="tag">${CAT[o.cat]}${o.cat==='game'&&S.settings.banner.on&&S.settings.gameBoost?' · +'+S.settings.gameBoost+'%':''}</span><span class="mono">${esc(o.title.split(' ').map(w=>w[0]).join('').slice(0,2))}</span></div>
+   <div class="offer-body"><h4>${esc(o.title)}</h4><span class="tiny muted">${netById(o.net).name} · ${o.steps.length} step${o.steps.length>1?'s':''}</span>
+   <div class="offer-foot">${C(offerCoins(o))}${started?`<span class="pill info">${prog}/${o.steps.length}</span>`:`<span class="tiny muted">${money(toUSD(offerCoins(o)))}</span>`}</div></div>
+  </button>`}
+
+function pEarn(u){
+  const offers=liveOffers();
+  const cats=['all','game','app','signup','finance','trial'].filter(c=>c==='all'||offers.some(o=>o.cat===c));
+  const shown=offers.filter(o=>ui.offerCat==='all'||o.cat===ui.offerCat);
+  const inprog=offers.filter(o=>{const p=S.progress[S.me+':'+o.id];return p!=null&&p<o.steps.length});
+  const lastD=S.lastDaily[u.id]||0,canDaily=now()-lastD>DAY;
+  return `
+  <div class="pagehead"><div><div class="eyebrow">Hi ${esc(u.name.split(' ')[0])}</div><h1>Earn coins</h1></div><span class="small muted">${fmt(S.settings.coinsPerUSD)} coins = $1.00</span></div>
+  ${walletBar(u)}
+  <div class="chest">
+    <div class="chest-ico">${ic('gift')}</div>
+    <div class="grow"><h3 style="font-size:19px">Daily bonus chest</h3><p class="small muted">${canDaily?`Open it once a day for ${S.settings.dailyMin}–${S.settings.dailyMax} free coins.`:`Opened. Next chest in ${Math.ceil((lastD+DAY-now())/36e5)} hours.`}</p></div>
+    <button class="btn ${canDaily?'primary':'ghost'}" data-act="daily" ${canDaily?'':'disabled'}>${canDaily?'Open chest':'Come back later'}</button>
+  </div>
+  ${inprog.length?`<section class="stack"><div class="row between"><h2 style="font-size:20px">Continue where you left off</h2></div><div class="offers">${inprog.map(offerCard).join('')}</div></section>`:''}
+  <section class="stack">
+    <div class="row between wrap"><h2 style="font-size:20px">Featured offers</h2><div class="tabs" role="tablist">${cats.map(c=>`<button class="tab ${ui.offerCat===c?'on':''}" data-act="offerCat" data-c="${c}">${c==='all'?'All':CAT[c]}</button>`).join('')}</div></div>
+    ${shown.length?`<div class="offers">${shown.map(offerCard).join('')}</div>`:`<div class="card empty">No offers in this category right now.</div>`}
+  </section>
+  <section class="stack">
+    <h2 style="font-size:20px">Offer walls</h2><p class="small muted" style="margin-top:-6px">Hundreds more tasks from our partners. Rewards are shown in Amigo coins.</p>
+    <div class="walls">${S.networks.filter(n=>n.on).map(n=>`<button class="wall" data-act="wall" data-id="${n.id}"><span class="wl">${n.name}</span><span class="small muted">${n.kind}</span><span class="bar"><i style="width:${Math.min(100,shareFor(n.id)+20)}%"></i></span><span class="tiny muted">Rating ${(4.1+((n.name.length*7)%9)/10).toFixed(1)} · ${shareFor(n.id)}% to you</span></button>`).join('')}</div>
+  </section>
+  <section class="card row wrap">
+    <div class="grow"><h3 style="font-size:18px">Have a promo code?</h3><p class="small muted">Codes are shared on our Telegram channel and by creators.</p></div>
+    <form data-form="promo" class="row" style="flex-wrap:wrap"><input class="input" id="f-promo" name="code" placeholder="CODE" style="width:160px;text-transform:uppercase;font-family:var(--f-mono)"><button class="btn primary" type="submit">Redeem</button></form>
+  </section>`;
+}
+function offerModal(oid){
+  const o=S.offers.find(x=>x.id===oid),u=me();const key=S.me+':'+oid;const p=S.progress[key];
+  const started=p!=null,finished=started&&p>=o.steps.length;
+  modal(esc(o.title),`
+   <div class="row"><div class="appicon" style="background:${o.color}">${o.title[0]}</div><div class="grow"><div class="row wrap" style="gap:6px"><span class="pill">${CAT[o.cat]}</span><span class="pill">${o.platform}</span><span class="pill">${netById(o.net).name}</span></div><p class="small muted" style="margin-top:6px">${esc(o.desc||'')}</p></div></div>
+   <div class="ms" style="margin-top:0">${o.steps.map((s,i)=>{const d=started&&i<p,nx=started?i===p:i===0;return `<div class="ms-item ${d?'done':nx?'next':''}"><span class="ms-dot">${d?ic('check'):''}</span><span class="small" style="font-weight:${nx?800:600}">${esc(s[0])}</span>${C(offerCoins(o,s[1]))}</div>`}).join('')}</div>
+   <div class="row between" style="padding-top:12px;border-top:1px solid var(--line)"><span class="muted">Total reward</span><span style="font-size:20px">${C(offerCoins(o))}</span></div>
+   <div class="small muted">Finish within ${o.days} days. Available in ${o.countries.join(', ')}. New users only. Rewards of ${money(S.settings.holdThresholdUSD)}+ are held for ${S.settings.holdDays} days.</div>
+   ${!o.countries.includes(u.country)?`<div class="pill bad">Not available in ${COUNTRY[u.country]||u.country}</div>`:''}
+   ${finished?`<div class="pill good" style="align-self:flex-start">${ic('check')} Completed</div>`:
+     !started?`<button class="btn primary lg block" data-act="startOffer" data-id="${o.id}" ${vpnBlocked()||!o.countries.includes(u.country)?'disabled':''}>Start offer</button>`:
+     `<div class="card flat" style="background:var(--surface-2);border:0;padding:14px"><div class="small"><b>Offer in progress.</b> On the live site the partner confirms each step automatically. In this demo you can trigger the confirmation yourself.</div></div>
+      <button class="btn primary lg block" data-act="stepOffer" data-id="${o.id}" ${vpnBlocked()?'disabled':''}>Simulate: “${esc(o.steps[p][0])}” confirmed</button>`}
+  `);
+}
+function wallModal(nid){
+  const n=netById(nid);const list=liveOffers().filter(o=>o.net===nid);
+  modal(n.name+' offer wall',`
+   <p class="small muted">On the live site this panel loads ${n.name}'s offer wall inside the page, with your member ID attached so every completion is credited to you automatically.</p>
+   <div class="code">https://wall.${n.id}.example/?app=amigo&subid=${esc(S.me)}</div>
+   ${list.length?`<div class="stack">${list.map(o=>`<button class="row card" style="padding:12px;cursor:pointer;text-align:start" data-act="offer" data-id="${o.id}"><div class="appicon" style="width:42px;height:42px;font-size:18px;background:${o.color}">${o.title[0]}</div><div class="grow"><b>${esc(o.title)}</b><div class="tiny muted">${CAT[o.cat]} · ${o.steps.length} steps</div></div>${C(offerCoins(o))}</button>`).join('')}</div>`:'<div class="empty">The partner\'s full catalog appears here on the live site.</div>'}
+  `,{nofocus:true});
+}
+
+function pSurveys(u){
+  return `<div class="pagehead"><div><div class="eyebrow">Powered by BitLabs</div><h1>Surveys</h1></div><span class="small muted">Answer honestly. Rushed answers get screened out.</span></div>
+  <div class="tablewrap"><table><thead><tr><th>Topic</th><th>Length</th><th class="hide-sm">Rating</th><th class="r">Reward</th><th></th></tr></thead><tbody>
+  ${S.surveys.map(s=>`<tr><td><b>${s.topic}</b></td><td class="num">${s.mins} min</td><td class="hide-sm"><span class="row" style="gap:4px">${ic('star')}${s.rating}</span></td><td class="r">${C(surveyCoins(s))}</td><td class="r"><button class="btn primary sm" data-act="survey" data-id="${s.id}" ${vpnBlocked()?'disabled':''}>Start</button></td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="card small muted">If a survey screens you out after a few questions you still receive a small consolation reward of 20 coins.</div>`;
+}
+function surveyModal(sid){const s=S.surveys.find(x=>x.id===sid);
+  modal(s.topic,`<div class="row between"><span class="pill">${s.mins} minutes</span>${C(surveyCoins(s))}</div>
+   <p class="small muted">In the live site the survey opens from BitLabs. In this demo, pick an outcome to see how each one is credited.</p>
+   <div class="lvl"><i style="width:40%"></i></div>
+   <div class="row wrap"><button class="btn primary grow" data-act="surveyDone" data-id="${s.id}" data-ok="1">Simulate: survey completed</button><button class="btn ghost grow" data-act="surveyDone" data-id="${s.id}" data-ok="0">Simulate: screened out</button></div>`)}
+
+function pCashout(u){
+  const ms=S.settings.methods;
+  if(!ms[ui.method]?.on)ui.method=Object.keys(METHODS).find(m=>ms[m].on)||'usdt';
+  const M=METHODS[ui.method],st=ms[ui.method];
+  const opts=[st.min,5,10,25,50].filter((v,i,a)=>v>=st.min&&a.indexOf(v)===i).sort((a,b)=>a-b);
+  if(ui.amount==null||ui.amount<st.min)ui.amount=opts[0];
+  const need=ui.amount*S.settings.coinsPerUSD;
+  const mine=S.withdrawals.filter(w=>w.uid===u.id);
+  return `<div class="pagehead"><div><div class="eyebrow">${fmt(S.settings.coinsPerUSD)} coins = $1.00</div><h1>Cash out</h1></div><div class="balance-chip" style="padding-inline-end:14px"><span class="small muted">Available</span>${C(u.balance)}<span class="small muted">${money(toUSD(u.balance))}</span></div></div>
+  <div class="split">
+   <div class="stack">
+    <div class="eyebrow">1 · Choose a method</div>
+    <div class="methodpick">${Object.keys(METHODS).map(m=>{const X=METHODS[m],t=ms[m];return `<button class="mp ${ui.method===m?'on':''}" data-act="method" data-m="${m}" ${t.on?'':'disabled'}><span class="mlogo" style="background:${X.color}">${X.short}</span><span><b>${X.name}</b><br><span class="tiny muted">${t.on?'Min '+money(t.min)+(t.fee?' · fee '+money(t.fee):''):'Coming soon'}</span></span></button>`}).join('')}</div>
+    <div class="eyebrow" style="margin-top:8px">2 · Amount</div>
+    <div class="amtpick">${opts.map(v=>`<button class="${ui.amount===v?'on':''}" data-act="amount" data-v="${v}">$${v}</button>`).join('')}</div>
+    <form data-form="withdraw" class="stack" style="margin-top:8px">
+     <div class="field"><label for="f-addr">3 · ${M.field}</label><input class="input" id="f-addr" name="addr" placeholder="${M.ph}" style="font-family:var(--f-mono)" value="${ui.method==='amazon'||ui.method==='paypal'?esc(u.email):''}"></div>
+     <button class="btn primary lg" type="submit" ${u.balance<need?'disabled':''}>${u.balance<need?`You need ${fmt(need-u.balance)} more coins`:`Withdraw ${money(ui.amount-(st.fee||0))} to ${M.name}`}</button>
+    </form>
+   </div>
+   <aside class="card stack">
+    <h3 style="font-size:17px">Summary</h3>
+    <div class="row between small"><span class="muted">Coins deducted</span>${C(need)}</div>
+    <div class="row between small"><span class="muted">Network fee</span><span class="num">${money(st.fee||0)}</span></div>
+    <div class="row between"><b>You receive</b><b class="num">${money(ui.amount-(st.fee||0))}</b></div>
+    <div class="small muted" style="border-top:1px solid var(--line);padding-top:12px">${!u.paidOnce&&S.settings.firstWithdrawManual?'Your first withdrawal is checked by our team, usually within 24 hours. After that, small withdrawals are sent automatically.':`Withdrawals up to ${money(S.settings.autoApproveUnderUSD)} are sent automatically.`}</div>
+   </aside>
+  </div>
+  <section class="stack"><h2 style="font-size:20px">Your withdrawals</h2>
+  ${mine.length?`<div class="tablewrap"><table><thead><tr><th>Date</th><th>Method</th><th class="r">Amount</th><th>Status</th></tr></thead><tbody>${mine.map(w=>`<tr><td class="small">${ago(w.ts)}</td><td>${METHODS[w.method].name}<div class="tiny muted num">${esc(w.addr)}</div></td><td class="r num">${money(w.usd)}</td><td>${wdPill(w.status)}${w.note?`<div class="tiny muted">${esc(w.note)}</div>`:''}</td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty">${ic('wallet')}<span>No withdrawals yet. Your first one is a few offers away.</span></div>`}
+  </section>`;
+}
+const wdPill=s=>({pending:'<span class="pill warn">Processing</span>',paid:'<span class="pill good">Sent</span>',rejected:'<span class="pill bad">Rejected · refunded</span>'}[s]);
+
+function pReferrals(u){
+  const friends=S.users.filter(x=>x.refBy===u.id);
+  const earned=S.tx.filter(t=>t.uid===u.id&&t.type==='ref').reduce((a,t)=>a+t.coins,0);
+  const link='https://amigo.cash/r/'+u.refCode;
+  return `<div class="pagehead"><div><div class="eyebrow">Invite friends</div><h1>Earn ${S.settings.refPercent}% of everything they earn. For life.</h1></div></div>
+  <div class="card stack">
+   <div class="field"><label for="f-reflink">Your invite link</label><div class="row"><input class="input num" id="f-reflink" readonly value="${link}"><button class="btn primary" data-act="copy" data-text="${link}">${ic('copy')}Copy</button></div></div>
+   <div class="row wrap small muted">Code: <span class="cc" style="font-size:13px">${u.refCode}</span> · Friends get ${fmt(S.settings.welcomeBonus)} bonus coins when they join with it.</div>
+  </div>
+  <div class="walletbar" style="grid-template-columns:repeat(3,1fr)">
+   <div><div class="s">Friends joined</div><div class="v">${friends.length}</div></div>
+   <div><div class="s">Earned from friends</div><div class="v"><span class="coin">A</span>${fmt(earned)}</div></div>
+   <div><div class="s">Your commission</div><div class="v">${S.settings.refPercent}%</div></div>
+  </div>
+  <section class="stack"><div class="row between wrap"><h2 style="font-size:20px">Your friends</h2><button class="btn ghost sm" data-act="simFriend">${ic('plus')}Demo: a friend joins and completes an offer</button></div>
+  ${friends.length?`<div class="tablewrap"><table><thead><tr><th>Friend</th><th>Joined</th><th class="r">They earned</th><th class="r">You got</th></tr></thead><tbody>${friends.map(f=>`<tr><td><b>${esc(f.name)}</b></td><td class="small">${ago(f.joined)}</td><td class="r">${C(f.earned)}</td><td class="r">${C(Math.round(f.earned*S.settings.refPercent/100))}</td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty">${ic('users')}<span>No friends yet. Share your link on TikTok, Discord or with family.</span></div>`}
+  </section>`;
+}
+
+function pLeaderboard(u){
+  const list=[...S.users].filter(x=>x.status==='active').sort((a,b)=>(b.weekly||0)-(a.weekly||0));
+  const top=list.slice(0,10);const myRank=list.findIndex(x=>x.id===u.id)+1;
+  const end=new Date();end.setDate(end.getDate()+((7-end.getDay())%7||7));end.setHours(23,59,0,0);
+  const hrs=Math.round((end-now())/36e5);
+  const pool=S.settings.prizes.reduce((a,b)=>a+b,0);
+  return `<div class="pagehead"><div><div class="eyebrow">Weekly race · ${money(pool)} prize pool</div><h1>Leaderboard</h1></div><span class="pill accent">${ic('clock')}Ends in ${Math.floor(hrs/24)}d ${hrs%24}h</span></div>
+  <div class="podium">${top.slice(0,3).map((x,i)=>`<div class="pod ${i===0?'g1':''}"><span class="rk num">#${i+1}</span><b>${esc(x.name)}${x.id===u.id?' (you)':''}</b>${C(x.weekly||0)}<span class="pill coin">Prize ${money(S.settings.prizes[i]||0)}</span></div>`).join('')}</div>
+  <div class="tablewrap"><table><thead><tr><th>Rank</th><th>Member</th><th class="r">Coins this week</th><th class="r">Prize</th></tr></thead><tbody>
+  ${top.slice(3).map((x,i)=>`<tr ${x.id===u.id?'style="background:var(--accent-soft)"':''}><td class="num">#${i+4}</td><td>${esc(x.name)} <span class="cc">${x.country}</span></td><td class="r">${C(x.weekly||0)}</td><td class="r num">${money(S.settings.prizes[i+3]||0)}</td></tr>`).join('')}
+  ${myRank>10?`<tr style="background:var(--accent-soft)"><td class="num">#${myRank}</td><td><b>You</b></td><td class="r">${C(u.weekly||0)}</td><td class="r small muted">${fmt((top[9].weekly||0)-(u.weekly||0)+1)} to top 10</td></tr>`:''}
+  </tbody></table></div>`;
+}
+
+function pActivity(u){
+  const all=S.tx.filter(t=>t.uid===u.id);
+  const list=all.filter(t=>ui.actTab==='all'||t.status===ui.actTab);
+  const pend=all.filter(t=>t.status==='pending'&&t.type!=='withdraw');
+  return `<div class="pagehead"><div><h1>Activity</h1></div>${pend.length?`<button class="btn ghost sm" data-act="release">${ic('clock')}Demo: skip the ${S.settings.holdDays}-day hold</button>`:''}</div>
+  <div class="tabs">${[['all','All'],['credited','Credited'],['pending','Pending'],['reversed','Reversed']].map(([k,l])=>`<button class="tab ${ui.actTab===k?'on':''}" data-act="actTab" data-t="${k}">${l}</button>`).join('')}</div>
+  ${list.length?`<div class="tablewrap"><table><thead><tr><th>When</th><th>Activity</th><th>Status</th><th class="r">Coins</th></tr></thead><tbody>
+  ${list.map(t=>`<tr><td class="small">${ago(t.ts)}</td><td>${esc(t.desc)}</td><td>${{credited:'<span class="pill good">Credited</span>',pending:`<span class="pill warn">Pending${t.release?' · '+Math.max(1,Math.ceil((t.release-now())/DAY))+'d':''}</span>`,reversed:'<span class="pill bad">Reversed</span>',paid:'<span class="pill info">Paid out</span>'}[t.status]||t.status}</td><td class="r"><span class="amt" style="color:${t.coins<0?'var(--bad)':'var(--good)'}">${t.coins>0?'+':''}${fmt(t.coins)}</span></td></tr>`).join('')}
+  </tbody></table></div>`:`<div class="card empty">${ic('list')}<span>Nothing here yet.</span></div>`}`;
+}
+
+function pProfile(u){
+  return `<div class="pagehead"><h1>Account</h1></div>
+  <div class="grid2">
+   <div class="card stack">
+    <div class="row"><span class="avatar" style="width:56px;height:56px;font-size:22px;background:${avatarColor(u.name)}">${esc(u.name[0])}</span><div><h3 style="font-size:20px">${esc(u.name)}</h3><div class="small muted">Member since ${dateStr(u.joined)} · <span class="cc">${u.country}</span></div></div></div>
+    ${levelCard(u)}
+    <div class="small muted">Level bonuses: ${LEVELS.map(l=>`${l.n} ${l.bonus?'+'+l.bonus+'%':''}`).join(' · ')}</div>
+   </div>
+   <form class="card stack" data-form="profile">
+    <h3 style="font-size:17px">Details</h3>
+    <div class="field"><label for="p-name">Display name</label><input class="input" id="p-name" name="name" value="${esc(u.name)}" maxlength="24"></div>
+    <div class="field"><label for="p-email">Email</label><input class="input" id="p-email" name="email" type="email" value="${esc(u.email)}"></div>
+    <div class="setrow"><div><b class="small">Two-factor login</b><div class="tiny muted">Required for withdrawals over $50</div></div><label class="switch"><input type="checkbox" name="twofa" id="p-2fa" ${u.twofa?'checked':''}><span></span></label></div>
+    <button class="btn primary" type="submit">Save changes</button>
+   </form>
+  </div>
+  <div class="card row wrap between"><div><b>Log out of this device</b><div class="small muted">You can log back in with your email or Google.</div></div><button class="btn ghost" data-act="logout">${ic('out')}Log out</button></div>`;
+}
+
+function pHelp(u){
+  const mine=S.tickets.filter(t=>t.uid===u.id);
+  mine.forEach(t=>t.replies.forEach(r=>r.seen=true));
+  return `<div class="pagehead"><h1>Help centre</h1><span class="small muted">Or email ${esc(S.settings.supportEmail)}</span></div>
+  <div class="split">
+   <div class="faq card" style="padding-block:4px">${faqHTML()}</div>
+   <form class="card stack" data-form="ticket">
+    <h3 style="font-size:17px">Contact support</h3>
+    <div class="field"><label for="t-sub">Subject</label><select class="input" id="t-sub" name="subject"><option>Offer not credited</option><option>Withdrawal question</option><option>Account or login</option><option>Something else</option></select></div>
+    <div class="field"><label for="t-body">Message</label><textarea class="input" id="t-body" name="body" placeholder="Offer name, the step you reached and when."></textarea></div>
+    <button class="btn primary" type="submit">Send message</button>
+   </form>
+  </div>
+  ${mine.length?`<section class="stack"><h2 style="font-size:20px">Your messages</h2>${mine.map(t=>`<div class="card stack" style="gap:8px"><div class="row between"><b>${esc(t.subject)}</b>${t.status==='open'?'<span class="pill warn">Open</span>':'<span class="pill good">Resolved</span>'}</div><p class="small">${esc(t.body)}</p>${t.replies.map(r=>`<div class="small" style="padding:10px 12px;border-radius:10px;background:var(--accent-soft)"><b>Amigo support:</b> ${esc(r.text)}</div>`).join('')}</div>`).join('')}</section>`:''}`;
+}
+
+function renderMaintenance(){
+  $('#app').innerHTML=`<header class="topbar"><div class="topbar-in">${logoHTML()}</div></header><div class="maint"><div class="stack" style="align-items:center;max-width:440px"><div class="chest-ico">${ic('sliders')}</div><h1 style="font-size:34px">We're making Amigo Cash better</h1><p class="muted">Scheduled maintenance is under way. Your balance and pending rewards are safe. Please check back shortly.</p></div></div>`;
+}
+
+/* =================== ADMIN =================== */
+const ANAV=[['admin','نظرة عامة','grid'],['admin-users','المستخدمون','users'],['admin-withdrawals','السحوبات','wallet'],['admin-offers','العروض','game'],['admin-networks','شبكات العروض','plug'],['admin-postbacks','سجل التأكيدات','inbox'],['admin-fraud','مكافحة الاحتيال','shield'],['admin-promos','أكواد المكافآت','tag'],['admin-tickets','الدعم الفني','chat'],['admin-site','إعدادات الموقع','sliders']];
+function renderAdmin(r){
+  if(!S.admin){renderAdminLogin();return}
+  const pend=S.withdrawals.filter(w=>w.status==='pending').length;
+  const openT=S.tickets.filter(t=>t.status==='open').length;
+  const pages={'admin':aOverview,'admin-users':aUsers,'admin-withdrawals':aWithdrawals,'admin-offers':aOffers,'admin-networks':aNetworks,'admin-postbacks':aPostbacks,'admin-fraud':aFraud,'admin-promos':aPromos,'admin-tickets':aTickets,'admin-site':aSite};
+  const badge=k=>k==='admin-withdrawals'&&pend?`<span class="badge">${pend}</span>`:k==='admin-tickets'&&openT?`<span class="badge">${openT}</span>`:'';
+  $('#app').innerHTML=`<div class="admin">
+   <header class="topbar"><div class="topbar-in">${logoHTML()}<span class="pill accent">لوحة الإدارة</span><div class="grow"></div>
+    ${S.settings.maintenance?'<span class="pill warn">وضع الصيانة مفعّل</span>':''}
+    <a class="btn sm" href="#home" style="background:rgba(255,255,255,.1);color:inherit">${ic('eye')}<span class="hide-sm">عرض الموقع</span></a>
+    <button class="btn sm" data-act="adminLogout" style="background:rgba(255,255,255,.1);color:inherit">${ic('out')}<span class="hide-sm">خروج</span></button>
+   </div></header>
+   <div class="shell">
+    <nav class="side" aria-label="لوحة الإدارة">${ANAV.map(([k,l,i])=>`<a class="navlink ${r===k?'on':''}" href="#${k}">${ic(i)}${l}${badge(k)}</a>`).join('')}
+     <div class="sep"></div><div class="tiny muted" style="padding:0 12px">مسجّل كمدير: <span dir="ltr">admin@amigo.cash</span></div></nav>
+    <main class="main"><div class="main-in">
+     <nav class="adminnav">${ANAV.map(([k,l,i])=>`<a class="navlink ${r===k?'on':''}" href="#${k}">${ic(i)}${l}${badge(k)}</a>`).join('')}</nav>
+     ${(pages[r]||aOverview)()}
+    </div></main>
+   </div></div>`;
+}
+function renderAdminLogin(){
+  $('#app').innerHTML=`<div class="admin"><div class="maint"><form class="card stack" data-form="adminLogin" style="width:100%;max-width:400px;text-align:start">
+   <div class="row between">${logoHTML()}<span class="pill accent">الإدارة</span></div>
+   <h1 style="font-size:24px">دخول لوحة التحكم</h1>
+   <div class="field"><label for="a-email">البريد الإلكتروني</label><input class="input" id="a-email" name="email" dir="ltr" value="admin@amigo.cash"></div>
+   <div class="field"><label for="a-pass">كلمة المرور</label><input class="input" id="a-pass" name="pass" type="password" dir="ltr" value="admin123"></div>
+   <div class="field"><label for="a-otp">رمز التحقق الثنائي (2FA)</label><input class="input num" id="a-otp" name="otp" dir="ltr" value="482 913" inputmode="numeric"></div>
+   <div class="small" id="a-err" style="color:var(--bad)"></div>
+   <button class="btn primary lg" type="submit">دخول</button>
+   <p class="tiny muted">في النسخة التجريبية البيانات معبأة مسبقاً. في الموقع الحقيقي الدخول محمي بكلمة سر قوية ورمز من تطبيق المصادقة.</p>
+  </form></div></div>`;
+}
+const usdAr=n=>`<span class="num" dir="ltr">${money(n)}</span>`;
+const nAr=n=>`<span class="num" dir="ltr">${fmt(n)}</span>`;
+
+function chartSVG(series,keys,colors,h){
+  h=h||220;const W=640,P={l:44,r:12,t:12,b:26};
+  const max=Math.max(...series.flatMap(d=>keys.map(k=>d[k])));const step=max>400?200:max>200?100:50;const top=Math.ceil(max/step)*step;
+  const x=i=>P.l+i*(W-P.l-P.r)/(series.length-1),y=v=>P.t+(h-P.t-P.b)*(1-v/top);
+  let g='';for(let v=0;v<=top;v+=step)g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${P.l-8}" y="${y(v)+4}" text-anchor="end">$${v}</text>`;
+  series.forEach((d,i)=>{if((i%7===0&&series.length-1-i>3)||i===series.length-1)g+=`<text x="${x(i)}" y="${h-6}" text-anchor="middle">${new Date(d.d).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</text>`});
+  keys.forEach((k,j)=>{const pts=series.map((d,i)=>`${x(i).toFixed(1)},${y(d[k]).toFixed(1)}`);
+    if(j===0)g+=`<path d="M${pts[0]} L${pts.join(' L')} L${x(series.length-1)},${y(0)} L${x(0)},${y(0)}Z" fill="${colors[j]}" opacity=".12"/>`;
+    g+=`<polyline points="${pts.join(' ')}" fill="none" stroke="${colors[j]}" stroke-width="2.2" stroke-linejoin="round"/>`;
+    const L=series[series.length-1];g+=`<circle cx="${x(series.length-1)}" cy="${y(L[k])}" r="4" fill="${colors[j]}"/>`});
+  return `<div style="overflow-x:auto;direction:ltr"><svg viewBox="0 0 ${W} ${h}" style="width:100%;min-width:480px;height:auto;display:block">${g}</svg></div>`;
+}
+function stats(){
+  const live=S.postbacks.filter(p=>p.live);
+  const rev=S.series.reduce((a,d)=>a+d.rev,0)+live.reduce((a,p)=>a+p.payout,0);
+  const paidOut=S.withdrawals.filter(w=>w.status==='paid').reduce((a,w)=>a+w.usd,0);
+  const userCost=S.series.reduce((a,d)=>a+d.paid,0)+live.reduce((a,p)=>a+p.coins/S.settings.coinsPerUSD,0);
+  const rv=S.series.reduce((a,d)=>a+d.rv,0)+S.postbacks.filter(p=>p.live&&p.status==='reversed').reduce((a,p)=>a+p.payout,0);
+  const pend=S.withdrawals.filter(w=>w.status==='pending');
+  const liability=S.users.reduce((a,u)=>a+u.balance+u.pending,0)/S.settings.coinsPerUSD;
+  return {rev,paidOut,userCost,rv,net:rev-userCost-rv,pend,pendUSD:pend.reduce((a,w)=>a+w.usd,0),liability,active:S.users.filter(u=>now()-u.lastSeen<7*DAY).length};
+}
+function aOverview(){
+  const s=stats();const last=S.series.slice(-7),prev=S.series.slice(-14,-7);
+  const g=(a,b)=>{const p=(a-b)/b*100;return `<span style="color:${p>=0?'var(--good)':'var(--bad)'}" dir="ltr">${p>=0?'▲':'▼'} ${Math.abs(p).toFixed(1)}%</span>`};
+  const sum=(a,k)=>a.reduce((x,d)=>x+d[k],0);
+  const ctry=[['US',46],['GB',27],['CA',9],['AU',8],['DE',4],['أخرى',6]];
+  const totNet=S.networks.reduce((a,n)=>a+n.rev,0)||1;
+  return `<div class="pagehead"><div><div class="eyebrow">آخر 30 يوم</div><h1>نظرة عامة</h1></div><span class="small muted">يتم التحديث لحظياً مع كل تأكيد من الشبكات</span></div>
+  <div class="kpis">
+   <div class="kpi"><div class="k">إيراد الشبكات</div><div class="v">${money(s.rev)}</div><div class="d muted">آخر 7 أيام ${g(sum(last,'rev'),sum(prev,'rev'))}</div></div>
+   <div class="kpi"><div class="k">صافي الربح (بعد حصة المستخدمين والاستردادات)</div><div class="v" style="color:var(--good)">${money(s.net)}</div><div class="d muted">هامش <span dir="ltr">${(s.net/s.rev*100).toFixed(1)}%</span></div></div>
+   <div class="kpi"><div class="k">سحوبات بانتظار الموافقة</div><div class="v" style="color:var(--warn)">${money(s.pendUSD)}</div><div class="d"><a href="#admin-withdrawals">${s.pend.length} طلب ←</a></div></div>
+   <div class="kpi"><div class="k">مستخدمون نشطون (7 أيام)</div><div class="v">${fmt(s.active)}</div><div class="d muted">من أصل ${nAr(S.users.length)} · تسجيلات اليوم ${nAr(S.series[29].signups)}</div></div>
+  </div>
+  <div class="chartbox stack">
+   <div class="row between wrap"><h3 style="font-size:17px">الإيراد مقابل ما يُدفع للمستخدمين (يومياً)</h3><div class="legend"><span><i style="background:var(--accent)"></i>إيراد الشبكات</span><span><i style="background:var(--info)"></i>حصة المستخدمين</span><span><i style="background:var(--bad)"></i>استردادات</span></div></div>
+   ${chartSVG(S.series,['rev','paid','rv'],['var(--accent)','var(--info)','var(--bad)'])}
+  </div>
+  <div class="grid2">
+   <div class="card stack"><h3 style="font-size:17px">الإيراد حسب الدولة</h3>${ctry.map(([c,p])=>`<div class="hbar"><span>${COUNTRY_AR[c]||c}</span><span class="t"><i style="width:${p/46*100}%"></i></span><span class="num" dir="ltr" style="text-align:left">${money(s.rev*p/100)}</span></div>`).join('')}<p class="tiny muted">أمريكا وبريطانيا = <span dir="ltr">73%</span> من الإيراد. عروض الـ Tier 1 تدفع 5–40 دولار للعرض.</p></div>
+   <div class="card stack"><h3 style="font-size:17px">أداء الشبكات</h3>
+    <div class="tablewrap" style="border:0"><table><thead><tr><th>الشبكة</th><th>الإيراد</th><th>الاستردادات</th></tr></thead><tbody>${S.networks.map(n=>`<tr><td><b>${n.name}</b> ${n.on?'':'<span class="pill">متوقفة</span>'}</td><td>${usdAr(n.rev)} <span class="tiny muted" dir="ltr">${(n.rev/totNet*100).toFixed(0)}%</span></td><td><span class="pill ${n.reversal>5?'bad':n.reversal>3.5?'warn':'good'}" dir="ltr">${n.reversal}%</span></td></tr>`).join('')}</tbody></table></div></div>
+  </div>
+  <div class="grid3">
+   <div class="kpi"><div class="k">رصيد مستحق للمستخدمين (التزامات)</div><div class="v">${money(s.liability)}</div><div class="d muted">يجب أن يتوفر كسيولة للسحوبات</div></div>
+   <div class="kpi"><div class="k">نسبة الاستردادات</div><div class="v" style="color:${s.rv/s.rev>.05?'var(--bad)':'var(--good)'}">${(s.rv/s.rev*100).toFixed(1)}%</div><div class="d muted">الهدف: أقل من <span dir="ltr">10%</span></div></div>
+   <div class="kpi"><div class="k">إجمالي ما دُفع فعلياً</div><div class="v">${money(s.paidOut)}</div><div class="d muted">${S.withdrawals.filter(w=>w.status==='paid').length} عملية سحب</div></div>
+  </div>
+  <div class="card stack"><div class="row between"><h3 style="font-size:17px">آخر التأكيدات</h3><a class="small" href="#admin-postbacks">الكل ←</a></div>${postbackTable(S.postbacks.slice(0,6))}</div>`;
+}
+function riskHTML(r){const c=r>75?'var(--bad)':r>45?'var(--warn)':'var(--good)';return `<span class="risk" dir="ltr"><i><b style="width:${r}%;background:${c}"></b></i>${r}</span>`}
+function aUsers(){
+  const q=ui.userQ.toLowerCase();
+  let list=S.users.filter(u=>!q||(u.name+u.email+u.id+u.ip).toLowerCase().includes(q));
+  if(ui.userFilter==='flagged')list=list.filter(u=>u.flags.length);
+  if(ui.userFilter==='banned')list=list.filter(u=>u.status==='banned');
+  if(ui.userFilter==='new')list=list.filter(u=>now()-u.joined<7*DAY);
+  return `<div class="pagehead"><div><h1>المستخدمون</h1><p class="small muted">${nAr(S.users.length)} حساب · اضغط على أي مستخدم للتفاصيل والتحكم</p></div></div>
+  <div class="row wrap"><form data-form="userSearch" class="grow" style="min-width:220px"><input class="input" id="a-q" name="q" placeholder="ابحث بالاسم أو الإيميل أو الـ IP…" value="${esc(ui.userQ)}"></form>
+   <div class="tabs">${[['all','الكل'],['flagged','مشبوهون'],['banned','محظورون'],['new','جدد (7 أيام)']].map(([k,l])=>`<button class="tab ${ui.userFilter===k?'on':''}" data-act="userFilter" data-f="${k}">${l}</button>`).join('')}</div></div>
+  <div class="tablewrap"><table><thead><tr><th>المستخدم</th><th>الدولة</th><th>الرصيد</th><th class="hide-sm">إجمالي الأرباح</th><th>الخطورة</th><th>الحالة</th></tr></thead><tbody>
+  ${list.slice(0,60).map(u=>`<tr style="cursor:pointer" data-act="userDetail" data-id="${u.id}"><td><div class="row" style="gap:10px"><span class="avatar" style="width:30px;height:30px;font-size:12px;background:${avatarColor(u.name)}">${esc(u.name[0])}</span><div style="min-width:0"><b>${esc(u.name)}</b>${u.isYou?' <span class="pill accent">حسابك التجريبي</span>':''}<div class="tiny muted" dir="ltr" style="text-align:right">${esc(u.email)}</div></div></div></td><td><span class="cc">${u.country}</span></td><td>${C(u.balance)}</td><td class="hide-sm">${C(u.earned)}</td><td>${riskHTML(u.risk)}${u.flags.map(f=>` <span class="pill bad">${f}</span>`).join('')}</td><td>${u.status==='banned'?'<span class="pill bad">محظور</span>':'<span class="pill good">نشط</span>'}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا يوجد نتائج</td></tr>'}
+  </tbody></table></div>`;
+}
+function userDetail(uid){
+  const u=userById(uid);const tx=S.tx.filter(t=>t.uid===uid).slice(0,12);const wd=S.withdrawals.filter(w=>w.uid===uid);
+  const same=S.users.filter(x=>x.id!==u.id&&(x.ip===u.ip||x.device===u.device));
+  modal(esc(u.name),`
+   <div class="row wrap">${u.status==='banned'?'<span class="pill bad">محظور</span>':'<span class="pill good">نشط</span>'}<span class="cc">${u.country}</span><span class="pill">${levelOf(u.earned).ar}</span>${u.flags.map(f=>`<span class="pill bad">${f}</span>`).join('')}</div>
+   <div class="grid3">
+    <div class="kpi"><div class="k">الرصيد المتاح</div><div class="v" style="font-size:20px">${fmt(u.balance)}</div><div class="d muted" dir="ltr" style="text-align:right">${money(toUSD(u.balance))}</div></div>
+    <div class="kpi"><div class="k">معلّق</div><div class="v" style="font-size:20px">${fmt(u.pending)}</div></div>
+    <div class="kpi"><div class="k">مدى الحياة</div><div class="v" style="font-size:20px">${fmt(u.earned)}</div></div>
+   </div>
+   <div class="card flat stack" style="gap:6px;font-size:14px">
+    <div class="row between"><span class="muted">البريد</span><span dir="ltr">${esc(u.email)}</span></div>
+    <div class="row between"><span class="muted">IP</span><span class="num" dir="ltr">${u.ip} ${u.vpn?'<span class="pill bad">VPN</span>':''}</span></div>
+    <div class="row between"><span class="muted">بصمة الجهاز</span><span class="num" dir="ltr">${u.device}</span></div>
+    <div class="row between"><span class="muted">تاريخ التسجيل</span><span dir="ltr">${dateStr(u.joined)}</span></div>
+    <div class="row between"><span class="muted">درجة الخطورة</span>${riskHTML(u.risk)}</div>
+    <div class="row between"><span class="muted">حسابات على نفس الجهاز/IP</span><span>${same.length?`<span class="pill bad">${same.length}: ${same.map(x=>esc(x.name)).join('، ')}</span>`:'<span class="pill good">لا يوجد</span>'}</span></div>
+   </div>
+   <form data-form="adjust" class="card flat stack" style="gap:10px"><input type="hidden" name="uid" value="${u.id}">
+    <b>تعديل الرصيد يدوياً</b>
+    <div class="row wrap"><input class="input num" name="coins" id="adj-coins" type="number" placeholder="مثال: 500 أو ‎-500" style="flex:1;min-width:120px" dir="ltr"><input class="input" name="reason" id="adj-reason" placeholder="السبب (يظهر للمستخدم)" style="flex:2;min-width:160px"><button class="btn primary" type="submit">تطبيق</button></div>
+   </form>
+   <div class="row wrap">
+    ${u.status==='banned'?`<button class="btn good" data-act="ban" data-id="${u.id}" data-v="0">رفع الحظر</button>`:`<button class="btn bad" data-act="ban" data-id="${u.id}" data-v="1">حظر الحساب</button>`}
+    ${u.flags.length?`<button class="btn ghost" data-act="clearFlags" data-id="${u.id}">مسح العلامات (موثوق)</button>`:''}
+    ${u.pending?`<button class="btn ghost" data-act="adminRelease" data-id="${u.id}">تحرير الرصيد المعلّق</button>`:''}
+   </div>
+   <b>آخر الحركات</b>
+   ${tx.length?`<div class="tablewrap"><table><tbody>${tx.map(t=>`<tr><td class="small">${agoAr(t.ts)}</td><td class="small">${TYPE_AR[t.type]||t.type} · <span dir="ltr">${esc(t.desc)}</span></td><td><span class="amt" style="color:${t.coins<0?'var(--bad)':'var(--good)'}" dir="ltr">${t.coins>0?'+':''}${fmt(t.coins)}</span></td><td>${t.status==='pending'?'<span class="pill warn">معلّق</span>':t.status==='reversed'?'<span class="pill bad">مسترد</span>':'<span class="pill good">مضاف</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted small">لا يوجد حركات</div>'}
+   ${wd.length?`<b>السحوبات</b><div class="tablewrap"><table><tbody>${wd.map(w=>`<tr><td class="small">${agoAr(w.ts)}</td><td>${METHODS[w.method].name}</td><td>${usdAr(w.usd)}</td><td>${wdPillAr(w.status)}</td></tr>`).join('')}</tbody></table></div>`:''}
+  `,{wide:true,ar:true,nofocus:true});
+}
+const wdPillAr=s=>({pending:'<span class="pill warn">قيد المراجعة</span>',paid:'<span class="pill good">مدفوع</span>',rejected:'<span class="pill bad">مرفوض</span>'}[s]);
+function aWithdrawals(){
+  const list=S.withdrawals.filter(w=>ui.wdFilter==='all'||w.status===ui.wdFilter);
+  const p=S.withdrawals.filter(w=>w.status==='pending');
+  return `<div class="pagehead"><div><h1>السحوبات</h1><p class="small muted">${p.length} طلب بانتظارك بقيمة ${usdAr(p.reduce((a,w)=>a+w.usd,0))}. السحب الأول لكل مستخدم يحتاج موافقتك دائماً.</p></div>${p.length?`<button class="btn good" data-act="approveSafe">${ic('check')}موافقة على كل الطلبات منخفضة الخطورة</button>`:''}</div>
+  <div class="tabs">${[['pending','بانتظار الموافقة'],['paid','مدفوعة'],['rejected','مرفوضة'],['all','الكل']].map(([k,l])=>`<button class="tab ${ui.wdFilter===k?'on':''}" data-act="wdFilter" data-f="${k}">${l}</button>`).join('')}</div>
+  ${list.length?`<div class="tablewrap"><table><thead><tr><th>المستخدم</th><th>الطريقة والعنوان</th><th>المبلغ</th><th>الخطورة</th><th>الوقت</th><th></th></tr></thead><tbody>
+  ${list.map(w=>{const u=userById(w.uid)||{name:'?',risk:0,flags:[]};return `<tr><td><button class="btn ghost sm" data-act="userDetail" data-id="${w.uid}">${esc(u.name)}</button>${w.first?' <span class="pill info">أول سحب</span>':''}</td><td>${METHODS[w.method].name}<div class="tiny muted num" dir="ltr" style="text-align:right">${esc(w.addr)}</div></td><td>${usdAr(w.usd)}</td><td>${riskHTML(u.risk)}${u.flags.slice(0,1).map(f=>` <span class="pill bad">${f}</span>`).join('')}</td><td class="small">${agoAr(w.ts)}</td><td>${w.status==='pending'?`<div class="row" style="gap:6px"><button class="btn good sm" data-act="wd" data-id="${w.id}" data-v="paid">ادفع</button><button class="btn bad sm" data-act="wdReject" data-id="${w.id}">رفض</button></div>`:wdPillAr(w.status)+(w.note?`<div class="tiny muted">${esc(w.note)}</div>`:'')}</td></tr>`}).join('')}
+  </tbody></table></div>`:`<div class="card empty">لا يوجد طلبات هنا 🎉</div>`}`;
+}
+function aOffers(){
+  return `<div class="pagehead"><div><h1>العروض</h1><p class="small muted">العروض المميزة اللي بتظهر بالصفحة الرئيسية. المكافأة للمستخدم تُحسب تلقائياً من سعر الشبكة × حصة المستخدم.</p></div><button class="btn primary" data-act="offerEdit" data-id="">${ic('plus')}عرض جديد</button></div>
+  <div class="tablewrap"><table><thead><tr><th>العرض</th><th>الشبكة</th><th>تدفع الشبكة</th><th>يأخذ المستخدم</th><th>ربحك</th><th>إكمالات</th><th>مميز</th><th>مفعّل</th><th></th></tr></thead><tbody>
+  ${S.offers.map(o=>{const uc=offerCoins(o),uu=toUSD(uc);return `<tr><td><div class="row" style="gap:10px"><span class="appicon" style="width:34px;height:34px;font-size:14px;border-radius:9px;background:${o.color}">${o.title[0]}</span><div><b dir="ltr">${esc(o.title)}</b><div class="tiny muted">${CAT_AR[o.cat]} · ${o.steps.length} مراحل · <span dir="ltr">${o.countries.join(' ')}</span></div></div></div></td><td>${netById(o.net).name}${netById(o.net).on?'':' <span class="pill">متوقفة</span>'}</td><td>${usdAr(o.payout)}</td><td>${usdAr(uu)}</td><td style="color:var(--good)">${usdAr(o.payout-uu)}</td><td>${nAr(o.completions)}</td><td><label class="switch"><input type="checkbox" data-change="offerFeat" data-id="${o.id}" ${o.featured?'checked':''} aria-label="مميز"><span></span></label></td><td><label class="switch"><input type="checkbox" data-change="offerOn" data-id="${o.id}" ${o.on?'checked':''} aria-label="مفعّل"><span></span></label></td><td><button class="btn ghost sm" data-act="offerEdit" data-id="${o.id}">تعديل</button></td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+function offerEditModal(oid){
+  const o=S.offers.find(x=>x.id===oid)||{id:'',title:'',net:'torox',cat:'game',payout:10,color:'#4A5BE0',steps:[['Reach level 10',.3],['Reach level 40',.7]],countries:['US','GB','CA','AU'],platform:'Android · iOS',days:14,desc:''};
+  modal(oid?'تعديل العرض':'عرض جديد',`<form data-form="offerSave" class="stack"><input type="hidden" name="id" value="${o.id}">
+   <div class="setgrid">
+    <div class="field"><label for="o-title">اسم العرض</label><input class="input" id="o-title" name="title" dir="ltr" value="${esc(o.title)}" required></div>
+    <div class="field"><label for="o-net">الشبكة</label><select class="input" id="o-net" name="net">${S.networks.map(n=>`<option value="${n.id}" ${n.id===o.net?'selected':''}>${n.name}</option>`).join('')}</select></div>
+    <div class="field"><label for="o-cat">النوع</label><select class="input" id="o-cat" name="cat">${Object.keys(CAT).map(c=>`<option value="${c}" ${c===o.cat?'selected':''}>${CAT_AR[c]}</option>`).join('')}</select></div>
+    <div class="field"><label for="o-pay">كم تدفع الشبكة ($)</label><input class="input num" id="o-pay" name="payout" type="number" step="0.01" min="0" dir="ltr" value="${o.payout}"></div>
+    <div class="field"><label for="o-color">اللون</label><input class="input" id="o-color" name="color" type="color" value="${o.color}" style="height:46px;padding:4px"></div>
+    <div class="field"><label for="o-days">المدة (أيام)</label><input class="input num" id="o-days" name="days" type="number" dir="ltr" value="${o.days}"></div>
+   </div>
+   <div class="field"><label for="o-countries">الدول المسموحة (رموز مفصولة بمسافة)</label><input class="input num" id="o-countries" name="countries" dir="ltr" value="${o.countries.join(' ')}"></div>
+   <div class="field"><label for="o-desc">وصف قصير (إنجليزي)</label><input class="input" id="o-desc" name="desc" dir="ltr" value="${esc(o.desc||'')}"></div>
+   <div class="field"><label for="o-steps">المراحل: كل سطر "اسم المرحلة | نسبة من المبلغ"</label><textarea class="input num" id="o-steps" name="steps" dir="ltr" style="min-height:110px">${o.steps.map(s=>s[0]+' | '+Math.round(s[1]*100)+'%').join('\n')}</textarea></div>
+   <div class="row between wrap">${oid?`<button class="btn bad" type="button" data-act="offerDelete" data-id="${o.id}">حذف العرض</button>`:'<span></span>'}<button class="btn primary" type="submit">حفظ</button></div>
+  </form>`,{ar:true,wide:true});
+}
+function aNetworks(){
+  return `<div class="pagehead"><div><h1>شبكات العروض</h1><p class="small muted">شغّل أو أوقف أي شبكة، وحدد حصة المستخدم لكل شبكة (أو اتركها على الحصة العامة <span dir="ltr">${S.settings.userShare}%</span>).</p></div></div>
+  <div class="grid2">${S.networks.map(n=>`<form class="card stack" data-form="netSave"><input type="hidden" name="id" value="${n.id}">
+   <div class="row between"><div><h3 style="font-size:20px" dir="ltr">${n.name}</h3><div class="small muted">${n.kind}</div></div><label class="switch"><input type="checkbox" name="on" id="n-on-${n.id}" ${n.on?'checked':''} aria-label="تشغيل"><span></span></label></div>
+   <div class="setgrid">
+    <div class="field"><label for="n-share-${n.id}">حصة المستخدم %</label><input class="input num" id="n-share-${n.id}" name="share" type="number" min="0" max="100" dir="ltr" placeholder="${S.settings.userShare} (عام)" value="${n.share==null?'':n.share}"></div>
+    <div class="field"><label for="n-sec-${n.id}">كلمة سر الـ Postback</label><input class="input num" id="n-sec-${n.id}" name="secret" dir="ltr" value="${n.secret}"></div>
+   </div>
+   <div class="field"><label>رابط التأكيد (انسخه للوحة الشبكة)</label><div class="code">https://amigo.cash/api/postback/${n.id}?subid={user_id}&txid={transaction_id}&payout={payout}&status={status}&sig={hash}</div></div>
+   <div class="row between"><span class="small muted">إيراد 30 يوم: ${usdAr(n.rev)} · استرداد <span dir="ltr">${n.reversal}%</span></span><button class="btn primary sm" type="submit">حفظ</button></div>
+  </form>`).join('')}</div>`;
+}
+function postbackTable(list){
+  return `<div class="tablewrap"><table><thead><tr><th>الوقت</th><th>الشبكة</th><th>المستخدم</th><th>العرض</th><th>الإيراد</th><th>للمستخدم</th><th>الحالة</th><th></th></tr></thead><tbody>
+  ${list.map(p=>{const u=userById(p.uid);return `<tr><td class="small">${agoAr(p.ts)}</td><td>${netById(p.net)?.name||p.net}</td><td>${u?esc(u.name):p.uid}</td><td class="small" dir="ltr" style="text-align:right">${esc(p.offer)}</td><td>${usdAr(p.payout)}</td><td>${C(p.coins)}</td><td>${p.status==='reversed'?'<span class="pill bad">مسترد</span>':'<span class="pill good">مؤكد</span>'}</td><td>${p.status==='ok'?`<button class="btn ghost sm" data-act="reverse" data-id="${p.id}" title="محاكاة استرداد من الشبكة">استرداد</button>`:''}</td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+function aPostbacks(){
+  return `<div class="pagehead"><div><h1>سجل التأكيدات (Postbacks)</h1><p class="small muted">كل مرة الشبكة بتأكد إنو مستخدم خلّص مهمة، بيوصل إشعار هون ويتضاف الرصيد تلقائياً. التحقق بكلمة السر + قائمة IP الشبكة + منع تكرار رقم العملية.</p></div></div>
+  <div class="card small">زر <b>استرداد</b> يحاكي حالة لما الشبكة تسحب العمولة بعد التدقيق (Chargeback): يُخصم المبلغ من رصيد المستخدم تلقائياً وتُرفع درجة خطورته.</div>
+  ${postbackTable(S.postbacks.slice(0,40))}`;
+}
+function aFraud(){
+  const st=S.settings;const flagged=S.users.filter(u=>u.flags.length||u.risk>70).sort((a,b)=>b.risk-a.risk);
+  const devs={};S.users.forEach(u=>{(devs[u.ip]=devs[u.ip]||[]).push(u)});
+  return `<div class="pagehead"><div><h1>مكافحة الاحتيال</h1><p class="small muted">القواعد تطبّق تلقائياً على كل تسجيل وكل عرض وكل سحب.</p></div></div>
+  <div class="grid2">
+   <form class="card" data-form="fraudSave">
+    <h3 style="font-size:17px;margin-bottom:6px">القواعد</h3>
+    <div class="setrow"><div><b class="small">حظر VPN / Proxy</b><div class="tiny muted">إيقاف الكسب عند اكتشاف VPN</div></div><label class="switch"><input type="checkbox" name="blockVPN" id="fr-vpn" ${st.blockVPN?'checked':''}><span></span></label></div>
+    <div class="setrow"><div><b class="small">أول سحب يدوي</b><div class="tiny muted">مراجعة أول سحب لكل مستخدم</div></div><label class="switch"><input type="checkbox" name="firstWithdrawManual" id="fr-first" ${st.firstWithdrawManual?'checked':''}><span></span></label></div>
+    <div class="setrow"><div><b class="small">تعليق المكافآت الكبيرة من ($)</b></div><input class="input num" name="holdThresholdUSD" id="fr-hold" type="number" step="0.5" dir="ltr" style="width:90px" value="${st.holdThresholdUSD}"></div>
+    <div class="setrow"><div><b class="small">مدة التعليق (أيام)</b></div><input class="input num" name="holdDays" id="fr-days" type="number" dir="ltr" style="width:90px" value="${st.holdDays}"></div>
+    <div class="setrow"><div><b class="small">سحب تلقائي حتى ($)</b><div class="tiny muted">للمستخدمين الموثوقين بعد أول سحب</div></div><input class="input num" name="autoApproveUnderUSD" id="fr-auto" type="number" dir="ltr" style="width:90px" value="${st.autoApproveUnderUSD}"></div>
+    <div class="setrow"><div><b class="small">أقصى حسابات لكل جهاز</b></div><input class="input num" name="maxAccountsPerDevice" id="fr-max" type="number" dir="ltr" style="width:90px" value="${st.maxAccountsPerDevice}"></div>
+    <div class="setrow"><div><b class="small">حظر تلقائي عند درجة خطورة</b></div><input class="input num" name="autoBanRisk" id="fr-ban" type="number" dir="ltr" style="width:90px" value="${st.autoBanRisk}"></div>
+    <button class="btn primary" type="submit" style="margin-top:12px">حفظ القواعد</button>
+   </form>
+   <div class="card stack"><h3 style="font-size:17px">حسابات تحتاج انتباه (${flagged.length})</h3>
+    ${flagged.slice(0,10).map(u=>`<button class="row between" style="padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;text-align:start" data-act="userDetail" data-id="${u.id}"><span><b>${esc(u.name)}</b> <span class="cc">${u.country}</span><br>${u.flags.map(f=>`<span class="pill bad">${f}</span>`).join(' ')||'<span class="tiny muted">خطورة مرتفعة</span>'}</span>${riskHTML(u.risk)}</button>`).join('')}
+   </div>
+  </div>`;
+}
+function aPromos(){
+  return `<div class="pagehead"><div><h1>أكواد المكافآت</h1><p class="small muted">أكواد توزعها على تيليغرام أو مع المؤثرين. كل مستخدم يستخدم الكود مرة وحدة.</p></div></div>
+  <form class="card row wrap" data-form="promoNew" style="align-items:flex-end">
+   <div class="field"><label for="pr-code">الكود</label><input class="input num" id="pr-code" name="code" dir="ltr" placeholder="SUMMER26" style="text-transform:uppercase" required></div>
+   <div class="field"><label for="pr-coins">عدد الكوينز</label><input class="input num" id="pr-coins" name="coins" type="number" dir="ltr" value="500"></div>
+   <div class="field"><label for="pr-max">عدد الاستخدامات</label><input class="input num" id="pr-max" name="max" type="number" dir="ltr" value="100"></div>
+   <button class="btn primary" type="submit">${ic('plus')}إنشاء</button>
+  </form>
+  <div class="tablewrap"><table><thead><tr><th>الكود</th><th>المكافأة</th><th>الاستخدام</th><th>التكلفة</th><th>مفعّل</th></tr></thead><tbody>
+  ${S.promos.map(p=>`<tr><td><span class="cc" style="font-size:13px">${esc(p.code)}</span></td><td>${C(p.coins)}</td><td><span dir="ltr" class="num">${p.uses} / ${p.max}</span></td><td>${usdAr(p.uses*p.coins/S.settings.coinsPerUSD)}</td><td><label class="switch"><input type="checkbox" data-change="promoOn" data-code="${esc(p.code)}" ${p.on?'checked':''} aria-label="مفعّل"><span></span></label></td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function aTickets(){
+  const list=[...S.tickets].sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||b.ts-a.ts);
+  return `<div class="pagehead"><div><h1>الدعم الفني</h1><p class="small muted">رسائل المستخدمين من صفحة Help. ردّك يظهر للمستخدم مباشرة بحسابه.</p></div></div>
+  ${list.map(t=>{const u=userById(t.uid);return `<div class="card stack" style="gap:10px"><div class="row between wrap"><div><b dir="ltr">${esc(t.subject)}</b><div class="tiny muted">${u?esc(u.name):''} · ${agoAr(t.ts)}</div></div>${t.status==='open'?'<span class="pill warn">مفتوحة</span>':'<span class="pill good">مغلقة</span>'}</div>
+   <p dir="ltr" style="text-align:left">${esc(t.body)}</p>
+   ${t.replies.map(r=>`<div class="small" dir="ltr" style="text-align:left;padding:10px 12px;border-radius:10px;background:var(--accent-soft)"><b>You:</b> ${esc(r.text)}</div>`).join('')}
+   ${t.status==='open'?`<form class="row wrap" data-form="reply"><input type="hidden" name="id" value="${t.id}"><input class="input grow" name="text" id="rp-${t.id}" dir="ltr" placeholder="Write a reply in English…" style="min-width:200px"><button class="btn primary" type="submit">رد وإغلاق</button>${u?`<button class="btn ghost" type="button" data-act="userDetail" data-id="${u.id}">ملف المستخدم</button>`:''}</form>`:''}
+  </div>`}).join('')}`;
+}
+function aSite(){
+  const st=S.settings;
+  return `<div class="pagehead"><div><h1>إعدادات الموقع</h1><p class="small muted">أي تغيير هون بينعكس على الموقع فوراً. ما في داعي تلمس الكود.</p></div></div>
+  <form data-form="siteSave" class="stack">
+  <div class="grid2">
+   <div class="card">
+    <h3 style="font-size:17px;margin-bottom:6px">الاقتصاد</h3>
+    <div class="setrow"><div><b class="small">عدد الكوينز مقابل 1 دولار</b></div><input class="input num" name="coinsPerUSD" id="s-cpu" type="number" dir="ltr" style="width:110px" value="${st.coinsPerUSD}"></div>
+    <div class="setrow"><div><b class="small">حصة المستخدم العامة %</b><div class="tiny muted">من كل دولار تدفعه الشبكة</div></div><input class="input num" name="userShare" id="s-share" type="number" min="0" max="100" dir="ltr" style="width:110px" value="${st.userShare}"></div>
+    <div class="setrow"><div><b class="small">عمولة الإحالة %</b></div><input class="input num" name="refPercent" id="s-ref" type="number" dir="ltr" style="width:110px" value="${st.refPercent}"></div>
+    <div class="setrow"><div><b class="small">مكافأة التسجيل (كوينز)</b></div><input class="input num" name="welcomeBonus" id="s-wel" type="number" dir="ltr" style="width:110px" value="${st.welcomeBonus}"></div>
+    <div class="setrow"><div><b class="small">صندوق المكافأة اليومي (أدنى – أعلى)</b></div><div class="row" style="gap:6px"><input class="input num" name="dailyMin" id="s-dmin" type="number" dir="ltr" style="width:72px" value="${st.dailyMin}"><input class="input num" name="dailyMax" id="s-dmax" type="number" dir="ltr" style="width:72px" value="${st.dailyMax}"></div></div>
+    <div class="setrow"><div><b class="small">جوائز المسابقة الأسبوعية ($)</b><div class="tiny muted">مفصولة بفاصلة، من المركز الأول</div></div><input class="input num" name="prizes" id="s-prizes" dir="ltr" style="width:170px" value="${st.prizes.join(',')}"></div>
+   </div>
+   <div class="card">
+    <h3 style="font-size:17px;margin-bottom:6px">طرق السحب</h3>
+    ${Object.keys(METHODS).map(m=>`<div class="setrow"><div class="row" style="gap:10px"><span class="mlogo" style="width:34px;height:34px;font-size:9px;background:${METHODS[m].color}">${METHODS[m].short}</span><b class="small" dir="ltr">${METHODS[m].name}</b></div><div class="row" style="gap:8px"><span class="tiny muted">أدنى $</span><input class="input num" name="min_${m}" id="s-min-${m}" type="number" step="0.5" dir="ltr" style="width:72px" value="${st.methods[m].min}"><label class="switch"><input type="checkbox" name="on_${m}" id="s-on-${m}" ${st.methods[m].on?'checked':''} aria-label="تفعيل"><span></span></label></div></div>`).join('')}
+    <p class="tiny muted" style="margin-top:8px">PayPal مطفأ لحين وجود شريك أو شركة بدولة مدعومة.</p>
+   </div>
+  </div>
+  <div class="card">
+   <h3 style="font-size:17px;margin-bottom:6px">الموقع والإعلانات</h3>
+   <div class="setrow"><div><b class="small">شريط الإعلان أعلى الموقع</b><div class="tiny muted">مثلاً عرض نهاية الأسبوع</div></div><label class="switch"><input type="checkbox" name="bannerOn" id="s-bon" ${st.banner.on?'checked':''}><span></span></label></div>
+   <div class="field" style="padding:8px 0"><label for="s-btext">نص الإعلان (إنجليزي)</label><input class="input" id="s-btext" name="bannerText" dir="ltr" value="${esc(st.banner.text)}"></div>
+   <div class="setrow"><div><b class="small">زيادة عروض الألعاب مع الإعلان %</b></div><input class="input num" name="gameBoost" id="s-boost" type="number" dir="ltr" style="width:110px" value="${st.gameBoost}"></div>
+   <div class="setrow"><div><b class="small">التسجيل مفتوح</b></div><label class="switch"><input type="checkbox" name="registration" id="s-reg" ${st.registration?'checked':''}><span></span></label></div>
+   <div class="setrow"><div><b class="small">وضع الصيانة</b><div class="tiny muted">يخفي الموقع عن المستخدمين، لوحة الإدارة تبقى شغالة</div></div><label class="switch"><input type="checkbox" name="maintenance" id="s-maint" ${st.maintenance?'checked':''}><span></span></label></div>
+   <div class="setrow"><div><b class="small">إيميل الدعم</b></div><input class="input" name="supportEmail" id="s-mail" dir="ltr" style="width:220px" value="${esc(st.supportEmail)}"></div>
+  </div>
+  <div class="row" style="justify-content:flex-end"><button class="btn primary lg" type="submit">حفظ كل الإعدادات</button></div>
+  </form>`;
+}
+
+/* ---------- demo bar ---------- */
+function renderDemoBar(){
+  const isA=route().startsWith('admin');
+  $('#demobar').innerHTML=`<button class="demobtn" data-act="demoToggle" aria-expanded="${ui.demoOpen}"><i></i>تجربة</button>
+  ${ui.demoOpen?`<div class="demopanel">
+   <div class="small" style="font-weight:700">أدوات التجربة (لا تظهر بالموقع الحقيقي)</div>
+   <a class="btn ${!isA?'primary':''}" href="#${me()?'earn':'home'}">${ic('home')}الموقع كمستخدم</a>
+   <a class="btn ${isA?'primary':''}" href="#admin">${ic('grid')}لوحة الإدارة</a>
+   <button class="btn" data-act="toggleVPN">${ic('globe')}${S.vpn?'إيقاف محاكاة VPN':'محاكاة دخول عبر VPN'}</button>
+   <button class="btn" data-act="toggleTheme">${ic('eye')}تبديل الوضع الفاتح/الداكن</button>
+   <button class="btn bad" data-act="resetDemo">${ic('x')}إعادة ضبط كل البيانات</button>
+  </div>`:''}`;
+}
+
+/* ---------- actions ---------- */
+const ACT={
+  closeModal,
+  closeBackdrop:(d,el,e)=>{if(e.target===el)closeModal()},
+  nav:d=>go(d.to),
+  auth:d=>authModal(d.mode),
+  googleAuth:()=>{const u=createUser('Sam R.','sam.r@gmail.example','US','');closeModal();toast('Signed in with Google. '+fmt(S.settings.welcomeBonus)+' welcome coins added','good');go('earn')},
+  demoLogin:()=>{if(!me())createUser('Demo Player','demo@amigo.cash','US','');go('earn');toast('You are in the demo account','good')},
+  logout:()=>{S.me=null;go('home')},
+  offerCat:d=>{ui.offerCat=d.c;render()},
+  offer:d=>offerModal(d.id),
+  wall:d=>wallModal(d.id),
+  startOffer:d=>{S.progress[S.me+':'+d.id]=0;save();offerModal(d.id);render();toast('Offer started. Install the app from the link to begin.')},
+  stepOffer:d=>{
+    const o=S.offers.find(x=>x.id===d.id),u=me(),k=S.me+':'+d.id,p=S.progress[k];
+    const st=o.steps[p],coins=offerCoins(o,st[1]);
+    const t=credit(u,coins,'offer',o.title+' · '+st[0],{net:o.net});
+    S.progress[k]=p+1;o.completions++;
+    const pb={id:id('pb'),net:o.net,uid:u.id,offer:o.title+' · '+st[0],payout:+(o.payout*st[1]).toFixed(2),coins,ts:now(),ip:u.ip,status:'ok',txid:'TX'+Date.now(),live:true,tx:t.id};
+    S.postbacks.unshift(pb);const n=netById(o.net);n.rev=+(n.rev+pb.payout).toFixed(2);
+    save();offerModal(d.id);render();
+    toast(t.status==='pending'?`${fmt(coins)} coins added as pending (${S.settings.holdDays}-day check)`:`+${fmt(coins)} coins added to your balance`,'good');
+  },
+  survey:d=>surveyModal(d.id),
+  surveyDone:d=>{const s=S.surveys.find(x=>x.id===d.id),u=me();const ok=d.ok==='1';const c=ok?surveyCoins(s):20;
+    credit(u,c,'survey',(ok?'Survey completed · ':'Survey screen-out · ')+s.topic,{net:'bitlabs'});
+    S.postbacks.unshift({id:id('pb'),net:'bitlabs',uid:u.id,offer:'Survey · '+s.topic,payout:ok?s.payout:0.03,coins:c,ts:now(),ip:u.ip,status:'ok',txid:'BL'+Date.now(),live:true});
+    closeModal();render();toast(`+${fmt(c)} coins ${ok?'for the survey':'consolation reward'}`,'good')},
+  daily:()=>{const u=me();const c=Math.round(S.settings.dailyMin+Math.random()*(S.settings.dailyMax-S.settings.dailyMin));S.lastDaily[u.id]=now();credit(u,c,'bonus','Daily bonus chest');render();toast(`The chest had ${fmt(c)} coins`,'good')},
+  method:d=>{ui.method=d.m;ui.amount=null;render()},
+  amount:d=>{ui.amount=+d.v;render()},
+  actTab:d=>{ui.actTab=d.t;render()},
+  release:()=>{const n=releaseHolds(me());render();toast(`${fmt(n)} coins moved to your balance`,'good')},
+  copy:d=>{const done=()=>toast('Link copied','good');try{navigator.clipboard.writeText(d.text).then(done,()=>{const i=$('#f-reflink');i&&i.select();toast('Press Ctrl+C to copy')})}catch(e){const i=$('#f-reflink');i&&i.select()}},
+  simFriend:()=>{const u=me();const names=['Mike T.','Jess P.','Tom W.','Amy L.','Ben K.'];const f={id:id('u'),name:names[Math.floor(Math.random()*names.length)],email:'friend'+Math.floor(Math.random()*999)+'@example.com',country:'GB',joined:now(),earned:0,balance:0,pending:0,risk:12,flags:[],status:'active',device:'dv-'+Math.floor(Math.random()*1e6).toString(16),ip:'81.2.'+Math.floor(Math.random()*255)+'.9',vpn:false,refBy:u.id,refCode:'FR'+Math.floor(Math.random()*999),weekly:0,lastSeen:now(),paidOnce:false};S.users.push(f);
+    f.balance+=S.settings.welcomeBonus;f.earned+=S.settings.welcomeBonus;const o=S.offers[1];credit(f,offerCoins(o,.2),'offer',o.title+' · Clear stage 15',{net:o.net});render();toast(`${f.name} joined with your link and earned. Your ${S.settings.refPercent}% was added.`,'good')},
+  toggleVPN:()=>{S.vpn=!S.vpn;const u=me();if(u&&S.vpn){u.vpn=true;if(!u.flags.includes('VPN'))u.flags.push('VPN');u.risk=Math.max(u.risk,72)}render();toast(S.vpn?'محاكاة VPN مفعّلة':'محاكاة VPN متوقفة')},
+  toggleTheme:()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark'},
+  resetDemo:(d,el)=>{if(el.dataset.confirm!=='1'){el.dataset.confirm='1';el.innerHTML=ic('x')+'اضغط مرة ثانية للتأكيد';return}try{localStorage.removeItem(KEY)}catch(e){}S=seed();ui.demoOpen=false;go('home');toast('رجعت البيانات للبداية')},
+  demoToggle:()=>{ui.demoOpen=!ui.demoOpen;renderDemoBar()},
+  /* admin */
+  adminLogout:()=>{S.admin=false;go('admin')},
+  userFilter:d=>{ui.userFilter=d.f;render()},
+  userDetail:d=>userDetail(d.id),
+  ban:d=>{const u=userById(d.id);u.status=d.v==='1'?'banned':'active';render();userDetail(u.id);toast(d.v==='1'?'تم حظر الحساب':'تم رفع الحظر')},
+  clearFlags:d=>{const u=userById(d.id);u.flags=[];u.risk=Math.min(u.risk,20);u.vpn=false;render();userDetail(u.id);toast('تم وضع الحساب كموثوق','good')},
+  adminRelease:d=>{const u=userById(d.id);const n=releaseHolds(u);render();userDetail(u.id);toast('تم تحرير '+fmt(n)+' كوين','good')},
+  wdFilter:d=>{ui.wdFilter=d.f;render()},
+  wd:d=>{const w=S.withdrawals.find(x=>x.id===d.id);w.status='paid';const u=userById(w.uid);if(u)u.paidOnce=true;S.tx.forEach(t=>{if(t.wid===w.id)t.status='paid'});render();toast('تم تأكيد الدفع '+money(w.usd),'good')},
+  wdReject:d=>{const w=S.withdrawals.find(x=>x.id===d.id);
+    modal('رفض السحب',`<form data-form="wdReject" class="stack"><input type="hidden" name="id" value="${w.id}"><p class="small muted">المبلغ يرجع لرصيد المستخدم تلقائياً، والسبب يظهر له.</p><div class="field"><label for="rj-r">السبب (إنجليزي)</label><select class="input" id="rj-r" name="reason" dir="ltr"><option>VPN or proxy detected</option><option>Wallet address is invalid</option><option>Multiple accounts on one device</option><option>Offer reversed by the advertiser</option></select></div><button class="btn bad" type="submit">رفض وإرجاع الرصيد</button></form>`,{ar:true})},
+  approveSafe:()=>{let n=0;S.withdrawals.forEach(w=>{const u=userById(w.uid);if(w.status==='pending'&&u&&u.risk<50&&!u.flags.length){w.status='paid';u.paidOnce=true;S.tx.forEach(t=>{if(t.wid===w.id)t.status='paid'});n++}});render();toast(n?`تمت الموافقة على ${n} طلبات`:'ما في طلبات منخفضة الخطورة','good')},
+  offerEdit:d=>offerEditModal(d.id),
+  offerDelete:d=>{S.offers=S.offers.filter(o=>o.id!==d.id);closeModal();render();toast('تم حذف العرض')},
+  reverse:d=>{const p=S.postbacks.find(x=>x.id===d.id);p.status='reversed';const u=userById(p.uid);
+    if(u){const t=p.tx&&S.tx.find(x=>x.id===p.tx);if(t&&t.status==='pending'){u.pending=Math.max(0,u.pending-t.coins);t.status='reversed'}else{u.balance-=p.coins;if(t)t.status='reversed'}
+      addTx(u.id,'reversal','Reversed by advertiser · '+p.offer,-p.coins,'reversed');u.risk=Math.min(99,u.risk+15);if(!u.flags.includes('Reversal'))u.flags.push('Reversal')}
+    render();toast('تم الاسترداد وخصم '+fmt(p.coins)+' كوين من المستخدم')}
+};
+const FORM={
+  signup:(f)=>{const name=(f.get('name')||'').trim(),email=(f.get('email')||'').trim(),pass=f.get('pass')||'';const err=$('#auth-err');
+    if(name.length<2)return err.textContent='Enter a display name with at least 2 characters.';
+    if(!/^\S+@\S+\.\S+$/.test(email))return err.textContent='Enter a valid email address, like you@email.com.';
+    if(pass.length<8)return err.textContent='Your password needs at least 8 characters.';
+    if(!f.get('age'))return err.textContent=`Confirm that you are ${S.settings.minAge} or older to continue.`;
+    if(S.users.some(u=>u.email.toLowerCase()===email.toLowerCase()))return err.textContent='An account with this email already exists. Log in instead.';
+    const u=createUser(name,email,f.get('country'),f.get('ref'));closeModal();go('earn');toast(`Welcome, ${name.split(' ')[0]}! ${fmt(S.settings.welcomeBonus)} coins added`,'good');if(u.refBy)toast('Referral code applied')},
+  login:(f)=>{const email=(f.get('email')||'').trim().toLowerCase();const u=S.users.find(x=>x.email.toLowerCase()===email);const err=$('#auth-err');
+    if(!u)return err.textContent='No account uses this email. Check the spelling or create an account.';
+    if(u.status==='banned')return err.textContent='This account is suspended. Contact support for details.';
+    S.me=u.id;closeModal();go('earn')},
+  promo:(f)=>{const code=(f.get('code')||'').trim().toUpperCase();const p=S.promos.find(x=>x.code===code);const u=me();
+    if(!p||!p.on)return toast('That code is not valid or has expired','bad');
+    if(p.uses>=p.max)return toast('This code has reached its limit','bad');
+    if(S.tx.some(t=>t.uid===u.id&&t.type==='promo'&&t.code===code))return toast('You already used this code','bad');
+    p.uses++;credit(u,p.coins,'promo','Promo code '+code,{code});render();toast(`+${fmt(p.coins)} coins from ${code}`,'good')},
+  withdraw:(f)=>{const u=me();const addr=(f.get('addr')||'').trim();const m=ui.method,st=S.settings.methods[m];const usd=ui.amount;const coins=usd*S.settings.coinsPerUSD;
+    if(u.status==='banned')return toast('Your account is suspended','bad');
+    if(vpnBlocked())return toast('Turn off your VPN to cash out','bad');
+    if(addr.length<6)return toast('Enter your '+METHODS[m].field.toLowerCase(),'bad');
+    if(u.balance<coins)return toast('Not enough coins for this amount','bad');
+    u.balance-=coins;
+    const auto=u.paidOnce&&usd<=S.settings.autoApproveUnderUSD&&u.risk<50&&!u.flags.length;
+    const first=!u.paidOnce;
+    const w={id:id('w'),uid:u.id,method:m,usd,coins,addr,status:auto?'paid':'pending',ts:now(),note:'',first};
+    S.withdrawals.unshift(w);addTx(u.id,'withdraw','Withdrawal · '+METHODS[m].name,-coins,auto?'paid':'pending',{wid:w.id});
+    if(auto)u.paidOnce=true;
+    render();toast(auto?`${money(usd)} sent to your ${METHODS[m].name}`:`Withdrawal requested. ${first&&S.settings.firstWithdrawManual?'We review first payouts within 24 hours.':'Processing now.'}`,'good')},
+  profile:(f)=>{const u=me();const n=(f.get('name')||'').trim();if(n.length<2)return toast('Display name needs 2+ characters','bad');u.name=n;u.email=(f.get('email')||u.email).trim();u.twofa=!!f.get('twofa');render();toast('Changes saved','good')},
+  ticket:(f)=>{const body=(f.get('body')||'').trim();if(body.length<10)return toast('Add a few more details so we can help','bad');S.tickets.unshift({id:id('k'),uid:S.me,subject:f.get('subject'),body,status:'open',ts:now(),replies:[]});render();toast('Message sent. We usually reply within a few hours','good')},
+  adminLogin:(f)=>{if(f.get('email')==='admin@amigo.cash'&&f.get('pass')==='admin123'){S.admin=true;render()}else $('#a-err').textContent='البيانات غير صحيحة'},
+  userSearch:(f)=>{ui.userQ=f.get('q')||'';render();const i=$('#a-q');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},
+  adjust:(f)=>{const u=userById(f.get('uid'));const c=parseInt(f.get('coins'),10);if(!c)return toast('أدخل عدد كوينز','bad');u.balance+=c;if(c>0)u.earned+=c;addTx(u.id,'adjust',(f.get('reason')||'Balance adjustment by support'),c,'credited');render();userDetail(u.id);toast('تم تعديل الرصيد '+(c>0?'+':'')+fmt(c),'good')},
+  wdReject:(f)=>{const w=S.withdrawals.find(x=>x.id===f.get('id'));w.status='rejected';w.note=f.get('reason');const u=userById(w.uid);if(u){u.balance+=w.coins;addTx(u.id,'adjust','Refund · withdrawal rejected: '+w.note,w.coins,'credited')}S.tx.forEach(t=>{if(t.wid===w.id)t.status='reversed'});closeModal();render();toast('تم الرفض وإرجاع الرصيد')},
+  offerSave:(f)=>{const idv=f.get('id');const steps=(f.get('steps')||'').split('\n').map(l=>l.split('|')).filter(a=>a[0].trim()).map(a=>[a[0].trim(),(parseFloat(a[1])||0)/100]);
+    const tot=steps.reduce((a,s)=>a+s[1],0);if(!steps.length||Math.abs(tot-1)>0.02)return toast('مجموع نسب المراحل لازم يساوي 100% (حالياً '+Math.round(tot*100)+'%)','bad');
+    const data={title:f.get('title').trim(),net:f.get('net'),cat:f.get('cat'),payout:+f.get('payout'),color:f.get('color'),days:+f.get('days')||14,countries:(f.get('countries')||'').toUpperCase().split(/[\s,]+/).filter(Boolean),desc:f.get('desc'),steps};
+    if(!data.title)return toast('اكتب اسم العرض','bad');
+    if(idv){Object.assign(S.offers.find(o=>o.id===idv),data)}else S.offers.unshift({id:id('o'),on:true,featured:true,platform:'Android · iOS',completions:0,...data});
+    closeModal();render();toast('تم حفظ العرض','good')},
+  netSave:(f)=>{const n=netById(f.get('id'));n.on=!!f.get('on');const sh=f.get('share');n.share=sh===''?null:Math.max(0,Math.min(100,+sh));n.secret=f.get('secret');render();toast('تم حفظ إعدادات '+n.name,'good')},
+  fraudSave:(f)=>{const st=S.settings;st.blockVPN=!!f.get('blockVPN');st.firstWithdrawManual=!!f.get('firstWithdrawManual');['holdThresholdUSD','holdDays','autoApproveUnderUSD','maxAccountsPerDevice','autoBanRisk'].forEach(k=>st[k]=+f.get(k));render();toast('تم حفظ القواعد','good')},
+  promoNew:(f)=>{const code=(f.get('code')||'').trim().toUpperCase().replace(/\s/g,'');if(!code)return;if(S.promos.some(p=>p.code===code))return toast('الكود موجود','bad');S.promos.unshift({code,coins:+f.get('coins')||0,uses:0,max:+f.get('max')||1,on:true});render();toast('تم إنشاء الكود '+code,'good')},
+  reply:(f)=>{const t=S.tickets.find(x=>x.id===f.get('id'));const text=(f.get('text')||'').trim();if(!text)return toast('اكتب الرد','bad');t.replies.push({from:'admin',text,ts:now()});t.status='closed';render();toast('تم إرسال الرد','good')},
+  siteSave:(f)=>{const st=S.settings;['coinsPerUSD','userShare','refPercent','welcomeBonus','dailyMin','dailyMax','gameBoost'].forEach(k=>st[k]=Math.max(0,+f.get(k)||0));
+    if(st.coinsPerUSD<1)st.coinsPerUSD=1;st.userShare=Math.min(100,st.userShare);
+    st.prizes=(f.get('prizes')||'').split(',').map(x=>+x||0);
+    Object.keys(METHODS).forEach(m=>{st.methods[m].on=!!f.get('on_'+m);st.methods[m].min=Math.max(0.5,+f.get('min_'+m)||1)});
+    st.banner.on=!!f.get('bannerOn');st.banner.text=f.get('bannerText')||'';st.registration=!!f.get('registration');st.maintenance=!!f.get('maintenance');st.supportEmail=f.get('supportEmail');
+    render();toast('تم حفظ الإعدادات وتطبيقها على الموقع','good')}
+};
+const CHG={
+  offerFeat:el=>{S.offers.find(o=>o.id===el.dataset.id).featured=el.checked;save()},
+  offerOn:el=>{S.offers.find(o=>o.id===el.dataset.id).on=el.checked;save();toast(el.checked?'العرض ظاهر للمستخدمين':'العرض مخفي')},
+  promoOn:el=>{S.promos.find(p=>p.code===el.dataset.code).on=el.checked;save()}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const fn=ACT[el.dataset.act];if(!fn)return;if(el.dataset.act!=='closeBackdrop'||e.target===el)e.preventDefault();fn(el.dataset,el,e)});
+document.addEventListener('submit',e=>{const f=e.target;if(!f.dataset.form)return;e.preventDefault();FORM[f.dataset.form](new FormData(f),f)});
+document.addEventListener('change',e=>{const el=e.target.closest('[data-change]');if(el)CHG[el.dataset.change](el)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+/* auto-release holds that have passed their date */
+S.users.forEach(u=>{S.tx.forEach(t=>{if(t.uid===u.id&&t.status==='pending'&&t.release&&t.release<now()){t.status='credited';u.pending=Math.max(0,u.pending-t.coins);u.balance+=t.coins}})});
+/* refresh ticker contents now and then without re-rendering the page */
+setInterval(()=>{const t=document.querySelector('.ticker-in');if(t&&!document.hidden){/* keep animation running; content refresh only on navigation */}},10000);
+render();
+})();
+</script>

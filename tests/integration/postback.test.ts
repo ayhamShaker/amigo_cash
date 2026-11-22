@@ -218,3 +218,20 @@ describe("reversals", () => {
     expect((await expectLedgerConsistent(u.id)).user.balance).toBe(0);
   });
 });
+
+describe("admin test postback", () => {
+  it("signs correctly for every mode and credits through the normal pipeline", async () => {
+    const { buildSignedUrl } = await import("@/server/postback");
+    const u = await makeUser();
+    for (const mode of ["HMAC_SHA256", "MD5_CONCAT", "SECRET_PARAM", "HMAC_SHA1_URL"] as const) {
+      await makeNetwork(`n-${mode.toLowerCase().replace(/_/g, "-")}`, { mode, allowedIps: ["203.0.113.1"] });
+      const id = `n-${mode.toLowerCase().replace(/_/g, "-")}`;
+      const url = buildSignedUrl(mode, SECRET, `https://amigo.cash/api/postback/${id}`, { subid: u.id, txid: `t-${mode}`, payout: "1.00", status: "1", offer: "Test offer" });
+      // IP allow-list still applies to real traffic…
+      expect((await handlePostback(id, url, "8.8.8.8")).http).toBe(403);
+      // …but not to the admin's own test
+      expect((await handlePostback(id, url, null, { adminTest: true })).outcome).toBe("credited");
+    }
+    expect((await expectLedgerConsistent(u.id)).user.balance).toBe(2800);
+  });
+});

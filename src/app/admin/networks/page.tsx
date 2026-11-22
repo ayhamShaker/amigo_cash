@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { getSettings } from "@/server/settings";
 import { ActionForm, Submit } from "@/components/forms";
-import { saveNetworkAction } from "@/app/actions/admin";
+import { saveNetworkAction, sendTestPostbackAction } from "@/app/actions/admin";
 import { SIGNATURE_MODES } from "@/server/postback";
 import { Usd } from "@/components/admin-ui";
 
@@ -37,7 +37,18 @@ export default async function NetworksPage() {
       </div>
       <div className="stack">
         {networks.map((n) => (
-          <NetworkForm key={n.id} n={n} base={base} revenue={rev.get(n.id) ?? 0} defaultShare={settings.userSharePct} />
+          <div key={n.id} className="stack" style={{ gap: 0 }}>
+            <NetworkForm n={n} base={base} revenue={rev.get(n.id) ?? 0} defaultShare={settings.userSharePct} />
+            {n.secretEnc ? (
+              <ActionForm action={sendTestPostbackAction} className="card row wr" resetOnOk>
+                <input type="hidden" name="networkId" value={n.id} />
+                <b className="small">تجربة الربط:</b>
+                <input className="input" name="member" dir="ltr" placeholder="إيميل العضو أو رقمه" style={{ flex: 2, minWidth: 180 }} aria-label="العضو" />
+                <input className="input num" name="payout" dir="ltr" defaultValue="1.00" style={{ width: 80 }} aria-label="المبلغ بالدولار" />
+                <Submit className="btn ghost sm">إرسال تأكيد تجريبي</Submit>
+              </ActionForm>
+            ) : null}
+          </div>
         ))}
         <details className="card">
           <summary style={{ cursor: "pointer", fontWeight: 700 }}>+ إضافة شبكة جديدة</summary>

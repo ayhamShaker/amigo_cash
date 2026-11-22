@@ -51,6 +51,17 @@ export function canonicalString(p: { subid: string; txid: string; payout: string
   return `${p.subid}:${p.txid}:${p.payout}:${p.status}`;
 }
 
+/** Builds a correctly signed postback URL, the way the network would (admin "send test"). */
+export function buildSignedUrl(mode: SignatureMode, secret: string, base: string, p: { subid: string; txid: string; payout: string; status: string; offer: string }): URL {
+  const url = new URL(base);
+  for (const [k, v] of Object.entries(p)) url.searchParams.set(k, v);
+  if (mode === "HMAC_SHA256") url.searchParams.set("sig", hmacSha256Hex(secret, canonicalString(p)));
+  else if (mode === "MD5_CONCAT") url.searchParams.set("sig", md5Hex(`${p.subid}${p.txid}${p.payout}${secret}`));
+  else if (mode === "SECRET_PARAM") url.searchParams.set("secret", secret);
+  else url.searchParams.set("hash", createHmac("sha1", secret).update(url.toString()).digest("hex"));
+  return url;
+}
+
 export function verifySignature(
   mode: SignatureMode,
   secret: string,
@@ -88,11 +99,11 @@ export function verifySignature(
 
 const TXID_RE = /^[A-Za-z0-9._:-]{1,128}$/;
 
-export async function handlePostback(networkId: string, url: URL, ip: string | null): Promise<PostbackResult> {
+export async function handlePostback(networkId: string, url: URL, ip: string | null, opts: { adminTest?: boolean } = {}): Promise<PostbackResult> {
   const network = await db.network.findUnique({ where: { id: networkId } });
   if (!network) return { http: 404, body: "unknown network", outcome: "refused", reason: "unknown network" };
   if (!network.enabled) return { http: 403, body: "network disabled", outcome: "refused", reason: "network disabled" };
-  if (network.allowedIps.length > 0 && (!ip || !ipInAllowList(ip, network.allowedIps))) {
+  if (!opts.adminTest && network.allowedIps.length > 0 && (!ip || !ipInAllowList(ip, network.allowedIps))) {
     return { http: 403, body: "forbidden", outcome: "refused", reason: `ip ${ip ?? "unknown"} not allowed` };
   }
   if (!network.secretEnc) return { http: 403, body: "not configured", outcome: "refused", reason: "no secret configured" };

@@ -10,7 +10,8 @@ import { audit } from "@/server/audit";
 import { requestIp } from "@/server/request";
 import { adjustBalance, releaseDueHolds } from "@/server/ledger";
 import { approveWithdrawal, markWithdrawalPaid, rejectWithdrawal } from "@/server/withdrawals";
-import { adminReverseConversion, SIGNATURE_MODES, type SignatureMode } from "@/server/postback";
+import { adminReverseConversion, buildSignedUrl, handlePostback, SIGNATURE_MODES, type SignatureMode } from "@/server/postback";
+import { decrypt } from "@/lib/crypto";
 import { postAdminReply, setConversationStatus } from "@/server/chat";
 import { getSettings, METHOD_IDS, saveSettings, siteSettingsSchema, type SiteSettings } from "@/server/settings";
 import { bool, dollarsToCents, int, str } from "@/server/action-utils";
@@ -238,6 +239,37 @@ export async function saveNetworkAction(_p: FormState, fd: FormData): Promise<Fo
 }
 
 /* ---------------- postbacks ---------------- */
+
+/**
+ * Sends a correctly signed "offer completed" postback through the real
+ * pipeline, using the secret stored for the network. Credits real coins to the
+ * chosen member (reversible from the postback log).
+ */
+export async function sendTestPostbackAction(_p: FormState, fd: FormData): Promise<FormState> {
+  const { admin, ip } = await ctx();
+  const networkId = str(fd, "networkId", 30);
+  const who = str(fd, "member", 254);
+  const payout = dollarsToCents(str(fd, "payout", 12) || "1");
+  if (payout === null || payout <= 0 || payout > 10_000) return { error: "اكتب مبلغ بين 0.01 و 100 دولار." };
+  const network = await db.network.findUnique({ where: { id: networkId } });
+  if (!network?.secretEnc) return { error: "احفظ سر الـ Postback لهالشبكة أولاً." };
+  const member = await db.user.findFirst({ where: { OR: [{ id: who }, { email: who.toLowerCase() }] }, select: { id: true, name: true } });
+  if (!member) return { error: "ما لقيت عضو بهالإيميل أو الرقم." };
+  const url = buildSignedUrl(network.signatureMode as SignatureMode, decrypt(network.secretEnc, env().ENCRYPTION_KEY), `${env().APP_URL}/api/postback/${network.id}`, {
+    subid: member.id,
+    txid: `admin-test-${Date.now()}`,
+    payout: (payout / 100).toFixed(2),
+    status: "1",
+    offer: "Test offer",
+  });
+  const r = await handlePostback(network.id, url, ip, { adminTest: true });
+  await audit({ actorId: admin.id, action: "postback.test", targetType: "network", targetId: network.id, data: { member: member.id, payoutCents: payout, outcome: r.outcome }, ip });
+  revalidatePath("/admin/networks");
+  if (r.outcome === "credited") return { ok: `✓ وصل التأكيد وانضاف الرصيد لـ ${member.name}. شوفه بسجل التأكيدات.` };
+  if (r.outcome === "refused") return { error: `الشبكة رفضت: ${r.reason === "network disabled" ? "الشبكة متوقفة، فعّلها أولاً" : r.reason}` };
+  if (r.outcome === "rejected") return { error: `انسجّل بس ما انضاف رصيد: ${r.reason === "user banned" ? "العضو محظور" : r.reason}` };
+  return { ok: "انسجّل." };
+}
 
 export async function reverseConversionAction(_p: FormState, fd: FormData): Promise<FormState> {
   const { admin, ip } = await ctx();

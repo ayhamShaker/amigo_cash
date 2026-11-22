@@ -22,7 +22,7 @@ export default async function FraudPage() {
   });
   const ipqs = !!env().IPQS_API_KEY;
   const myIp = await requestIp();
-  const probe = ipqs ? await checkIp(myIp) : null;
+  const probe = ipqs ? await checkIp(myIp, { fresh: true }) : null;
   return (
     <>
       <div className="pagehead">
@@ -50,6 +50,14 @@ export default async function FraudPage() {
               <span className="pill" dir="ltr">Fraud score: {probe.fraudScore}</span>
               {probe.country ? <span className="cc">{probe.country}</span> : null}
             </div>
+            <div className="tiny muted" dir="ltr" style={{ textAlign: "start" }}>
+              {probe.isp ?? "?"} · {probe.connectionType ?? "?"}
+            </div>
+            {probe.bad ? (
+              <span className="pill bad" style={{ alignSelf: "flex-start" }}>هالاتصال ممنوع حسب قواعدك (ما بيقدر يسجّل أو يكسب)</span>
+            ) : (
+              <span className="pill good" style={{ alignSelf: "flex-start" }}>هالاتصال مسموح</span>
+            )}
             <p className="tiny muted">جرّب تشغّل VPN على موبايلك وافتح هالصفحة: لازم يطلع VPN أو Proxy «نعم».</p>
           </>
         ) : (
@@ -67,6 +75,8 @@ export default async function FraudPage() {
           <NumRow name="holdThreshold" title="تعليق المكافآت من ($)" value={(s.holdThresholdCents / 100).toFixed(2)} />
           <NumRow name="holdDays" title="مدة التعليق (أيام)" value={String(s.holdDays)} />
           <NumRow name="autoApproveUnder" title="موافقة تلقائية حتى ($)" hint="للأعضاء الموثوقين بعد أول سحب" value={(s.autoApproveUnderCents / 100).toFixed(2)} />
+          <NumRow name="vpnStrictness" title="شدّة كشف الـ VPN" hint="0 – 3 · كل ما كبر الرقم بيكشف أكتر (2 مناسب)" value={String(s.vpnStrictness)} />
+          <NumRow name="maxFraudScore" title="منع عند درجة احتيال الـ IP" hint="50 – 100 · من IPQualityScore" value={String(s.maxFraudScore)} />
           <NumRow name="maxAccountsPerDevice" title="أقصى حسابات لكل جهاز" value={String(s.maxAccountsPerDevice)} />
           <NumRow name="autoBanRisk" title="حظر تلقائي عند درجة خطورة" hint="50 – 100" value={String(s.autoBanRisk)} />
           <div style={{ marginTop: 12 }}>

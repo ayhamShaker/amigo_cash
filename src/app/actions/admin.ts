@@ -401,6 +401,8 @@ export async function saveFraudRulesAction(_p: FormState, fd: FormData): Promise
     holdThresholdCents: dollarsToCents(str(fd, "holdThreshold", 12)) ?? cur.holdThresholdCents,
     holdDays: num("holdDays", cur.holdDays),
     blockVpn: bool(fd, "blockVpn"),
+    vpnStrictness: num("vpnStrictness", cur.vpnStrictness),
+    maxFraudScore: num("maxFraudScore", cur.maxFraudScore),
     maxAccountsPerDevice: num("maxAccountsPerDevice", cur.maxAccountsPerDevice),
     autoBanRisk: num("autoBanRisk", cur.autoBanRisk),
     firstWithdrawalManual: bool(fd, "firstWithdrawalManual"),
@@ -416,6 +418,6 @@ export async function saveFraudRulesAction(_p: FormState, fd: FormData): Promise
 }
 
 function pickFraud(s: SiteSettings) {
-  const { holdThresholdCents, holdDays, blockVpn, maxAccountsPerDevice, autoBanRisk, firstWithdrawalManual, autoApproveUnderCents, requireVerifiedEmailToWithdraw } = s;
-  return { holdThresholdCents, holdDays, blockVpn, maxAccountsPerDevice, autoBanRisk, firstWithdrawalManual, autoApproveUnderCents, requireVerifiedEmailToWithdraw };
+  const { holdThresholdCents, holdDays, blockVpn, vpnStrictness, maxFraudScore, maxAccountsPerDevice, autoBanRisk, firstWithdrawalManual, autoApproveUnderCents, requireVerifiedEmailToWithdraw } = s;
+  return { holdThresholdCents, holdDays, blockVpn, vpnStrictness, maxFraudScore, maxAccountsPerDevice, autoBanRisk, firstWithdrawalManual, autoApproveUnderCents, requireVerifiedEmailToWithdraw };
 }

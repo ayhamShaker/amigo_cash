@@ -111,7 +111,6 @@ model User {
   lastSeenAt DateTime @default(now())
 
   sessions      Session[]
-  backupCodes   BackupCode[]
   ledger        LedgerEntry[]
   conversions   Conversion[]
   withdrawals   Withdrawal[]       @relation("WithdrawalOwner")
@@ -151,15 +150,6 @@ model PendingLogin {
   createdAt DateTime @default(now())
 }
 
-model BackupCode {
-  id       String    @id @default(cuid())
-  userId   String
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  codeHash String
-  usedAt   DateTime?
-
-  @@index([userId])
-}
 
 model AuthToken {
   id        String       @id // SHA-256 of the emailed token

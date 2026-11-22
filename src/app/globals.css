@@ -325,8 +325,6 @@ td.r,th.r{text-align:end}
 .qrbox{display:grid;place-items:center;padding:14px;background:#fff;border-radius:8px;border:1px solid var(--line);align-self:center}
 .qrbox img,.qrbox canvas{display:block;max-width:100%}
 .otp{font-size:22px;letter-spacing:.3em;text-align:center}
-.backup{display:grid;grid-template-columns:1fr 1fr;gap:8px;direction:ltr}
-.backup span{font:700 15px/1 var(--f-mono);padding:10px;border-radius:6px;background:var(--surface-2);text-align:center}
 .invite{background:var(--coin-soft);color:var(--fg);padding-block:12px;border-bottom:1px solid var(--line)}
 .invite svg{color:var(--coin)}
 .chatfab{position:fixed;z-index:140;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 30px rgba(2,132,199,.35)}

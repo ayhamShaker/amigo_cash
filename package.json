@@ -21,7 +21,8 @@
     "admin:make": "tsx scripts/make-admin.ts",
     "demo:data": "tsx scripts/demo-data.ts",
     "check": "npm run typecheck && npm run lint && npm run i18n:check && npm test",
-    "vercel-build": "prisma generate && prisma migrate deploy && tsx prisma/seed.ts && next build"
+    "vercel-build": "prisma generate && prisma migrate deploy && tsx prisma/seed.ts && next build",
+    "2fa:reset": "tsx scripts/reset-2fa.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -360,13 +360,11 @@
  "Verify and turn on": "تحقق وفعّل",
  "That code is not right. Check the time on your phone and try the newest code.": "الرمز غير صحيح. تأكد من ضبط الوقت في هاتفك وجرّب أحدث رمز.",
  "Two-factor login is on": "تم تفعيل التحقق بخطوتين",
- "Save these backup codes. Each one works once if you lose your phone.": "احفظ رموز الاحتياط هذه. كل رمز يعمل مرة واحدة إذا فقدت هاتفك.",
  "Done": "تم",
  "Turn off two-factor login": "إيقاف التحقق بخطوتين",
  "Enter a current code from your app to confirm.": "أدخل رمزاً حالياً من التطبيق للتأكيد.",
  "Two-factor login is off": "تم إيقاف التحقق بخطوتين",
  "Enter the 6-digit code from Google Authenticator.": "أدخل الرمز المكوّن من 6 أرقام من Google Authenticator.",
- "Or use one of your backup codes.": "أو استخدم أحد رموز الاحتياط.",
  "Authenticator code": "رمز المصادقة",
  "Verify": "تحقق",
  "Two-step verification": "التحقق بخطوتين",
@@ -473,9 +471,7 @@
  "{o} · {n}": "{o} · {n}",
  "{r}": "{r}",
  "Released after review": "تم التحرير بعد المراجعة",
- "Enter the current 6-digit code from Google Authenticator. Backup codes do not work here.": "أدخل الرمز الحالي المكوّن من 6 أرقام من Google Authenticator. رموز الاحتياط لا تعمل هنا.",
- "New backup codes are ready. The old ones no longer work.": "رموز الاحتياط الجديدة جاهزة. الرموز القديمة لم تعد تعمل.",
- "New backup codes": "رموز احتياط جديدة",
  "Enter the current 6-digit code from Google Authenticator.": "أدخل الرمز الحالي المكوّن من 6 أرقام من Google Authenticator.",
- "Create new backup codes": "إنشاء رموز احتياط جديدة"
+ "Tip: turn on cloud backup in Google Authenticator (sign in with your Google account in the app), so your codes come back if you change phones.": "نصيحة: فعّل النسخ الاحتياطي السحابي في Google Authenticator (سجّل دخولك بحساب Google داخل التطبيق) حتى تعود رموزك إذا غيّرت هاتفك.",
+ "Lost your phone? Write to us in the live chat and we will help you get back in.": "فقدت هاتفك؟ راسلنا في المحادثة المباشرة وسنساعدك على الدخول مجدداً."
 }

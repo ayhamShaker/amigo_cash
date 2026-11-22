@@ -85,16 +85,3 @@ export function otpauthUri(secretB32: string, account: string, issuer = "Amigo C
   const params = new URLSearchParams({ secret: secretB32, issuer, algorithm: "SHA1", digits: "6", period: String(TOTP_PERIOD) });
   return `otpauth://totp/${label}?${params.toString()}`;
 }
-
-/** Eight one-time backup codes like "4f9a-21c0". */
-export function newBackupCodes(count = 8): string[] {
-  return Array.from({ length: count }, () => {
-    const hex = randomBytes(4).toString("hex");
-    return `${hex.slice(0, 4)}-${hex.slice(4)}`;
-  });
-}
-
-export function normaliseBackupCode(input: string): string {
-  const hex = input.toLowerCase().replace(/[^0-9a-f]/g, "");
-  return hex.length === 8 ? `${hex.slice(0, 4)}-${hex.slice(4)}` : "";
-}

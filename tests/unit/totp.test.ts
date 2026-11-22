@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { base32Decode, base32Encode, hotp, newBackupCodes, normaliseBackupCode, otpauthUri, totp, verifyTotp } from "@/lib/totp";
+import { base32Decode, base32Encode, hotp, otpauthUri, totp, verifyTotp } from "@/lib/totp";
 
 const RFC_KEY = Buffer.from("12345678901234567890", "ascii");
 
@@ -64,12 +64,5 @@ describe("helpers", () => {
     expect(uri.startsWith("otpauth://totp/Amigo%20Cash%3Asam%40example.com?")).toBe(true);
     expect(uri).toContain("secret=JBSWY3DPEHPK3PXP");
     expect(uri).toContain("issuer=Amigo+Cash");
-  });
-  it("makes 8 unique backup codes and normalises input", () => {
-    const codes = newBackupCodes();
-    expect(new Set(codes).size).toBe(8);
-    for (const c of codes) expect(c).toMatch(/^[0-9a-f]{4}-[0-9a-f]{4}$/);
-    expect(normaliseBackupCode(" 4F9A 21C0 ")).toBe("4f9a-21c0");
-    expect(normaliseBackupCode("xyz")).toBe("");
   });
 });

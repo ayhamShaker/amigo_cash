@@ -98,12 +98,11 @@ describe("log in", () => {
 });
 
 describe("two-factor", () => {
-  it("turns on with a real code, refuses replays, accepts each backup code once", async () => {
+  it("turns on with a real code and refuses replays and old-style codes", async () => {
     const u = await makeUser();
     const secret = await beginTotpSetup(u.id);
-    expect(await confirmTotpSetup(u.id, "000000")).toBeNull();
-    const codes = await confirmTotpSetup(u.id, totp(secret));
-    expect(codes).toHaveLength(8);
+    expect(await confirmTotpSetup(u.id, "000000")).toBe(false);
+    expect(await confirmTotpSetup(u.id, totp(secret))).toBe(true);
     const stored = await db.user.findUniqueOrThrow({ where: { id: u.id } });
     expect(stored.totpEnabled).toBe(true);
     expect(stored.totpSecretEnc).not.toContain(secret); // encrypted at rest
@@ -113,22 +112,32 @@ describe("two-factor", () => {
     const next = totp(secret, Date.now() + 30_000);
     expect(await verifySecondFactor(u.id, next)).toBe(true);
     expect(await verifySecondFactor(u.id, next)).toBe(false);
-    expect(await verifySecondFactor(u.id, codes![0]!.toUpperCase().replace("-", " "))).toBe(true);
-    expect(await verifySecondFactor(u.id, codes![0]!)).toBe(false);
-    const backupRows = await db.backupCode.findMany({ where: { userId: u.id } });
-    for (const b of backupRows) expect(codes).not.toContain(b.codeHash);
+    // backup-style codes are not accepted any more
+    expect(await verifySecondFactor(u.id, "4f9a-21c0")).toBe(false);
   });
 
   it("needs a valid code to switch off", async () => {
     const u = await makeUser();
     const secret = await beginTotpSetup(u.id);
-    const codes = (await confirmTotpSetup(u.id, totp(secret)))!;
+    expect(await confirmTotpSetup(u.id, totp(secret))).toBe(true);
     expect(await disableTotp(u.id, "123456")).toBe(false);
-    expect(await disableTotp(u.id, codes[1]!)).toBe(true);
+    expect(await disableTotp(u.id, totp(secret, Date.now() + 30_000))).toBe(true);
     const stored = await db.user.findUniqueOrThrow({ where: { id: u.id } });
     expect(stored.totpEnabled).toBe(false);
     expect(stored.totpSecretEnc).toBeNull();
-    expect(await db.backupCode.count({ where: { userId: u.id } })).toBe(0);
+  });
+
+  it("support reset removes 2FA and signs the member out everywhere", async () => {
+    const { clearTotp } = await import("@/server/auth");
+    const u = await makeUser();
+    const secret = await beginTotpSetup(u.id);
+    await confirmTotpSetup(u.id, totp(secret));
+    await db.session.create({ data: { id: "lost-phone", userId: u.id, expiresAt: new Date(Date.now() + 1e7) } });
+    await clearTotp(u.id);
+    const stored = await db.user.findUniqueOrThrow({ where: { id: u.id } });
+    expect(stored.totpEnabled).toBe(false);
+    expect(stored.totpSecretEnc).toBeNull();
+    expect(await db.session.count({ where: { userId: u.id } })).toBe(0);
   });
 });
 
@@ -207,20 +216,5 @@ describe("Google sign-in", () => {
     const r = await upsertGoogleUser({ sub: "g-2", email: "link@example.com", emailVerified: true, name: "X" }, ctx);
     expect("id" in r && !r.created).toBe(true);
     expect((await db.user.findUniqueOrThrow({ where: { email: "link@example.com" } })).googleId).toBe("g-2");
-  });
-});
-
-describe("backup code rotation", () => {
-  it("replaces all codes, needs a live authenticator code, and old codes stop working", async () => {
-    const { regenerateBackupCodes } = await import("@/server/auth");
-    const u = await makeUser();
-    const secret = await beginTotpSetup(u.id);
-    const old = (await confirmTotpSetup(u.id, totp(secret)))!;
-    expect(await regenerateBackupCodes(u.id, old[0]!)).toBeNull();
-    const fresh = await regenerateBackupCodes(u.id, totp(secret, Date.now() + 30_000));
-    expect(fresh).toHaveLength(8);
-    expect(await verifySecondFactor(u.id, old[1]!)).toBe(false);
-    expect(await verifySecondFactor(u.id, fresh![0]!)).toBe(true);
-    expect(await db.backupCode.count({ where: { userId: u.id } })).toBe(8);
   });
 });

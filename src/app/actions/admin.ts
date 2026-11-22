@@ -15,6 +15,7 @@ import { postAdminReply, setConversationStatus } from "@/server/chat";
 import { getSettings, METHOD_IDS, saveSettings, siteSettingsSchema, type SiteSettings } from "@/server/settings";
 import { bool, dollarsToCents, int, str } from "@/server/action-utils";
 import { normalisePromo } from "@/server/rewards";
+import { clearTotp } from "@/server/auth";
 import { formatCoins } from "@/lib/money";
 import { ipInAllowList } from "@/lib/ip";
 
@@ -80,6 +81,17 @@ export async function setRoleAction(_p: FormState, fd: FormData): Promise<FormSt
   await audit({ actorId: admin.id, action: role === "ADMIN" ? "user.make_admin" : "user.remove_admin", targetType: "user", targetId: userId, ip });
   revalidatePath(`/admin/users/${userId}`);
   return { ok: role === "ADMIN" ? "صار مدير. لازم يفعّل التحقق بخطوتين قبل ما يدخل اللوحة." : "تمت إزالة صلاحية المدير." };
+}
+
+export async function resetTwoFactorAction(_p: FormState, fd: FormData): Promise<FormState> {
+  const { admin, ip } = await ctx();
+  const userId = str(fd, "userId", 40);
+  if (userId === admin.id) return { error: "ما فيك تلغي التحقق بخطوتين لحسابك من هون." };
+  if (str(fd, "confirm", 10) !== "RESET") return { error: "اكتب RESET للتأكيد." };
+  await clearTotp(userId);
+  await audit({ actorId: admin.id, action: "user.reset_2fa", targetType: "user", targetId: userId, ip });
+  revalidatePath(`/admin/users/${userId}`);
+  return { ok: "تم إلغاء التحقق بخطوتين وتسجيل خروجه من كل الأجهزة. خليه يفعّله من جديد بعد ما يدخل." };
 }
 
 /* ---------------- withdrawals ---------------- */

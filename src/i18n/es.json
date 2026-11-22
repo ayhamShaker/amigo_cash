@@ -360,13 +360,11 @@
  "Verify and turn on": "Verificar y activar",
  "That code is not right. Check the time on your phone and try the newest code.": "Ese código no es correcto. Revisá la hora del celular y probá con el código más nuevo.",
  "Two-factor login is on": "La verificación en dos pasos está activada",
- "Save these backup codes. Each one works once if you lose your phone.": "Guardá estos códigos de respaldo. Cada uno sirve una vez si perdés el celular.",
  "Done": "Listo",
  "Turn off two-factor login": "Desactivar verificación en dos pasos",
  "Enter a current code from your app to confirm.": "Ingresá un código actual de la app para confirmar.",
  "Two-factor login is off": "La verificación en dos pasos está desactivada",
  "Enter the 6-digit code from Google Authenticator.": "Ingresá el código de 6 dígitos de Google Authenticator.",
- "Or use one of your backup codes.": "O usá uno de tus códigos de respaldo.",
  "Authenticator code": "Código de verificación",
  "Verify": "Verificar",
  "Two-step verification": "Verificación en dos pasos",
@@ -473,9 +471,7 @@
  "{o} · {n}": "{o} · {n}",
  "{r}": "{r}",
  "Released after review": "Liberado tras la revisión",
- "Enter the current 6-digit code from Google Authenticator. Backup codes do not work here.": "Ingresá el código actual de 6 dígitos de Google Authenticator. Acá no sirven los códigos de respaldo.",
- "New backup codes are ready. The old ones no longer work.": "Tus nuevos códigos de respaldo están listos. Los anteriores ya no sirven.",
- "New backup codes": "Nuevos códigos de respaldo",
  "Enter the current 6-digit code from Google Authenticator.": "Ingresá el código actual de 6 dígitos de Google Authenticator.",
- "Create new backup codes": "Crear nuevos códigos de respaldo"
+ "Tip: turn on cloud backup in Google Authenticator (sign in with your Google account in the app), so your codes come back if you change phones.": "Consejo: activá la copia en la nube de Google Authenticator (ingresá con tu cuenta de Google en la app) para recuperar tus códigos si cambiás de celular.",
+ "Lost your phone? Write to us in the live chat and we will help you get back in.": "¿Perdiste el celular? Escribinos en el chat en vivo y te ayudamos a volver a entrar."
 }

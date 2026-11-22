@@ -26,7 +26,7 @@ export default async function TwoFactorPage({ params, searchParams }: { params: 
           <label htmlFor="l2-code">{t("Authenticator code")}</label>
           <input className="input num otp" id="l2-code" name="code" inputMode="numeric" autoComplete="one-time-code" dir="ltr" placeholder="123456" maxLength={12} autoFocus />
         </div>
-        <div className="tiny muted">{t("Or use one of your backup codes.")}</div>
+        <div className="tiny muted">{t("Lost your phone? Write to us in the live chat and we will help you get back in.")}</div>
         <Submit className="btn primary block lg">{t("Verify")}</Submit>
       </ActionForm>
     </div>

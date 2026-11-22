@@ -16,7 +16,7 @@ A rewards ("Get-Paid-To") site for US and UK members. Members complete games, ap
 | Web app | Next.js 16 (App Router, Server Actions), React 19, TypeScript (strict) |
 | Database | PostgreSQL 16 through Prisma 7 (`@prisma/adapter-pg`) |
 | Passwords | Argon2id (`@node-rs/argon2`, OWASP parameters) |
-| Two-factor | TOTP (RFC 6238) compatible with Google Authenticator, QR drawn on our server, 8 one-time backup codes |
+| Two-factor | TOTP (RFC 6238) compatible with Google Authenticator, QR drawn on our server; support can reset it for a member who lost their phone |
 | Email | Resend (optional; printed to the server log on a local `http` site) |
 | VPN / proxy check | IPQualityScore (optional) |
 | Tests | Vitest against a real PostgreSQL database |

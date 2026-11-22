@@ -4,7 +4,7 @@ import { pageLocale, requireMember } from "../../../locale";
 import { pendingTotpSecret } from "@/server/auth";
 import { otpauthUri } from "@/lib/totp";
 import { TwoFactorPanel } from "@/components/two-factor";
-import { confirmTwoFactorAction, disableTwoFactorAction, regenerateBackupCodesAction } from "@/app/actions/auth";
+import { confirmTwoFactorAction, disableTwoFactorAction } from "@/app/actions/auth";
 
 export const metadata: Metadata = { title: "Two-factor login", robots: { index: false } };
 
@@ -24,13 +24,6 @@ export default async function TwoFactorSettings({ params }: { params: Promise<{ 
         enabled={user.totpEnabled}
         setupAction={confirmTwoFactorAction}
         disableAction={disableTwoFactorAction}
-        regenerateAction={regenerateBackupCodesAction}
-        regenerateLabels={{
-          title: t("New backup codes"),
-          hint: t("Enter the current 6-digit code from Google Authenticator."),
-          submit: t("Create new backup codes"),
-          saveCodes: t("Save these backup codes. Each one works once if you lose your phone."),
-        }}
         locale={locale}
         qrSvg={qrSvg}
         secret={secret}
@@ -42,7 +35,7 @@ export default async function TwoFactorSettings({ params }: { params: Promise<{ 
           enter: t("2. Enter the 6-digit code the app shows."),
           code: t("Authenticator code"),
           submit: t("Verify and turn on"),
-          saveCodes: t("Save these backup codes. Each one works once if you lose your phone."),
+          tip: t("Tip: turn on cloud backup in Google Authenticator (sign in with your Google account in the app), so your codes come back if you change phones."),
           done: t("Done"),
           on: t("Two-factor login is on"),
         }}

@@ -26,48 +26,34 @@ export function TwoFactorDisable({ action, locale, labels }: { action: FormActio
 
 /**
  * One component for both states. The server re-renders the page after the code
- * is confirmed; keeping a single component means the backup codes (held in
+ * is confirmed; keeping a single component lets the "it worked" message (held in
  * client state) stay on screen instead of being replaced by the "turn off" form.
  */
 export function TwoFactorPanel(props: {
   enabled: boolean;
   setupAction: FormAction;
   disableAction: FormAction;
-  regenerateAction: FormAction;
-  regenerateLabels: Record<"title" | "hint" | "submit" | "saveCodes", string>;
   locale: string;
   qrSvg: string | null;
   secret: string | null;
   doneHref: string;
-  setupLabels: Record<"scan" | "manual" | "enter" | "code" | "submit" | "saveCodes" | "done" | "on", string>;
+  setupLabels: Record<"scan" | "manual" | "enter" | "code" | "submit" | "tip" | "done" | "on", string>;
   disableLabels: Record<"title" | "hint" | "code" | "submit" | "on", string>;
   notStarted: string;
 }) {
   const [setupState, setupFormAction] = useActionState(props.setupAction, null);
-  const codes = (setupState?.data?.codes as string[] | undefined) ?? null;
-  if (codes) {
+  if (setupState?.data?.done) {
     return (
       <div className="card stack" style={{ maxWidth: 520 }}>
         <h2 style={{ fontSize: 20 }}>{props.setupLabels.on}</h2>
-        <p className="small">{props.setupLabels.saveCodes}</p>
-        <div className="backup">
-          {codes.map((c) => (
-            <span key={c}>{c}</span>
-          ))}
-        </div>
+        <p className="small">{props.setupLabels.tip}</p>
         <a className="btn primary" href={props.doneHref}>
           {props.setupLabels.done}
         </a>
       </div>
     );
   }
-  if (props.enabled)
-    return (
-      <>
-        <BackupRegenerate action={props.regenerateAction} locale={props.locale} labels={props.regenerateLabels} />
-        <TwoFactorDisable action={props.disableAction} locale={props.locale} labels={props.disableLabels} />
-      </>
-    );
+  if (props.enabled) return <TwoFactorDisable action={props.disableAction} locale={props.locale} labels={props.disableLabels} />;
   if (!props.qrSvg || !props.secret) {
     return (
       <div className="card empty">
@@ -106,47 +92,6 @@ export function TwoFactorPanel(props: {
         <Submit className="btn primary block">{labels.submit}</Submit>
         <FormMessage state={setupState} />
       </form>
-    </div>
-  );
-}
-
-/** Creates a fresh set of backup codes; the old ones stop working at once. */
-function BackupRegenerate({ action, locale, labels }: { action: FormAction; locale: string; labels: Record<"title" | "hint" | "submit" | "saveCodes", string> }) {
-  const [state, formAction] = useActionState(action, null);
-  const codes = (state?.data?.codes as string[] | undefined) ?? null;
-  return (
-    <div className="card stack" style={{ maxWidth: 520 }}>
-      <h2 style={{ fontSize: 18 }}>{labels.title}</h2>
-      {codes ? (
-        <>
-          <FormMessage state={state} />
-          <p className="small">{labels.saveCodes}</p>
-          <div className="backup">
-            {codes.map((c) => (
-              <span key={c}>{c}</span>
-            ))}
-          </div>
-        </>
-      ) : (
-        <form
-          action={formAction}
-          onSubmit={(e) => {
-            e.preventDefault();
-            const fd = new FormData(e.currentTarget);
-            startTransition(() => formAction(fd));
-          }}
-          className="stack"
-          noValidate
-        >
-          <input type="hidden" name="locale" value={locale} />
-          <div className="field">
-            <label htmlFor="rg-code">{labels.hint}</label>
-            <input className="input num otp" id="rg-code" name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="123456" dir="ltr" />
-          </div>
-          <Submit className="btn primary">{labels.submit}</Submit>
-          <FormMessage state={state} />
-        </form>
-      )}
     </div>
   );
 }

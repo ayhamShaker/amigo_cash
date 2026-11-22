@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
 import { requireAdminPage } from "@/server/admin-guard";
 import { ActionForm, Submit } from "@/components/forms";
-import { adjustBalanceAction, clearFlagsAction, releaseUserHoldsAction, setRoleAction, setUserStatusAction } from "@/app/actions/admin";
+import { adjustBalanceAction, clearFlagsAction, releaseUserHoldsAction, resetTwoFactorAction, setRoleAction, setUserStatusAction } from "@/app/actions/admin";
 import { Num, Risk, Usd, agoAr, WITHDRAWAL_STATUS_AR } from "@/components/admin-ui";
 import { coinsToCents } from "@/lib/money";
 import { describe } from "@/i18n/t";
@@ -160,6 +160,17 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
           </ActionForm>
         ) : null}
       </div>
+
+      {u.totpEnabled && u.id !== me.id ? (
+        <ActionForm action={resetTwoFactorAction} className="card row wr">
+          <input type="hidden" name="userId" value={u.id} />
+          <span className="grow small">
+            <b>العضو ضيّع موبايله؟</b> تأكد من هويته أولاً (مثلاً من الإيميل المسجّل)، بعدين اكتب RESET لإلغاء التحقق بخطوتين:
+          </span>
+          <input className="input num" name="confirm" dir="ltr" style={{ width: 120 }} aria-label="تأكيد" />
+          <Submit className="btn bad">إلغاء التحقق بخطوتين</Submit>
+        </ActionForm>
+      ) : null}
 
       <h2 style={{ fontSize: 18 }}>آخر الحركات</h2>
       {ledger.length ? (

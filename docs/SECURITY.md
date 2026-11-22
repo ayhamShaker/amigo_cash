@@ -27,7 +27,7 @@ This file describes what Amigo Cash protects, how, and how each control is check
 - Argon2id password hashes; login timing is equal for unknown emails; one generic error message.
 - Rate limits stored in PostgreSQL (work across instances): login per IP and per email, sign-up, password reset, 2FA attempts, chat, promo codes, withdrawals, postbacks.
 - Sessions: 256-bit random token in an `HttpOnly`, `SameSite=Lax`, `Secure`, `__Host-` cookie; only its SHA-256 is stored. Password change, 2FA activation and bans end other sessions.
-- Two-factor login: TOTP with ±30 s drift, each time step accepted once (replay blocked), secrets encrypted at rest with AES-256-GCM, backup codes stored as keyed hashes and usable once. Required for admins and, when on, for every withdrawal.
+- Two-factor login: TOTP with ±30 s drift, each time step accepted once (replay blocked), secrets encrypted at rest with AES-256-GCM. Required for admins and, when on, for every withdrawal. There are no backup codes: a member who loses their phone asks support, and an admin resets 2FA after checking their identity (typed confirmation, audit-logged, all sessions ended). The owner can use `npm run 2fa:reset -- email` against the live database in an emergency.
 - Password reset and email confirmation links: single-use, hashed in the database, 1 hour and 48 hours.
 - Google sign-in: authorization code flow with PKCE and `state`; an existing account is linked only when Google reports the email as verified.
 
@@ -53,7 +53,7 @@ This file describes what Amigo Cash protects, how, and how each control is check
 
 ## Evidence
 
-- `npm test` — 76 tests against PostgreSQL, including: RFC 4226/6238 test vectors; 8 simultaneous identical postbacks credit once; tampered payout or signature is refused and credits nothing; 10 simultaneous withdrawals with balance for one succeed once; 6 simultaneous daily-bonus clicks pay once; promo usage limits under concurrency; refund exactly once; replayed TOTP codes and reused backup codes refused; reset tokens single-use and stored hashed; the ledger always equals the cached balances.
+- `npm test` — 77 tests against PostgreSQL, including: RFC 4226/6238 test vectors; 8 simultaneous identical postbacks credit once; tampered payout or signature is refused and credits nothing; 10 simultaneous withdrawals with balance for one succeed once; 6 simultaneous daily-bonus clicks pay once; promo usage limits under concurrency; refund exactly once; replayed TOTP codes refused; support 2FA reset ends all sessions; reset tokens single-use and stored hashed; the ledger always equals the cached balances.
 - End-to-end browser run of the production build (66 checks): sign-up, email confirmation, daily bonus, postback credit, withdrawal, 2FA set-up with a real code, login with 2FA, live chat both ways, admin approval and payment, promo codes, settings, invite link with commission, mobile layout in all three languages, cross-origin chat request refused, cron secret required, no CSP or console errors.
 - `npm audit`: 0 known vulnerabilities at the time of writing (`effect` pinned to 3.22.5 through `overrides`).
 - CI runs typecheck, lint, translation check, tests, build and a production dependency audit on every push; CodeQL (security-extended queries) runs on pushes, pull requests and weekly; Dependabot opens update PRs.
@@ -62,7 +62,7 @@ This file describes what Amigo Cash protects, how, and how each control is check
 
 1. Generate fresh `SESSION_SECRET`, `ENCRYPTION_KEY` and `CRON_SECRET` (commands are in `.env.example`) and keep them only in the hosting provider's secret settings.
 2. Set `TRUSTED_PROXY_HOPS` correctly for the host; otherwise every visitor shares one rate-limit bucket.
-3. Turn on two-factor login for every admin and store the backup codes offline.
+3. Turn on two-factor login for every admin, and turn on cloud backup inside Google Authenticator so a lost phone does not lock the owner out.
 4. Add `IPQS_API_KEY`; without it VPN detection is off (the admin panel shows a warning).
 5. Use a database with daily backups and point-in-time recovery.
 6. Have the terms and privacy notice reviewed by a lawyer in the company's country.

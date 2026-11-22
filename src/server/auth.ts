@@ -2,9 +2,9 @@ import "server-only";
 import { randomInt } from "node:crypto";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { decrypt, encrypt, hmacSha256Hex, randomToken, sha256 } from "@/lib/crypto";
+import { decrypt, encrypt, randomToken, sha256 } from "@/lib/crypto";
 import { burnPasswordCheck, hashPassword, PASSWORD_MAX, PASSWORD_MIN, verifyPassword } from "@/lib/password";
-import { newBackupCodes, newTotpSecret, normaliseBackupCode, verifyTotp } from "@/lib/totp";
+import { newTotpSecret, verifyTotp } from "@/lib/totp";
 import { addEntry, isUniqueViolation } from "./ledger";
 import { getSettings } from "./settings";
 import { rateLimit } from "./rate-limit";
@@ -27,9 +27,6 @@ export function makeRefCode(name: string) {
   return `${base}${suffix}`;
 }
 
-function backupHash(code: string) {
-  return hmacSha256Hex(env().SESSION_SECRET, `backup:${code}`);
-}
 
 /* ---------------- sign up ---------------- */
 
@@ -156,27 +153,21 @@ export async function checkPasswordLogin(emailRaw: string, password: string, ip:
 /* ---------------- two-factor ---------------- */
 
 /**
- * Accepts a current authenticator code (not reused) or an unused backup code.
- * Each successful code is consumed, so it cannot be replayed.
+ * Accepts a current Google Authenticator code. Each 30-second code works once,
+ * so a code seen by someone else cannot be replayed.
  */
-export async function verifySecondFactor(userId: string, input: string, allowBackup = true): Promise<boolean> {
+export async function verifySecondFactor(userId: string, input: string): Promise<boolean> {
   if (!(await rateLimit(`2fa:${userId}`, 10, 900))) return false;
-  const user = await db.user.findUnique({ where: { id: userId }, select: { totpSecretEnc: true, totpEnabled: true, totpLastCounter: true } });
+  const user = await db.user.findUnique({ where: { id: userId }, select: { totpSecretEnc: true, totpEnabled: true } });
   if (!user?.totpEnabled || !user.totpSecretEnc) return false;
   const secret = decrypt(user.totpSecretEnc, env().ENCRYPTION_KEY);
   const step = verifyTotp(secret, input);
-  if (step !== null) {
-    // Only accept a step newer than the last one used.
-    const res = await db.user.updateMany({
-      where: { id: userId, OR: [{ totpLastCounter: null }, { totpLastCounter: { lt: step } }] },
-      data: { totpLastCounter: step },
-    });
-    return res.count === 1;
-  }
-  if (!allowBackup) return false;
-  const backup = normaliseBackupCode(input);
-  if (!backup) return false;
-  const res = await db.backupCode.updateMany({ where: { userId, codeHash: backupHash(backup), usedAt: null }, data: { usedAt: new Date() } });
+  if (step === null) return false;
+  // Only accept a step newer than the last one used.
+  const res = await db.user.updateMany({
+    where: { id: userId, OR: [{ totpLastCounter: null }, { totpLastCounter: { lt: step } }] },
+    data: { totpLastCounter: step },
+  });
   return res.count === 1;
 }
 
@@ -195,43 +186,33 @@ export async function pendingTotpSecret(userId: string): Promise<string | null> 
   return decrypt(u.totpSecretEnc, env().ENCRYPTION_KEY);
 }
 
-/** Step 2: the member proves the app works; we switch 2FA on and return backup codes. */
-export async function confirmTotpSetup(userId: string, code: string): Promise<string[] | null> {
-  if (!(await rateLimit(`2fa-setup:${userId}`, 10, 900))) return null;
+/** Step 2: the member proves the app works, and two-factor login switches on. */
+export async function confirmTotpSetup(userId: string, code: string): Promise<boolean> {
+  if (!(await rateLimit(`2fa-setup:${userId}`, 10, 900))) return false;
   const secret = await pendingTotpSecret(userId);
-  if (!secret) return null;
+  if (!secret) return false;
   const step = verifyTotp(secret, code);
-  if (step === null) return null;
-  const codes = newBackupCodes();
-  await db.$transaction(async (tx) => {
-    await tx.user.update({ where: { id: userId }, data: { totpEnabled: true, totpLastCounter: step } });
-    await tx.backupCode.deleteMany({ where: { userId } });
-    await tx.backupCode.createMany({ data: codes.map((c) => ({ userId, codeHash: backupHash(c) })) });
-  });
-  return codes;
+  if (step === null) return false;
+  await db.user.update({ where: { id: userId }, data: { totpEnabled: true, totpLastCounter: step } });
+  return true;
 }
 
 export async function disableTotp(userId: string, code: string): Promise<boolean> {
   if (!(await verifySecondFactor(userId, code))) return false;
-  await db.$transaction([
-    db.user.update({ where: { id: userId }, data: { totpEnabled: false, totpSecretEnc: null, totpLastCounter: null } }),
-    db.backupCode.deleteMany({ where: { userId } }),
-  ]);
+  await clearTotp(userId);
   return true;
 }
 
 /**
- * Replaces all backup codes (for example after they were seen by someone else).
- * Needs a current authenticator code; an old backup code is not accepted.
+ * Removes two-factor login without a code. Used by support (admin panel) after
+ * checking the member's identity when they lost their phone, and by the
+ * emergency command for the owner. The member is signed out everywhere.
  */
-export async function regenerateBackupCodes(userId: string, code: string): Promise<string[] | null> {
-  if (!(await verifySecondFactor(userId, code, false))) return null;
-  const codes = newBackupCodes();
+export async function clearTotp(userId: string) {
   await db.$transaction([
-    db.backupCode.deleteMany({ where: { userId } }),
-    db.backupCode.createMany({ data: codes.map((c) => ({ userId, codeHash: backupHash(c) })) }),
+    db.user.update({ where: { id: userId }, data: { totpEnabled: false, totpSecretEnc: null, totpLastCounter: null } }),
+    db.session.deleteMany({ where: { userId } }),
   ]);
-  return codes;
 }
 
 /* ---------------- passwords ---------------- */

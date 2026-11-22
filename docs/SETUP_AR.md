@@ -30,7 +30,7 @@
 1. الاستضافة بتشغّل `npm run build`. بعدها شغّل مرة وحدة: `npx prisma migrate deploy` و`npm run db:seed`.
 2. افتح الموقع وسجّل حسابك العادي.
 3. من الطرفية: `npm run admin:make -- your@email.com`
-4. سجّل دخول من جديد، روح على **Account → Two-factor login**، امسح الرمز بـ Google Authenticator، **واحفظ رموز الاحتياط بمكان آمن على ورق**.
+4. سجّل دخول من جديد، روح على **Account → Two-factor login**، امسح الرمز بـ Google Authenticator، **وفعّل النسخ الاحتياطي السحابي داخل تطبيق Google Authenticator** (سجّل دخول بحساب Google جوا التطبيق) لحتى ما تنقفل إذا ضيّعت موبايلك. وإذا انقفلت: `npm run 2fa:reset -- your@email.com`.
 5. ادخل `/admin`.
 
 ## 4. ربط شبكة عروض

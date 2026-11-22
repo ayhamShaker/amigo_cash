@@ -60,7 +60,6 @@ export default async function CashoutPage({ params }: { params: Promise<{ locale
           methods={methods}
           balanceCoins={user.balance}
           coinsPerUsd={settings.coinsPerUsd}
-          needsOtp={user.totpEnabled}
           defaultEmail={user.email}
           labels={{
             choose: t("Choose a method"),
@@ -72,7 +71,6 @@ export default async function CashoutPage({ params }: { params: Promise<{ locale
             min: t("Min"),
             feeShort: t("fee"),
             soon: t("Coming soon"),
-            otp: t("Authenticator code"),
             needMore: t("You need {c} more coins"),
             withdrawTo: t("Withdraw {v} to {m}"),
             custom: t("Other amount"),

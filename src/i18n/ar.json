@@ -348,7 +348,6 @@
  "Open live chat": "افتح المحادثة المباشرة",
  "Talk to a person": "تحدث مع شخص حقيقي",
  "Our team answers in the live chat, usually within a couple of minutes. If you close the page, the reply also arrives by email.": "فريقنا يرد في المحادثة المباشرة، عادة خلال دقيقتين. إذا أغلقت الصفحة يصلك الرد على بريدك أيضاً.",
- "Ask for a code from Google Authenticator every time you log in and cash out.": "اطلب رمزاً من Google Authenticator عند كل تسجيل دخول وسحب.",
  "On": "مفعّل",
  "Off": "غير مفعّل",
  "Set up": "إعداد",
@@ -473,5 +472,6 @@
  "Released after review": "تم التحرير بعد المراجعة",
  "Enter the current 6-digit code from Google Authenticator.": "أدخل الرمز الحالي المكوّن من 6 أرقام من Google Authenticator.",
  "Tip: turn on cloud backup in Google Authenticator (sign in with your Google account in the app), so your codes come back if you change phones.": "نصيحة: فعّل النسخ الاحتياطي السحابي في Google Authenticator (سجّل دخولك بحساب Google داخل التطبيق) حتى تعود رموزك إذا غيّرت هاتفك.",
- "Lost your phone? Write to us in the live chat and we will help you get back in.": "فقدت هاتفك؟ راسلنا في المحادثة المباشرة وسنساعدك على الدخول مجدداً."
+ "Lost your phone? Write to us in the live chat and we will help you get back in.": "فقدت هاتفك؟ راسلنا في المحادثة المباشرة وسنساعدك على الدخول مجدداً.",
+ "Optional: ask for a code from Google Authenticator every time you log in.": "اختياري: اطلب رمزاً من Google Authenticator عند كل تسجيل دخول."
 }

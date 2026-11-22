@@ -7,7 +7,6 @@ import { currentUser } from "@/server/session";
 import { getSettings } from "@/server/settings";
 import { claimDailyBonus, redeemPromo } from "@/server/rewards";
 import { requestWithdrawal, isMethodId, WithdrawalError } from "@/server/withdrawals";
-import { verifySecondFactor } from "@/server/auth";
 import { checkIp, isBadConnection } from "@/server/fraud";
 import { requestIp } from "@/server/request";
 import { rateLimit } from "@/server/rate-limit";
@@ -67,9 +66,6 @@ export async function withdrawAction(_prev: FormState, fd: FormData): Promise<Fo
   const cents = dollarsToCents(str(fd, "amount", 12));
   if (cents === null) return { error: t("Enter an amount in dollars, like 5 or 12.50.") };
   if (await connectionBlocked()) return { error: t("Turn off your VPN to cash out") };
-  if (u.totpEnabled && !(await verifySecondFactor(u.id, str(fd, "otp", 20)))) {
-    return { error: t("That code is not right. Check the time on your phone and try the newest code.") };
-  }
   try {
     const w = await requestWithdrawal({ userId: u.id, method, amountCents: cents, address: str(fd, "address", 120), settings });
     revalidatePath(`/${locale}/cashout`);

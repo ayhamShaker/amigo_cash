@@ -27,7 +27,7 @@ This file describes what Amigo Cash protects, how, and how each control is check
 - Argon2id password hashes; login timing is equal for unknown emails; one generic error message.
 - Rate limits stored in PostgreSQL (work across instances): login per IP and per email, sign-up, password reset, 2FA attempts, chat, promo codes, withdrawals, postbacks.
 - Sessions: 256-bit random token in an `HttpOnly`, `SameSite=Lax`, `Secure`, `__Host-` cookie; only its SHA-256 is stored. Password change, 2FA activation and bans end other sessions.
-- Two-factor login: TOTP with ±30 s drift, each time step accepted once (replay blocked), secrets encrypted at rest with AES-256-GCM. Required for admins and, when on, for every withdrawal. There are no backup codes: a member who loses their phone asks support, and an admin resets 2FA after checking their identity (typed confirmation, audit-logged, all sessions ended). The owner can use `npm run 2fa:reset -- email` against the live database in an emergency.
+- Two-factor login: TOTP with ±30 s drift, each time step accepted once (replay blocked), secrets encrypted at rest with AES-256-GCM. Optional for members (asked at every login once turned on); required for admins. There are no backup codes: a member who loses their phone asks support, and an admin resets 2FA after checking their identity (typed confirmation, audit-logged, all sessions ended). The owner can use `npm run 2fa:reset -- email` against the live database in an emergency.
 - Password reset and email confirmation links: single-use, hashed in the database, 1 hour and 48 hours.
 - Google sign-in: authorization code flow with PKCE and `state`; an existing account is linked only when Google reports the email as verified.
 

@@ -79,7 +79,7 @@ export default async function AccountPage({ params, searchParams }: { params: Pr
           </span>
           <div>
             <b>{t("Two-factor login")}</b> {user.totpEnabled ? <span className="pill good">{t("On")}</span> : <span className="pill">{t("Off")}</span>}
-            <div className="small muted">{t("Ask for a code from Google Authenticator every time you log in and cash out.")}</div>
+            <div className="small muted">{t("Optional: ask for a code from Google Authenticator every time you log in.")}</div>
           </div>
         </div>
         {user.totpEnabled ? (

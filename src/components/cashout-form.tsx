@@ -16,7 +16,6 @@ export function CashoutForm({
   methods,
   balanceCoins,
   coinsPerUsd,
-  needsOtp,
   defaultEmail,
   labels,
 }: {
@@ -25,9 +24,8 @@ export function CashoutForm({
   methods: Method[];
   balanceCoins: number;
   coinsPerUsd: number;
-  needsOtp: boolean;
   defaultEmail: string;
-  labels: Record<"choose" | "amount" | "summary" | "deducted" | "fee" | "receive" | "min" | "feeShort" | "soon" | "otp" | "needMore" | "withdrawTo" | "custom", string>;
+  labels: Record<"choose" | "amount" | "summary" | "deducted" | "fee" | "receive" | "min" | "feeShort" | "soon" | "needMore" | "withdrawTo" | "custom", string>;
 }) {
   const first = methods.find((m) => m.enabled) ?? methods[0]!;
   const [methodId, setMethodId] = useState(first.id);
@@ -104,12 +102,6 @@ export function CashoutForm({
           <label htmlFor="f-addr">3 · {m.field}</label>
           <input key={m.id} className="input" id="f-addr" name="address" placeholder={m.placeholder} dir="ltr" style={{ fontFamily: "var(--f-mono)" }} defaultValue={isEmailField ? defaultEmail : ""} maxLength={120} autoComplete="off" />
         </div>
-        {needsOtp ? (
-          <div className="field">
-            <label htmlFor="f-otp">{labels.otp}</label>
-            <input className="input num otp" id="f-otp" name="otp" inputMode="numeric" autoComplete="one-time-code" dir="ltr" placeholder="123456" maxLength={12} />
-          </div>
-        ) : null}
         <Submit className="btn primary lg" disabled={short > 0 || cents < m.minCents}>
           {short > 0 ? labels.needMore.replace("{c}", short.toLocaleString("en-US")) : labels.withdrawTo.replace("{v}", usd(Math.max(0, cents - m.feeCents))).replace("{m}", m.name)}
         </Submit>

@@ -3,6 +3,7 @@ import { dirOf, LOCALES } from "@/i18n/config";
 import { pageLocale, themeCookie } from "./locale";
 import { getSettings } from "@/server/settings";
 import { currentUser } from "@/server/session";
+import { TrackVisit } from "@/components/track-visit";
 import { ChatWidget } from "@/components/chat-widget";
 import { Logo, Icon } from "@/components/icons";
 import { LangSwitch, ThemeToggle } from "@/components/client-controls";
@@ -76,6 +77,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           <>
             {settings.bannerEnabled && settings.bannerText[locale] ? <div className="banner">{settings.bannerText[locale]}</div> : null}
             {children}
+            <TrackVisit />
             <ChatWidget
               locale={locale}
               signedIn={!!user}

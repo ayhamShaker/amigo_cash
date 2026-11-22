@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { CREATOR_COOKIE } from "@/lib/attribution";
 import { pageLocale, themeCookie } from "./locale";
 import { SiteHeader, maskName } from "@/components/site-header";
 import { Coins, Icon } from "@/components/icons";
@@ -17,7 +18,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const { locale, t } = await pageLocale(params);
   const [settings, user, theme, offers, stats, activity] = await Promise.all([getSettings(), currentUser(), themeCookie(), liveOffers(), publicStats(), recentActivity()]);
   const refCode = (await cookies()).get("amigo_ref")?.value;
-  const inviter = !user && refCode ? await db.user.findUnique({ where: { refCode }, select: { name: true, status: true } }) : null;
+  const creatorId = (await cookies()).get(CREATOR_COOKIE)?.value;
+  const creator = !user && creatorId ? await db.creator.findUnique({ where: { id: creatorId }, select: { name: true, active: true, bonusCoins: true } }) : null;
+  const inviter = !user && refCode && !creator?.active ? await db.user.findUnique({ where: { refCode }, select: { name: true, status: true } }) : null;
   const featured = offers[0];
   const enabledMethods = settings.methods.filter((m) => m.enabled);
   const minCents = Math.min(...enabledMethods.map((m) => m.minCents), 100_000);
@@ -31,6 +34,24 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   return (
     <>
+      {creator?.active ? (
+        <div className="invite">
+          <div className="wrap row between wr">
+            <div className="row">
+              <Icon name="gift" />
+              <div>
+                <b>{t("{n} sent you to Amigo Cash", { n: creator.name })}</b>
+                <div className="small">
+                  {t("Sign up now and get {c} bonus coins on top of the welcome bonus.", { c: (creator.bonusCoins + (refCode ? settings.inviteBonus : 0)).toLocaleString("en-US") })}
+                </div>
+              </div>
+            </div>
+            <a className="btn" href={`/${locale}/signup`}>
+              {t("Sign up free")}
+            </a>
+          </div>
+        </div>
+      ) : null}
       {inviter?.status === "ACTIVE" ? (
         <div className="invite">
           <div className="wrap row between wr">

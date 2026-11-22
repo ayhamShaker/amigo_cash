@@ -21,7 +21,7 @@ const KIND_AR: Record<string, string> = {
 export default async function UserDetail({ params }: { params: Promise<{ id: string }> }) {
   const me = await requireAdminPage();
   const { id } = await params;
-  const u = await db.user.findUnique({ where: { id: id.slice(0, 40) }, include: { referredBy: { select: { id: true, name: true } }, _count: { select: { referrals: true } } } });
+  const u = await db.user.findUnique({ where: { id: id.slice(0, 40) }, include: { referredBy: { select: { id: true, name: true } }, creator: { select: { name: true, slug: true } }, _count: { select: { referrals: true } } } });
   if (!u) notFound();
   const settings = await getSettings();
   const [ledger, withdrawals, devices, sessions] = await Promise.all([
@@ -84,6 +84,13 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
       <div className="card stack" style={{ gap: 8, fontSize: 14 }}>
         <Row k="البريد">
           <span dir="ltr">{u.email}</span> {u.emailVerifiedAt ? <span className="pill good">مؤكد</span> : <span className="pill warn">غير مؤكد</span>}
+        </Row>
+        <Row k="جاي من">
+          <span dir="ltr">
+            {u.creator ? `creator: ${u.creator.name} (/c/${u.creator.slug})` : (u.source ?? "direct")}
+            {u.campaign && !u.creator ? ` · ${u.campaign}` : ""}
+            {u.refHost ? ` · ${u.refHost}` : ""}
+          </span>
         </Row>
         <Row k="IP التسجيل">
           <span className="num" dir="ltr">

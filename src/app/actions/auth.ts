@@ -18,6 +18,7 @@ import {
 import { bool, raw, safeNext, str, tFrom } from "@/server/action-utils";
 import { clearPendingLogin, createSession, currentUser, destroySession, revokeOtherSessions, startPendingLogin, takePendingLoginAttempt } from "@/server/session";
 import { deviceId, requestIp } from "@/server/request";
+import { clearAttributionCookies, signupAttribution } from "@/server/marketing";
 import { recordDevice } from "@/server/fraud";
 import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
@@ -36,6 +37,7 @@ export async function signupAction(_prev: FormState, fd: FormData): Promise<Form
     locale,
     ip,
     deviceId: await deviceId(true),
+    attribution: await signupAttribution(),
     ageConfirmed: bool(fd, "age"),
   });
   if (!r.ok) {
@@ -54,6 +56,7 @@ export async function signupAction(_prev: FormState, fd: FormData): Promise<Form
     return { error: messages[r.error] };
   }
   (await cookies()).delete("amigo_ref");
+  await clearAttributionCookies();
   await createSession(r.userId);
   redirect(`/${locale}/earn?welcome=1`);
 }

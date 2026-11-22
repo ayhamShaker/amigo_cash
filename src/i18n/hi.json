@@ -498,5 +498,8 @@
  "Open it every day for up to {c} coins.": "रोज़ खोलें और {c} तक कॉइन पाएँ।",
  "Paying today": "आज के भुगतान वाले ऑफ़र",
  "Admin panel": "एडमिन पैनल",
- "Turn on two-factor login (Google Authenticator) before opening the admin panel.": "एडमिन पैनल खोलने से पहले दो-चरणीय लॉग इन (Google Authenticator) चालू करें।"
+ "Turn on two-factor login (Google Authenticator) before opening the admin panel.": "एडमिन पैनल खोलने से पहले दो-चरणीय लॉग इन (Google Authenticator) चालू करें।",
+ "{n} sent you to Amigo Cash": "{n} ने आपको Amigo Cash पर भेजा है",
+ "Sign up now and get {c} bonus coins on top of the welcome bonus.": "अभी साइन अप करें और वेलकम बोनस के ऊपर {c} बोनस कॉइन पाएँ।",
+ "Creator bonus from {n}": "{n} की ओर से बोनस"
 }

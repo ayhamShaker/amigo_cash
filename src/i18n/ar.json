@@ -498,5 +498,8 @@
  "Open it every day for up to {c} coins.": "افتحه كل يوم واربح لحد {c} عملة.",
  "Paying today": "بتدفع اليوم",
  "Admin panel": "لوحة الإدارة",
- "Turn on two-factor login (Google Authenticator) before opening the admin panel.": "لازم تفعل التحقق بخطوتين (Google Authenticator) قبل ما تدخل لوحة الإدارة."
+ "Turn on two-factor login (Google Authenticator) before opening the admin panel.": "لازم تفعل التحقق بخطوتين (Google Authenticator) قبل ما تدخل لوحة الإدارة.",
+ "{n} sent you to Amigo Cash": "{n} بعتك على Amigo Cash",
+ "Sign up now and get {c} bonus coins on top of the welcome bonus.": "سجل هلق وخد {c} عملة إضافية فوق مكافأة الترحيب.",
+ "Creator bonus from {n}": "مكافأة من {n}"
 }

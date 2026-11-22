@@ -4,6 +4,8 @@ import { safeEqual } from "@/lib/crypto";
 import { upsertGoogleUser } from "@/server/auth";
 import { createSession, startPendingLogin } from "@/server/session";
 import { deviceId, requestIp } from "@/server/request";
+import { signupAttribution } from "@/server/marketing";
+import { CREATOR_COOKIE, SOURCE_COOKIE } from "@/lib/attribution";
 import { rateLimit } from "@/server/rate-limit";
 import { isLocale, type Locale } from "@/i18n/config";
 
@@ -57,7 +59,7 @@ export async function GET(req: NextRequest) {
 
   const result = await upsertGoogleUser(
     { sub: p.sub, email: p.email, emailVerified: p.email_verified === true, name: p.name ?? "" },
-    { locale, refCode: req.cookies.get("amigo_ref")?.value, ip, deviceId: await deviceId(true), country: "US" },
+    { locale, refCode: req.cookies.get("amigo_ref")?.value, ip, deviceId: await deviceId(true), country: "US", attribution: await signupAttribution() },
   );
   if ("error" in result) return back(locale, `google=${result.error === "CLOSED" ? "closed" : result.error === "VPN" ? "vpn" : result.error === "DEVICE_LIMIT" ? "device" : "unverified"}`);
   if (result.status !== "ACTIVE") return back(locale, "google=banned");
@@ -71,6 +73,10 @@ export async function GET(req: NextRequest) {
     res = NextResponse.redirect(new URL(`/${locale}/earn${result.created ? "?welcome=1" : ""}`, e.APP_URL));
   }
   res.cookies.delete({ name: "amigo_oauth", path: "/api/auth/google" });
-  if (result.created) res.cookies.delete("amigo_ref");
+  if (result.created) {
+    res.cookies.delete("amigo_ref");
+    res.cookies.delete(SOURCE_COOKIE);
+    res.cookies.delete(CREATOR_COOKIE);
+  }
   return res;
 }

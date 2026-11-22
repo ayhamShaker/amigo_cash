@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { ATTRIBUTION_DAYS, detectAttribution, encodeAttribution, SOURCE_COOKIE } from "@/lib/attribution";
 
 const LOCALES = ["en", "es", "ar", "hi"];
 
@@ -44,6 +45,14 @@ function securityHeaders(res: NextResponse, csp: string, https: boolean) {
   return res;
 }
 
+/** Remembers where a new visitor came from (first touch, 30 days). */
+function rememberSource(req: NextRequest, res: NextResponse) {
+  if (req.cookies.get(SOURCE_COOKIE)) return res;
+  const a = detectAttribution(req.nextUrl, req.headers.get("referer"), req.nextUrl.hostname);
+  if (a) res.cookies.set(SOURCE_COOKIE, encodeAttribution(a), { path: "/", sameSite: "lax", httpOnly: true, maxAge: 60 * 60 * 24 * ATTRIBUTION_DAYS });
+  return res;
+}
+
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isDev = process.env.NODE_ENV !== "production";
@@ -51,10 +60,10 @@ export function proxy(req: NextRequest) {
   const first = pathname.split("/")[1] ?? "";
 
   // Pages without a language prefix go to the visitor's language.
-  if (!LOCALES.includes(first) && first !== "admin" && first !== "r") {
+  if (!LOCALES.includes(first) && first !== "admin" && first !== "r" && first !== "c") {
     const url = req.nextUrl.clone();
     url.pathname = `/${pickLocale(req)}${pathname === "/" ? "" : pathname}`;
-    return NextResponse.redirect(url);
+    return rememberSource(req, NextResponse.redirect(url));
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
@@ -68,6 +77,7 @@ export function proxy(req: NextRequest) {
   if (LOCALES.includes(first)) {
     res.cookies.set("amigo_locale", first, { path: "/", sameSite: "lax", maxAge: 60 * 60 * 24 * 365 });
   }
+  if (first !== "admin") rememberSource(req, res);
   return securityHeaders(res, csp, https);
 }
 

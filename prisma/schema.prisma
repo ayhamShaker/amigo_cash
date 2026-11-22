@@ -87,10 +87,18 @@ model User {
   locale          String     @default("en")
   emailVerifiedAt DateTime?
 
-  refCode      String  @unique
-  referredById String?
-  referredBy   User?   @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
-  referrals    User[]  @relation("Referrals")
+  refCode        String   @unique
+  // Where the member came from (first visit before sign-up).
+  source         String?
+  medium         String?
+  campaign       String?
+  refHost        String?
+  creatorId      String?
+  creator        Creator? @relation("CreatorMembers", fields: [creatorId], references: [id], onDelete: SetNull)
+  creatorAccount Creator? @relation("CreatorAccount")
+  referredById   String?
+  referredBy     User?    @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals      User[]   @relation("Referrals")
 
   // Cached balances, in coins. Only changed together with a LedgerEntry.
   balance        Int @default(0)
@@ -126,6 +134,39 @@ model User {
 
   @@index([referredById])
   @@index([createdAt])
+  @@index([source])
+  @@index([creatorId])
+}
+
+/**
+ * An influencer or partner with a personal link: /c/<slug>.
+ */
+model Creator {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  name       String
+  platform   String   @default("")
+  // The creator's own member account. New members from the link become its referrals.
+  userId     String?  @unique
+  user       User?    @relation("CreatorAccount", fields: [userId], references: [id], onDelete: SetNull)
+  bonusCoins Int      @default(0)
+  active     Boolean  @default(true)
+  notes      String   @default("")
+  clicks     Int      @default(0)
+  createdAt  DateTime @default(now())
+  members    User[]   @relation("CreatorMembers")
+}
+
+/**
+ * Visits per day and source (one per browser session).
+ */
+model TrafficDay {
+  day       DateTime @db.Date
+  source    String
+  creatorId String   @default("")
+  visits    Int      @default(0)
+
+  @@id([day, source, creatorId])
 }
 
 model Session {

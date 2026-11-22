@@ -498,5 +498,8 @@
  "Open it every day for up to {c} coins.": "Abrilo todos los días y ganá hasta {c} monedas.",
  "Paying today": "Pagando hoy",
  "Admin panel": "Panel de administración",
- "Turn on two-factor login (Google Authenticator) before opening the admin panel.": "Activá el inicio de sesión en dos pasos (Google Authenticator) antes de abrir el panel de administración."
+ "Turn on two-factor login (Google Authenticator) before opening the admin panel.": "Activá el inicio de sesión en dos pasos (Google Authenticator) antes de abrir el panel de administración.",
+ "{n} sent you to Amigo Cash": "{n} te trajo a Amigo Cash",
+ "Sign up now and get {c} bonus coins on top of the welcome bonus.": "Registrate ahora y llevate {c} monedas extra además del bono de bienvenida.",
+ "Creator bonus from {n}": "Bono de {n}"
 }

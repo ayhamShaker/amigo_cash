@@ -1,4 +1,5 @@
 import "server-only";
+import type { SignupAttribution } from "./marketing";
 import { randomInt } from "node:crypto";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -30,7 +31,7 @@ export function makeRefCode(name: string) {
 
 /* ---------------- sign up ---------------- */
 
-export type SignupInput = { name: string; email: string; password: string; country: string; refCode?: string; locale: Locale; ip: string | null; deviceId: string | null; ageConfirmed: boolean };
+export type SignupInput = { name: string; email: string; password: string; country: string; refCode?: string; locale: Locale; ip: string | null; deviceId: string | null; ageConfirmed: boolean; attribution?: SignupAttribution | null };
 export type SignupError =
   | "CLOSED"
   | "NAME"
@@ -74,6 +75,7 @@ export async function signup(input: SignupInput): Promise<{ ok: true; userId: st
       locale: input.locale,
       referrer,
       ip: input.ip,
+      attribution: input.attribution ?? null,
     });
     await recordDevice(user.id, input.deviceId, input.ip);
     if (ipv.checked && ipv.fraudScore >= 85) await addFlag(user.id, "High-risk IP", 30);
@@ -95,7 +97,9 @@ async function createMemberWithBonuses(args: {
   locale: Locale;
   referrer: { id: string; name: string } | null;
   ip: string | null;
+  attribution: SignupAttribution | null;
 }) {
+  const a = args.attribution;
   const settings = await getSettings();
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
@@ -112,6 +116,11 @@ async function createMemberWithBonuses(args: {
             refCode: makeRefCode(args.name),
             referredById: args.referrer?.id ?? null,
             signupIp: args.ip,
+            source: a?.source ?? null,
+            medium: a?.medium ?? null,
+            campaign: a?.campaign ?? null,
+            refHost: a?.refHost ?? null,
+            creatorId: a?.creatorId ?? null,
           },
         });
         if (settings.welcomeBonus > 0) {
@@ -119,6 +128,9 @@ async function createMemberWithBonuses(args: {
         }
         if (args.referrer && settings.inviteBonus > 0) {
           await addEntry(tx, { userId: user.id, amount: settings.inviteBonus, bucket: "AVAILABLE", kind: "INVITE_BONUS", description: { k: "Invite bonus from {n}", a: { n: args.referrer.name } } });
+        }
+        if (a?.creatorId && a.creatorBonus > 0) {
+          await addEntry(tx, { userId: user.id, amount: a.creatorBonus, bucket: "AVAILABLE", kind: "BONUS", description: { k: "Creator bonus from {n}", a: { n: a.creatorName ?? "" } } });
         }
         return user;
       });
@@ -334,7 +346,7 @@ export type GoogleProfile = { sub: string; email: string; emailVerified: boolean
  * Finds or creates the member for a Google account. A Google login links to an
  * existing email account only when Google says the address is verified.
  */
-export async function upsertGoogleUser(p: GoogleProfile, ctx: { locale: Locale; refCode?: string; ip: string | null; deviceId: string | null; country: string }) {
+export async function upsertGoogleUser(p: GoogleProfile, ctx: { locale: Locale; refCode?: string; ip: string | null; deviceId: string | null; country: string; attribution?: SignupAttribution | null }) {
   const settings = await getSettings();
   const byGoogle = await db.user.findUnique({ where: { googleId: p.sub }, select: { id: true, status: true, totpEnabled: true } });
   if (byGoogle) {
@@ -365,6 +377,7 @@ export async function upsertGoogleUser(p: GoogleProfile, ctx: { locale: Locale; 
     locale: ctx.locale,
     referrer: referrer && referrer.status === "ACTIVE" ? referrer : null,
     ip: ctx.ip,
+    attribution: ctx.attribution ?? null,
   });
   await recordDevice(user.id, ctx.deviceId, ctx.ip);
   await maybeBootstrapAdmin(user.id);

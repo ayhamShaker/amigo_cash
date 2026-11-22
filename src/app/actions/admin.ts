@@ -94,6 +94,15 @@ export async function setRoleAction(_p: FormState, fd: FormData): Promise<FormSt
   return { ok: role === "ADMIN" ? "صار مدير. لازم يفعّل التحقق بخطوتين قبل ما يدخل اللوحة." : "تمت إزالة صلاحية المدير." };
 }
 
+export async function confirmEmailAction(_p: FormState, fd: FormData): Promise<FormState> {
+  const { admin, ip } = await ctx();
+  const userId = str(fd, "userId", 40);
+  await db.user.update({ where: { id: userId }, data: { emailVerifiedAt: new Date() } });
+  await audit({ actorId: admin.id, action: "user.confirm_email", targetType: "user", targetId: userId, ip });
+  revalidatePath(`/admin/users/${userId}`);
+  return { ok: "تم تأكيد إيميل العضو يدوياً." };
+}
+
 export async function resetTwoFactorAction(_p: FormState, fd: FormData): Promise<FormState> {
   const { admin, ip } = await ctx();
   const userId = str(fd, "userId", 40);

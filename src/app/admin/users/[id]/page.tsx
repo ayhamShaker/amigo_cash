@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
 import { requireAdminPage } from "@/server/admin-guard";
 import { ActionForm, Submit } from "@/components/forms";
-import { adjustBalanceAction, clearFlagsAction, releaseUserHoldsAction, resetTwoFactorAction, setRoleAction, setUserStatusAction } from "@/app/actions/admin";
+import { adjustBalanceAction, clearFlagsAction, confirmEmailAction, releaseUserHoldsAction, resetTwoFactorAction, setRoleAction, setUserStatusAction } from "@/app/actions/admin";
 import { Num, Risk, Usd, agoAr, WITHDRAWAL_STATUS_AR } from "@/components/admin-ui";
 import { coinsToCents } from "@/lib/money";
 import { describe } from "@/i18n/t";
@@ -138,6 +138,12 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
             <input type="hidden" name="userId" value={u.id} />
             <input type="hidden" name="status" value={u.status === "BANNED" ? "ACTIVE" : "BANNED"} />
             <Submit className={u.status === "BANNED" ? "btn good" : "btn bad"}>{u.status === "BANNED" ? "رفع الحظر" : "حظر الحساب"}</Submit>
+          </ActionForm>
+        ) : null}
+        {!u.emailVerifiedAt ? (
+          <ActionForm action={confirmEmailAction}>
+            <input type="hidden" name="userId" value={u.id} />
+            <Submit className="btn ghost">تأكيد الإيميل يدوياً</Submit>
           </ActionForm>
         ) : null}
         {u.flags.length || u.riskScore ? (

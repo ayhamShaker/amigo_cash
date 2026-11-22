@@ -28,7 +28,7 @@ export default async function FraudPage() {
       <div className="pagehead">
         <div>
           <h1>مكافحة الاحتيال</h1>
-          <p className="small muted">القواعد بتنطبق تلقائياً على كل تسجيل وكل عرض وكل سحب.</p>
+          <p className="small muted">القواعد بتنطبق تلقائيا على كل تسجيل وكل عرض وكل سحب.</p>
         </div>
       </div>
       {!ipqs ? <div className="formmsg bad">كشف الـ VPN متوقف لأن مفتاح IPQualityScore مو محطوط بإعدادات السيرفر (IPQS_API_KEY).</div> : null}
@@ -43,7 +43,7 @@ export default async function FraudPage() {
         ) : probe.checked ? (
           <>
             <div className="row wr">
-              <span className="pill good">✓ IPQualityScore شغّال</span>
+              <span className="pill good">✓ IPQualityScore شغال</span>
               <span className={`pill ${probe.vpn ? "bad" : ""}`}>VPN: {probe.vpn ? "نعم" : "لا"}</span>
               <span className={`pill ${probe.proxy ? "bad" : ""}`}>Proxy: {probe.proxy ? "نعم" : "لا"}</span>
               <span className={`pill ${probe.tor ? "bad" : ""}`}>Tor: {probe.tor ? "نعم" : "لا"}</span>
@@ -54,11 +54,11 @@ export default async function FraudPage() {
               {probe.isp ?? "?"} · {probe.connectionType ?? "?"}
             </div>
             {probe.bad ? (
-              <span className="pill bad" style={{ alignSelf: "flex-start" }}>هالاتصال ممنوع حسب قواعدك (ما بيقدر يسجّل أو يكسب)</span>
+              <span className="pill bad" style={{ alignSelf: "flex-start" }}>هالاتصال ممنوع حسب قواعدك (ما بيقدر يسجل أو يكسب)</span>
             ) : (
               <span className="pill good" style={{ alignSelf: "flex-start" }}>هالاتصال مسموح</span>
             )}
-            <p className="tiny muted">جرّب تشغّل VPN على موبايلك وافتح هالصفحة: لازم يطلع VPN أو Proxy «نعم».</p>
+            <p className="tiny muted">جرب تشغل VPN على موبايلك وافتح هالصفحة: لازم يطلع VPN أو Proxy «نعم».</p>
           </>
         ) : (
           <span className="pill bad" style={{ alignSelf: "flex-start" }} dir="ltr">
@@ -75,7 +75,7 @@ export default async function FraudPage() {
           <NumRow name="holdThreshold" title="تعليق المكافآت من ($)" value={(s.holdThresholdCents / 100).toFixed(2)} />
           <NumRow name="holdDays" title="مدة التعليق (أيام)" value={String(s.holdDays)} />
           <NumRow name="autoApproveUnder" title="موافقة تلقائية حتى ($)" hint="للأعضاء الموثوقين بعد أول سحب" value={(s.autoApproveUnderCents / 100).toFixed(2)} />
-          <NumRow name="vpnStrictness" title="شدّة كشف الـ VPN" hint="0 – 3 · كل ما كبر الرقم بيكشف أكتر (2 مناسب)" value={String(s.vpnStrictness)} />
+          <NumRow name="vpnStrictness" title="شدة كشف الـ VPN" hint="0 – 3 · كل ما كبر الرقم بيكشف أكتر (2 مناسب)" value={String(s.vpnStrictness)} />
           <NumRow name="maxFraudScore" title="منع عند درجة احتيال الـ IP" hint="50 – 100 · من IPQualityScore" value={String(s.maxFraudScore)} />
           <NumRow name="maxAccountsPerDevice" title="أقصى حسابات لكل جهاز" value={String(s.maxAccountsPerDevice)} />
           <NumRow name="autoBanRisk" title="حظر تلقائي عند درجة خطورة" hint="50 – 100" value={String(s.autoBanRisk)} />
@@ -97,7 +97,7 @@ export default async function FraudPage() {
               </a>
             ))
           ) : (
-            <p className="muted small">ما في حسابات مشبوهة حالياً.</p>
+            <p className="muted small">ما في حسابات مشبوهة حاليا.</p>
           )}
         </div>
       </div>

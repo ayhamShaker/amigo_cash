@@ -66,7 +66,7 @@ function Fields({ m }: { m?: PayMethod }) {
         </div>
       </div>
       <label className="setrow" style={{ borderBottom: 0, padding: 0 }}>
-        <b className="small">مفعّلة للأعضاء</b>
+        <b className="small">مفعلة للأعضاء</b>
         <span className="switch">
           <input type="checkbox" name="enabled" defaultChecked={m ? m.enabled : true} />
           <span />
@@ -84,7 +84,7 @@ export default async function MethodsPage() {
       <div className="pagehead">
         <div>
           <h1>طرق السحب</h1>
-          <p className="small muted">عدّل أي طريقة أو أضف طريقة جديدة. الترتيب هون هو نفس الترتيب اللي بيشوفه العضو.</p>
+          <p className="small muted">عدل أي طريقة أو أضف طريقة جديدة. الترتيب هون هو نفس الترتيب اللي بيشوفه العضو.</p>
         </div>
       </div>
 
@@ -100,7 +100,7 @@ export default async function MethodsPage() {
               <span className="small muted" dir="ltr">
                 {`min $${usd(m.minCents)}${m.feeCents ? ` · fee $${usd(m.feeCents)}` : ""}`}
               </span>
-              <span className={`pill ${m.enabled ? "good" : ""}`}>{m.enabled ? "مفعّلة" : "مطفأة"}</span>
+              <span className={`pill ${m.enabled ? "good" : ""}`}>{m.enabled ? "مفعلة" : "مطفأة"}</span>
               <span className="cc">{m.id}</span>
             </div>
             <div className="row" style={{ gap: 6 }}>
@@ -132,7 +132,7 @@ export default async function MethodsPage() {
               </ActionForm>
               <ActionForm action={deleteMethodAction} className="row wr">
                 <input type="hidden" name="id" value={m.id} />
-                <span className="small muted grow">حذف الطريقة: السحوبات القديمة بتضل محفوظة. لتوقفها مؤقتاً، أطفيها بدل الحذف.</span>
+                <span className="small muted grow">حذف الطريقة: السحوبات القديمة بتضل محفوظة. لتوقفها مؤقتا، أطفيها بدل الحذف.</span>
                 <Submit className="btn bad sm">حذف</Submit>
               </ActionForm>
             </div>

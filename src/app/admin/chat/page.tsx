@@ -30,7 +30,7 @@ export default async function ChatAdminPage({ searchParams }: { searchParams: Pr
       <div className="pagehead">
         <div>
           <h1>الدعم المباشر</h1>
-          <p className="small muted">محادثات لايف مع الأعضاء والزوار. ردّك بيوصل فوراً بنافذة الشات عندهم، وبينبعتلهم كمان إيميل إنك رديت. الصفحة بتتحدث لحالها.</p>
+          <p className="small muted">محادثات لايف مع الأعضاء والزوار. ردك بيوصل فورا بنافذة الشات عندهم، وبينبعتلهم كمان إيميل إنك رديت. الصفحة بتتحدث لحالها.</p>
         </div>
       </div>
       <div className="inbox">
@@ -97,7 +97,7 @@ export default async function ChatAdminPage({ searchParams }: { searchParams: Pr
                       <span className="ts">
                         {m.sender === "BOT" ? "رد تلقائي · " : `${m.authorName ?? ""} · `}
                         {agoAr(m.createdAt)}
-                        {m.emailed ? ` · ✉ إيميل أُرسل` : ""}
+                        {m.emailed ? ` · ✉ إيميل أرسل` : ""}
                       </span>
                     </div>
                   ),
@@ -111,12 +111,12 @@ export default async function ChatAdminPage({ searchParams }: { searchParams: Pr
                     conv.locale === "es"
                       ? ["¡Hola! Ya lo reviso.", "Tus monedas ya están en tu saldo.", "Tu retiro ya fue enviado.", "Apagá la VPN y probá de nuevo."]
                       : conv.locale === "ar"
-                        ? ["أهلاً! خليني أتحقق من الموضوع.", "العملات صارت برصيدك.", "تم إرسال السحب.", "أوقف الـ VPN وجرب مرة ثانية."]
+                        ? ["أهلا! خليني أتحقق من الموضوع.", "العملات صارت برصيدك.", "تم إرسال السحب.", "أوقف الـ VPN وجرب مرة ثانية."]
                         : ["Hi! Let me check that for you.", "Your coins are now in your balance.", "Your withdrawal has been sent.", "Please turn off your VPN and try again."]
                   }
                 />
                 <div className="row" style={{ alignItems: "flex-end" }}>
-                  <textarea className="input grow" id="ar-text" name="body" rows={2} dir="auto" placeholder="اكتب ردك… (يفضّل بلغة العضو)" maxLength={2000} />
+                  <textarea className="input grow" id="ar-text" name="body" rows={2} dir="auto" placeholder="اكتب ردك… (يفضل بلغة العضو)" maxLength={2000} />
                   <Submit>إرسال</Submit>
                 </div>
               </ActionForm>

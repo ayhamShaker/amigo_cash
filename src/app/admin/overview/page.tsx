@@ -106,7 +106,7 @@ export default async function Overview() {
 
       <div className="chartbox stack">
         <div className="row between wr">
-          <h3 style={{ fontSize: 17 }}>الإيراد مقابل ما يأخذه الأعضاء (يومياً)</h3>
+          <h3 style={{ fontSize: 17 }}>الإيراد مقابل ما يأخذه الأعضاء (يوميا)</h3>
           <div className="legend">
             <span>
               <i style={{ background: "var(--accent)" }} />
@@ -196,7 +196,7 @@ export default async function Overview() {
           <div className="d muted">الهدف: أقل من 10%</div>
         </div>
         <div className="kpi">
-          <div className="k">إجمالي ما دُفع فعلياً</div>
+          <div className="k">إجمالي ما دفع فعليا</div>
           <div className="v">
             <Usd cents={paid._sum.amountCents ?? 0} />
           </div>

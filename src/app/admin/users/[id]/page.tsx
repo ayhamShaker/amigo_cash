@@ -69,7 +69,7 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
           </div>
         </div>
         <div className="kpi">
-          <div className="k">معلّق</div>
+          <div className="k">معلق</div>
           <div className="v">
             <Num n={u.pending} />
           </div>
@@ -110,13 +110,13 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
             <span className="pill good">لا يوجد</span>
           )}
         </Row>
-        <Row k="مُحال من">{u.referredBy ? <a href={`/admin/users/${u.referredBy.id}`}>{u.referredBy.name}</a> : "—"} · دعا {u._count.referrals} أشخاص</Row>
+        <Row k="محال من">{u.referredBy ? <a href={`/admin/users/${u.referredBy.id}`}>{u.referredBy.name}</a> : "—"} · دعا {u._count.referrals} أشخاص</Row>
         <Row k="درجة الخطورة">
           <Risk score={u.riskScore} />
         </Row>
         <Row k="طريقة الدخول">{u.passwordHash ? "إيميل وكلمة مرور" : <span className="pill warn">Google فقط (بدون كلمة مرور)</span>}</Row>
-        <Row k="التحقق بخطوتين">{u.totpEnabled ? <span className="pill good">مفعّل</span> : <span className="pill">غير مفعّل</span>}</Row>
-        <Row k="جلسات فعّالة">
+        <Row k="التحقق بخطوتين">{u.totpEnabled ? <span className="pill good">مفعل</span> : <span className="pill">غير مفعل</span>}</Row>
+        <Row k="جلسات فعالة">
           <Num n={sessions} />
         </Row>
         <Row k="تاريخ التسجيل">
@@ -126,7 +126,7 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
 
       <ActionForm action={adjustBalanceAction} className="card stack" resetOnOk>
         <input type="hidden" name="userId" value={u.id} />
-        <b>تعديل الرصيد يدوياً</b>
+        <b>تعديل الرصيد يدويا</b>
         <div className="row wr">
           <input className="input num" name="coins" type="number" placeholder="مثال: 500 أو ‎-500" dir="ltr" style={{ flex: 1, minWidth: 120 }} aria-label="عدد الكوينز" />
           <input className="input" name="reason" placeholder="السبب (يظهر للمستخدم، بالإنجليزي)" dir="auto" style={{ flex: 2, minWidth: 180 }} maxLength={200} aria-label="السبب" />
@@ -145,7 +145,7 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
         {!u.emailVerifiedAt ? (
           <ActionForm action={confirmEmailAction}>
             <input type="hidden" name="userId" value={u.id} />
-            <Submit className="btn ghost">تأكيد الإيميل يدوياً</Submit>
+            <Submit className="btn ghost">تأكيد الإيميل يدويا</Submit>
           </ActionForm>
         ) : null}
         {u.flags.length || u.riskScore ? (
@@ -157,7 +157,7 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
         {u.pending > 0 ? (
           <ActionForm action={releaseUserHoldsAction}>
             <input type="hidden" name="userId" value={u.id} />
-            <Submit className="btn ghost">تحرير الرصيد المعلّق الآن</Submit>
+            <Submit className="btn ghost">تحرير الرصيد المعلق الآن</Submit>
           </ActionForm>
         ) : null}
         {u.id !== me.id ? (
@@ -175,7 +175,7 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
         <ActionForm action={resetTwoFactorAction} className="card row wr">
           <input type="hidden" name="userId" value={u.id} />
           <span className="grow small">
-            <b>العضو ضيّع موبايله؟</b> تأكد من هويته أولاً (مثلاً من الإيميل المسجّل)، بعدين اكتب RESET لإلغاء التحقق بخطوتين:
+            <b>العضو ضيع موبايله؟</b> تأكد من هويته أولا (مثلا من الإيميل المسجل)، بعدين اكتب RESET لإلغاء التحقق بخطوتين:
           </span>
           <input className="input num" name="confirm" dir="ltr" style={{ width: 120 }} aria-label="تأكيد" />
           <Submit className="btn bad">إلغاء التحقق بخطوتين</Submit>
@@ -199,7 +199,7 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
                       {l.amount.toLocaleString("en-US")}
                     </span>
                   </td>
-                  <td>{l.bucket === "PENDING" ? <span className="pill warn">{l.releasedAt ? "محرّر" : "معلّق"}</span> : null}</td>
+                  <td>{l.bucket === "PENDING" ? <span className="pill warn">{l.releasedAt ? "محرر" : "معلق"}</span> : null}</td>
                 </tr>
               ))}
             </tbody>

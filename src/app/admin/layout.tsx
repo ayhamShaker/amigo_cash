@@ -48,7 +48,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Logo href="/admin/overview" />
             <span className="pill accent">لوحة الإدارة</span>
             <div className="grow" />
-            {settings.maintenance ? <span className="pill warn">وضع الصيانة مفعّل</span> : null}
+            {settings.maintenance ? <span className="pill warn">وضع الصيانة مفعل</span> : null}
             <ThemeToggle initial={theme} labels={{ toDark: "الوضع الداكن", toLight: "الوضع الفاتح" }} />
             <a className="btn sm topghost" href="/ar">
               <Icon name="eye" />
@@ -61,7 +61,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <SideNav items={items} lockLabel="" />
             <div className="sep" />
             <div className="tiny muted" style={{ padding: "0 12px" }}>
-              مسجّل كمدير: <span dir="ltr">{admin.email}</span>
+              مسجل كمدير: <span dir="ltr">{admin.email}</span>
             </div>
           </nav>
           <main className="main">

@@ -496,5 +496,7 @@
  "Live": "En vivo",
  "New offers are on their way. Check back soon.": "Están llegando ofertas nuevas. Volvé pronto.",
  "Open it every day for up to {c} coins.": "Abrilo todos los días y ganá hasta {c} monedas.",
- "Paying today": "Pagando hoy"
+ "Paying today": "Pagando hoy",
+ "Admin panel": "Panel de administración",
+ "Turn on two-factor login (Google Authenticator) before opening the admin panel.": "Activá el inicio de sesión en dos pasos (Google Authenticator) antes de abrir el panel de administración."
 }

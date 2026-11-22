@@ -473,7 +473,7 @@ th{background:transparent}
 @media (max-width:620px){.bento{grid-template-columns:1fr 1fr;grid-auto-rows:auto;gap:12px}.bento>*{grid-column:1/-1!important;grid-row:auto!important}.bento>.half{grid-column:auto!important}.tile{padding:18px}.tile .big{font-size:34px}}
 
 /* header: floating glass bar */
-.topbar{position:sticky;top:calc(10px + env(safe-area-inset-top,0px));margin:10px auto 0;max-width:1208px;width:calc(100% - 2*max(16px,env(safe-area-inset-left,0px)));background:var(--surface);border:1px solid var(--glass-edge);border-radius:var(--r);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.topbar{position:sticky;top:calc(10px + env(safe-area-inset-top,0px));margin:10px auto 0;max-width:none;width:calc(100% - 2*max(20px,env(safe-area-inset-left,0px)));background:var(--surface);border:1px solid var(--glass-edge);border-radius:var(--r);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
 .topbar-in{height:62px;padding-left:14px;padding-right:10px;max-width:none}
 .toplinks{display:flex;gap:2px;margin-inline-start:14px}
 .toplinks a{padding:9px 13px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;color:var(--muted);white-space:nowrap}
@@ -494,7 +494,7 @@ th{background:transparent}
 .shell{display:block;min-height:auto}
 .side{display:none!important}
 .main{padding-block:18px 120px}
-.main-in{max-width:1208px}
+.main-in{max-width:none}
 .walletbar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;border:0;background:transparent;overflow:visible}
 .walletbar>div{border-radius:var(--r);border-inline-end:1px solid var(--glass-edge)!important}
 .walletbar>div:last-child{border-inline-end:1px solid var(--glass-edge)!important}
@@ -544,6 +544,12 @@ th{background:transparent}
 .card.row.wr>.grow{min-width:220px}
 @media (max-width:700px){.topbar.member .prefs{display:none}}
 
-.banner{max-width:1208px;width:calc(100% - 2*max(16px,env(safe-area-inset-left,0px)));margin:10px auto 0;border-radius:var(--r)}
+.banner{max-width:none;width:calc(100% - 2*max(20px,env(safe-area-inset-left,0px)));margin:10px auto 0;border-radius:var(--r)}
 [dir="rtl"] .pw input{padding-left:46px;padding-right:14px}
 [dir="rtl"] .arr{display:inline-block;transform:scaleX(-1)}
+
+/* full width with a 20px gutter */
+.wrap{max-width:none;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.main{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.admin .shell{max-width:none;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.admin .topbar{max-width:none}

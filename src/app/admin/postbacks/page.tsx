@@ -25,7 +25,7 @@ export default async function PostbacksPage({ searchParams }: { searchParams: Pr
       <div className="pagehead">
         <div>
           <h1>سجل التأكيدات (Postbacks)</h1>
-          <p className="small muted">كل مرة الشبكة بتأكد إنو عضو خلّص مهمة، بيوصل إشعار هون وبينضاف الرصيد تلقائياً. كل إشعار بيتحقق من التوقيع، والـ IP إذا محدد، وما بيتكرر نفس رقم العملية.</p>
+          <p className="small muted">كل مرة الشبكة بتأكد إنو عضو خلص مهمة، بيوصل إشعار هون وبينضاف الرصيد تلقائيا. كل إشعار بيتحقق من التوقيع، والـ IP إذا محدد، وما بيتكرر نفس رقم العملية.</p>
         </div>
       </div>
       <div className="tabs">

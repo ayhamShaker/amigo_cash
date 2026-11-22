@@ -20,15 +20,15 @@ export default async function AccountPage({ params, searchParams }: { params: Pr
         <h1>{t("Account")}</h1>
       </div>
       {sp.admin2fa && user.role === "ADMIN" ? (
-        <div className="formmsg bad" dir="rtl" lang="ar">
+        <div className="formmsg bad">
           <Icon name="shield" />
-          <span>لازم تفعّل التحقق بخطوتين (Google Authenticator) قبل ما تدخل لوحة الإدارة.</span>
+          <span>{t("Turn on two-factor login (Google Authenticator) before opening the admin panel.")}</span>
         </div>
       ) : null}
       {user.role === "ADMIN" && user.totpEnabled ? (
         <a className="btn primary" href="/admin" style={{ alignSelf: "flex-start" }}>
           <Icon name="grid" />
-          لوحة الإدارة
+          {t("Admin panel")}
         </a>
       ) : null}
       <div className="grid2">

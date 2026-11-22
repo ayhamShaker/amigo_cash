@@ -42,7 +42,7 @@
  [
   "^Solve (\\d+) puzzles$",
   "Resolvé $1 acertijos",
-  "حل $1 لغزاً"
+  "حل $1 لغزا"
  ],
  [
   "^Win (\\d+) races$",

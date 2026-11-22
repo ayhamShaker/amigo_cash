@@ -13,7 +13,7 @@ export default async function AuditPage() {
       <div className="pagehead">
         <div>
           <h1>سجل العمليات</h1>
-          <p className="small muted">كل تعديل على الأرصدة والسحوبات والإعدادات والمستخدمين بينسجل هون مع الوقت والـ IP. ما حدا بيقدر يعدّله من اللوحة.</p>
+          <p className="small muted">كل تعديل على الأرصدة والسحوبات والإعدادات والمستخدمين بينسجل هون مع الوقت والـ IP. ما حدا بيقدر يعدله من اللوحة.</p>
         </div>
       </div>
       <div className="tablewrap">

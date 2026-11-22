@@ -68,7 +68,7 @@ export async function saveMethodAction(_p: FormState, fd: FormData): Promise<For
   const id = str(fd, "id", 24);
   const cur = await getSettings();
   const idx = cur.methods.findIndex((m) => m.id === id);
-  if (idx < 0) return { error: "الطريقة مو موجودة. حدّث الصفحة." };
+  if (idx < 0) return { error: "الطريقة مو موجودة. حدث الصفحة." };
   const img = await pickImage(fd, cur.methods[idx]!.image);
   if ("error" in img) return img;
   const next = readFields(fd, { ...cur.methods[idx]!, image: img.image });

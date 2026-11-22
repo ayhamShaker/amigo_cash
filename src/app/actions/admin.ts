@@ -94,12 +94,12 @@ export async function setRoleAction(_p: FormState, fd: FormData): Promise<FormSt
   const { admin, ip } = await ctx();
   const userId = str(fd, "userId", 40);
   const role = str(fd, "role", 10) === "ADMIN" ? "ADMIN" : "USER";
-  if (userId === admin.id) return { error: "ما فيك تغيّر صلاحيات حسابك." };
+  if (userId === admin.id) return { error: "ما فيك تغير صلاحيات حسابك." };
   await db.user.update({ where: { id: userId }, data: { role } });
   await db.session.deleteMany({ where: { userId } });
   await audit({ actorId: admin.id, action: role === "ADMIN" ? "user.make_admin" : "user.remove_admin", targetType: "user", targetId: userId, ip });
   revalidatePath(`/admin/users/${userId}`);
-  return { ok: role === "ADMIN" ? "صار مدير. لازم يفعّل التحقق بخطوتين قبل ما يدخل اللوحة." : "تمت إزالة صلاحية المدير." };
+  return { ok: role === "ADMIN" ? "صار مدير. لازم يفعل التحقق بخطوتين قبل ما يدخل اللوحة." : "تمت إزالة صلاحية المدير." };
 }
 
 export async function confirmEmailAction(_p: FormState, fd: FormData): Promise<FormState> {
@@ -109,7 +109,7 @@ export async function confirmEmailAction(_p: FormState, fd: FormData): Promise<F
   await audit({ actorId: admin.id, action: "user.confirm_email", targetType: "user", targetId: userId, ip });
   await notify(userId, "account", { k: "Your email is confirmed. You can cash out once you reach the minimum." }, "/cashout");
   revalidatePath(`/admin/users/${userId}`);
-  return { ok: "تم تأكيد إيميل العضو يدوياً." };
+  return { ok: "تم تأكيد إيميل العضو يدويا." };
 }
 
 export async function passwordResetLinkAction(_p: FormState, fd: FormData): Promise<FormState> {
@@ -129,7 +129,7 @@ export async function resetTwoFactorAction(_p: FormState, fd: FormData): Promise
   await clearTotp(userId);
   await audit({ actorId: admin.id, action: "user.reset_2fa", targetType: "user", targetId: userId, ip });
   revalidatePath(`/admin/users/${userId}`);
-  return { ok: "تم إلغاء التحقق بخطوتين وتسجيل خروجه من كل الأجهزة. خليه يفعّله من جديد بعد ما يدخل." };
+  return { ok: "تم إلغاء التحقق بخطوتين وتسجيل خروجه من كل الأجهزة. خليه يفعله من جديد بعد ما يدخل." };
 }
 
 /* ---------------- withdrawals ---------------- */
@@ -181,7 +181,7 @@ export async function saveOfferAction(_p: FormState, fd: FormData): Promise<Form
   const steps = parseSteps(str(fd, "steps", 4000));
   if (!steps) return { error: "المراحل: كل سطر «اسم المرحلة | النسبة»، ومجموع النسب لازم يكون 100." };
   const payoutCents = dollarsToCents(str(fd, "payout", 12));
-  if (payoutCents === null || payoutCents <= 0) return { error: "اكتب كم بتدفع الشبكة بالدولار، مثلاً 12.50" };
+  if (payoutCents === null || payoutCents <= 0) return { error: "اكتب كم بتدفع الشبكة بالدولار، مثلا 12.50" };
   const trackingUrl = cleanUrl(str(fd, "trackingUrl", 1000));
   try {
     const u = new URL(trackingUrl.replaceAll("{user_id}", "x"));
@@ -230,7 +230,7 @@ export async function saveNetworkAction(_p: FormState, fd: FormData): Promise<Fo
   const { admin, ip } = await ctx();
   const isNew = str(fd, "isNew", 5) === "1";
   const id = str(fd, "id", 30).toLowerCase();
-  if (!/^[a-z0-9-]{2,30}$/.test(id)) return { error: "المعرّف: أحرف إنجليزية صغيرة وأرقام فقط، مثل torox" };
+  if (!/^[a-z0-9-]{2,30}$/.test(id)) return { error: "المعرف: أحرف إنجليزية صغيرة وأرقام فقط، مثل torox" };
   const mode = str(fd, "signatureMode", 20) as SignatureMode;
   if (!SIGNATURE_MODES.includes(mode)) return { error: FAIL };
   const shareRaw = str(fd, "userShare", 3);
@@ -252,7 +252,7 @@ export async function saveNetworkAction(_p: FormState, fd: FormData): Promise<Fo
     ...(secret ? { secretEnc: encrypt(secret, env().ENCRYPTION_KEY) } : {}),
   };
   if (isNew) {
-    if (await db.network.findUnique({ where: { id } })) return { error: "في شبكة بنفس المعرّف." };
+    if (await db.network.findUnique({ where: { id } })) return { error: "في شبكة بنفس المعرف." };
     await db.network.create({ data: { id, ...data } });
   } else {
     await db.network.update({ where: { id }, data });
@@ -276,7 +276,7 @@ export async function sendTestPostbackAction(_p: FormState, fd: FormData): Promi
   const payout = dollarsToCents(str(fd, "payout", 12) || "1");
   if (payout === null || payout <= 0 || payout > 10_000) return { error: "اكتب مبلغ بين 0.01 و 100 دولار." };
   const network = await db.network.findUnique({ where: { id: networkId } });
-  if (!network?.secretEnc) return { error: "احفظ سر الـ Postback لهالشبكة أولاً." };
+  if (!network?.secretEnc) return { error: "احفظ سر الـ Postback لهالشبكة أولا." };
   const member = await db.user.findFirst({ where: { OR: [{ id: who }, { email: who.toLowerCase() }] }, select: { id: true, name: true } });
   if (!member) return { error: "ما لقيت عضو بهالإيميل أو الرقم." };
   const url = buildSignedUrl(network.signatureMode as SignatureMode, decrypt(network.secretEnc, env().ENCRYPTION_KEY), `${env().APP_URL}/api/postback/${network.id}`, {
@@ -290,9 +290,9 @@ export async function sendTestPostbackAction(_p: FormState, fd: FormData): Promi
   await audit({ actorId: admin.id, action: "postback.test", targetType: "network", targetId: network.id, data: { member: member.id, payoutCents: payout, outcome: r.outcome }, ip });
   revalidatePath("/admin/networks");
   if (r.outcome === "credited") return { ok: `✓ وصل التأكيد وانضاف الرصيد لـ ${member.name}. شوفه بسجل التأكيدات.` };
-  if (r.outcome === "refused") return { error: `الشبكة رفضت: ${r.reason === "network disabled" ? "الشبكة متوقفة، فعّلها أولاً" : r.reason}` };
-  if (r.outcome === "rejected") return { error: `انسجّل بس ما انضاف رصيد: ${r.reason === "user banned" ? "العضو محظور" : r.reason}` };
-  return { ok: "انسجّل." };
+  if (r.outcome === "refused") return { error: `الشبكة رفضت: ${r.reason === "network disabled" ? "الشبكة متوقفة، فعلها أولا" : r.reason}` };
+  if (r.outcome === "rejected") return { error: `انسجل بس ما انضاف رصيد: ${r.reason === "user banned" ? "العضو محظور" : r.reason}` };
+  return { ok: "انسجل." };
 }
 
 export async function reverseConversionAction(_p: FormState, fd: FormData): Promise<FormState> {
@@ -328,7 +328,7 @@ export async function togglePromoAction(_p: FormState, fd: FormData): Promise<Fo
   await db.promoCode.update({ where: { code }, data: { active } });
   await audit({ actorId: admin.id, action: active ? "promo.enable" : "promo.disable", targetType: "promo", targetId: code, ip });
   revalidatePath("/admin/promos");
-  return { ok: active ? "الكود مفعّل." : "الكود متوقف." };
+  return { ok: active ? "الكود مفعل." : "الكود متوقف." };
 }
 
 /* ---------------- chat ---------------- */

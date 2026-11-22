@@ -32,7 +32,7 @@ export default async function NetworksPage() {
       <div className="pagehead">
         <div>
           <h1>شبكات العروض</h1>
-          <p className="small muted">كل شبكة بسطر. شغّلها أو أوقفها، وحدد حصة العضو (أو اتركها فارغة لتستخدم الحصة العامة {settings.userSharePct}%). السر بينحفظ مشفّر وما بيظهر مرة ثانية.</p>
+          <p className="small muted">كل شبكة بسطر. شغلها أو أوقفها، وحدد حصة العضو (أو اتركها فارغة لتستخدم الحصة العامة {settings.userSharePct}%). السر بينحفظ مشفر وما بيظهر مرة ثانية.</p>
         </div>
       </div>
       <div className="stack">
@@ -81,13 +81,13 @@ function NetworkForm({ n, base, revenue, defaultShare }: { n: N | null; base: st
             <input type="checkbox" name="enabled" defaultChecked={n?.enabled ?? false} aria-label="تشغيل" />
             <span />
           </span>
-          مفعّلة
+          مفعلة
         </label>
       </div>
       <div className="setgrid">
         {!n ? (
           <label className="field">
-            <span className="flabel">المعرّف (إنجليزي صغير، مثل torox)</span>
+            <span className="flabel">المعرف (إنجليزي صغير، مثل torox)</span>
             <input className="input num" name="id" dir="ltr" maxLength={30} />
           </label>
         ) : null}
@@ -127,7 +127,7 @@ function NetworkForm({ n, base, revenue, defaultShare }: { n: N | null; base: st
         <input className="input num" name="wallUrl" dir="ltr" defaultValue={n?.wallUrl ?? ""} placeholder="https://wall.example.com/?app=123&user={user_id}" maxLength={1000} />
       </label>
       <div className="field">
-        <span className="flabel">رابط التأكيد (Postback) — انسخه للوحة الشبكة وبدّل الماكروهات بماكروهاتها</span>
+        <span className="flabel">رابط التأكيد (Postback) — انسخه للوحة الشبكة وبدل الماكروهات بماكروهاتها</span>
         <div className="code">{`${base}/api/postback/${id || "{network}"}?subid={user_id}&txid={transaction_id}&payout={payout_usd}&status={1_or_2}&offer={offer_name}&sig={signature}`}</div>
         <div className="tiny muted" dir="ltr" style={{ textAlign: "right" }}>
           {MODE_HELP[n?.signatureMode ?? "HMAC_SHA256"]}

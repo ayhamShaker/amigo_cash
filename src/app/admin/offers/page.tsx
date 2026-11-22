@@ -28,7 +28,7 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
       <div className="pagehead">
         <div>
           <h1>العروض المميزة</h1>
-          <p className="small muted">العروض اللي بتظهر بصفحة «Earn». مكافأة العضو بتنحسب تلقائياً: سعر الشبكة × حصة العضو.</p>
+          <p className="small muted">العروض اللي بتظهر بصفحة «Earn». مكافأة العضو بتنحسب تلقائيا: سعر الشبكة × حصة العضو.</p>
         </div>
         {!showForm ? (
           <a className="btn primary" href="/admin/offers?new=1">
@@ -41,7 +41,7 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
         <ActionForm action={saveOfferAction} className="card stack">
           <h2 style={{ fontSize: 18 }}>{o ? `تعديل: ${o.title}` : "عرض جديد"}</h2>
           <input type="hidden" name="id" value={o?.id ?? ""} />
-          {networks.length === 0 ? <div className="formmsg bad">أضف شبكة عروض أولاً من صفحة «شبكات العروض».</div> : null}
+          {networks.length === 0 ? <div className="formmsg bad">أضف شبكة عروض أولا من صفحة «شبكات العروض».</div> : null}
           <div className="setgrid">
             <Field label="اسم العرض (كما يظهر للأعضاء)">
               <input className="input" name="title" dir="auto" defaultValue={o?.title ?? ""} maxLength={80} />
@@ -109,7 +109,7 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
       {o ? (
         <ActionForm action={deleteOfferAction} className="card row wr">
           <input type="hidden" name="id" value={o.id} />
-          <span className="grow small">لحذف العرض نهائياً اكتب DELETE:</span>
+          <span className="grow small">لحذف العرض نهائيا اكتب DELETE:</span>
           <input className="input num" name="confirm" dir="ltr" style={{ width: 140 }} aria-label="تأكيد الحذف" />
           <Submit className="btn bad">حذف</Submit>
         </ActionForm>

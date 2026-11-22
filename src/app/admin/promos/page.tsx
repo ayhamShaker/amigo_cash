@@ -69,7 +69,7 @@ export default async function PromosPage() {
                   <ActionForm action={togglePromoAction} className="row">
                     <input type="hidden" name="code" value={p.code} />
                     <input type="hidden" name="active" value={p.active ? "0" : "1"} />
-                    {p.active ? <span className="pill good">مفعّل</span> : <span className="pill">متوقف</span>}
+                    {p.active ? <span className="pill good">مفعل</span> : <span className="pill">متوقف</span>}
                     <Submit className="btn ghost sm">{p.active ? "إيقاف" : "تفعيل"}</Submit>
                   </ActionForm>
                 </td>

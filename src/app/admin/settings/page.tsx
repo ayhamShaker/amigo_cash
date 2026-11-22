@@ -17,7 +17,7 @@ export default async function SettingsPage() {
       <div className="pagehead">
         <div>
           <h1>إعدادات الموقع</h1>
-          <p className="small muted">أي تغيير هون بينعكس على الموقع فوراً. ما في داعي تلمس الكود. قواعد الأمان والسحب موجودة بصفحة «مكافحة الاحتيال».</p>
+          <p className="small muted">أي تغيير هون بينعكس على الموقع فورا. ما في داعي تلمس الكود. قواعد الأمان والسحب موجودة بصفحة «مكافحة الاحتيال».</p>
         </div>
       </div>
       <div className="card stack">
@@ -51,7 +51,7 @@ export default async function SettingsPage() {
           </div>
           <div className="card stack" style={{ gap: 10 }}>
             <h3 style={{ fontSize: 17 }}>طرق السحب</h3>
-            <p className="small muted">صار في صفحة خاصة لطرق السحب: تعدّل الاسم والصورة والحد الأدنى والرسوم، أو تضيف طريقة جديدة.</p>
+            <p className="small muted">صار في صفحة خاصة لطرق السحب: تعدل الاسم والصورة والحد الأدنى والرسوم، أو تضيف طريقة جديدة.</p>
             <a className="btn primary" href="/admin/methods" style={{ alignSelf: "flex-start" }}>
               فتح طرق السحب
             </a>

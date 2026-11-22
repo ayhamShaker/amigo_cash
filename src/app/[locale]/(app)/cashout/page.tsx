@@ -3,7 +3,7 @@ import { pageLocale } from "../../locale";
 import { currentUser } from "@/server/session";
 import { getSettings } from "@/server/settings";
 import { db } from "@/lib/db";
-import { METHOD_KEYS, METHOD_META } from "@/lib/methods";
+import { methodName } from "@/lib/methods";
 import { CashoutForm } from "@/components/cashout-form";
 import { withdrawAction } from "@/app/actions/member";
 import { Coins, Icon } from "@/components/icons";
@@ -17,15 +17,7 @@ export default async function CashoutPage({ params }: { params: Promise<{ locale
   const { locale, t } = await pageLocale(params);
   const [user, settings] = await Promise.all([currentUser(), getSettings()]);
   const mine = user ? await db.withdrawal.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 50 }) : [];
-  const methods = METHOD_KEYS.map((id) => ({
-    id,
-    name: id === "amazon" ? t("Amazon Gift Card") : METHOD_META[id].name,
-    short: METHOD_META[id].short,
-    color: METHOD_META[id].color,
-    field: t(METHOD_META[id].field),
-    placeholder: METHOD_META[id].placeholder,
-    ...settings.methods[id],
-  }));
+  const methods = settings.methods.map((m) => ({ ...m, name: t(m.name), sub: t(m.sub), field: t(m.field) }));
   const pill = (s: string) =>
     s === "PAID" ? <span className="pill good">{t("Sent")}</span> : s === "REJECTED" ? <span className="pill bad">{t("Rejected · refunded")}</span> : s === "APPROVED" ? <span className="pill info">{t("Approved")}</span> : <span className="pill warn">{t("Processing")}</span>;
 
@@ -80,9 +72,8 @@ export default async function CashoutPage({ params }: { params: Promise<{ locale
         <div className="methods">
           {methods.map((m) => (
             <div className="method" key={m.id} style={m.enabled ? undefined : { opacity: 0.55 }}>
-              <span className="mlogo" style={{ background: m.color }}>
-                {m.short}
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element -- small static or inline icon */}
+              <img className="mlogo" src={m.image} alt="" width={40} height={40} />
               <div className="grow">
                 <div style={{ fontWeight: 800 }}>{m.name}</div>
                 <div className="small muted">{m.enabled ? t("From {v}", { v: formatUsd(m.minCents) }) : t("Coming soon")}</div>
@@ -115,7 +106,7 @@ export default async function CashoutPage({ params }: { params: Promise<{ locale
                     <tr key={w.id}>
                       <td className="small">{timeAgo(locale, w.createdAt)}</td>
                       <td>
-                        {w.method === "amazon" ? t("Amazon Gift Card") : (METHOD_META[w.method as keyof typeof METHOD_META]?.name ?? w.method)}
+                        {t(methodName(settings.methods, w.method))}
                         <div className="tiny muted num" dir="ltr">
                           {w.address.length > 18 ? `${w.address.slice(0, 8)}…${w.address.slice(-6)}` : w.address}
                         </div>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ActionForm, Submit, type FormAction } from "./forms";
 import { Icon } from "./icons";
 
-type Method = { id: string; name: string; short: string; color: string; field: string; placeholder: string; enabled: boolean; minCents: number; feeCents: number };
+type Method = { id: string; name: string; sub: string; image: string; kind: string; field: string; placeholder: string; enabled: boolean; minCents: number; feeCents: number };
 
 function usd(cents: number) {
   return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -36,7 +36,7 @@ export function CashoutForm({
   const cents = custom ? Math.round(Number(custom.replace(",", ".")) * 100) || 0 : amount;
   const coins = Math.round((cents * coinsPerUsd) / 100);
   const short = coins > balanceCoins ? coins - balanceCoins : 0;
-  const isEmailField = m.id === "amazon" || m.id === "paypal";
+  const isEmailField = m.kind === "email";
 
   return (
     <div className="split">
@@ -59,9 +59,8 @@ export function CashoutForm({
                 setCustom("");
               }}
             >
-              <span className="mlogo" style={{ background: x.color }}>
-                {x.short}
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element -- small static or inline icon */}
+              <img className="mlogo" src={x.image} alt="" width={40} height={40} />
               <span>
                 <b>{x.name}</b>
                 <br />

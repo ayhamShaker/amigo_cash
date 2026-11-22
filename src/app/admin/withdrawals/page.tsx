@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/server/admin-guard";
+import { getSettings } from "@/server/settings";
 import { db } from "@/lib/db";
 import { ActionForm, Submit } from "@/components/forms";
 import { withdrawalAction } from "@/app/actions/admin";
 import { Risk, Usd, agoAr, WITHDRAWAL_STATUS_AR } from "@/components/admin-ui";
-import { METHOD_META } from "@/lib/methods";
+import { methodName } from "@/lib/methods";
 import type { WithdrawalStatus } from "@/generated/prisma/client";
 
 export const metadata: Metadata = { title: "السحوبات" };
@@ -25,6 +26,7 @@ const REASONS: [string, string][] = [
 
 export default async function WithdrawalsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   await requireAdminPage();
+  const settings = await getSettings();
   const sp = await searchParams;
   const tab = sp.tab && TABS[sp.tab] ? sp.tab : "open";
   const statuses = TABS[tab]![1];
@@ -77,7 +79,7 @@ export default async function WithdrawalsPage({ searchParams }: { searchParams: 
                 </div>
                 <div className="row between wr">
                   <div>
-                    <b dir="ltr">{METHOD_META[w.method as keyof typeof METHOD_META]?.name ?? w.method}</b>
+                    <b dir="ltr">{methodName(settings.methods, w.method)}</b>
                     <div className="code" style={{ marginTop: 4 }}>
                       {w.address}
                     </div>

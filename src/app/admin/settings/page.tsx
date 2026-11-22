@@ -3,7 +3,6 @@ import { requireAdminPage } from "@/server/admin-guard";
 import { getSettings } from "@/server/settings";
 import { ActionForm, Submit } from "@/components/forms";
 import { saveSettingsAction } from "@/app/actions/admin";
-import { METHOD_KEYS, METHOD_META } from "@/lib/methods";
 import { env } from "@/lib/env";
 
 export const metadata: Metadata = { title: "إعدادات الموقع" };
@@ -50,33 +49,12 @@ export default async function SettingsPage() {
               <input className="input num" name="prizes" dir="ltr" defaultValue={s.prizesCents.map((c) => usd(c)).join(", ")} style={{ width: 220 }} />
             </label>
           </div>
-          <div className="card">
-            <h3 style={{ fontSize: 17, marginBottom: 6 }}>طرق السحب</h3>
-            {METHOD_KEYS.map((m) => (
-              <div className="setrow" key={m}>
-                <div className="row" style={{ gap: 10 }}>
-                  <span className="mlogo" style={{ width: 34, height: 34, fontSize: 9, background: METHOD_META[m].color }}>
-                    {METHOD_META[m].short}
-                  </span>
-                  <b className="small" dir="ltr">
-                    {METHOD_META[m].name}
-                  </b>
-                </div>
-                <div className="row" style={{ gap: 6 }}>
-                  <span className="tiny muted">أدنى $</span>
-                  <input className="input num" name={`min_${m}`} dir="ltr" inputMode="decimal" defaultValue={usd(s.methods[m].minCents)} style={{ width: 72 }} aria-label={`الحد الأدنى ${METHOD_META[m].name}`} />
-                  <span className="tiny muted">رسوم $</span>
-                  <input className="input num" name={`fee_${m}`} dir="ltr" inputMode="decimal" defaultValue={usd(s.methods[m].feeCents)} style={{ width: 64 }} aria-label={`رسوم ${METHOD_META[m].name}`} />
-                  <span className="switch">
-                    <input type="checkbox" name={`on_${m}`} defaultChecked={s.methods[m].enabled} aria-label={`تفعيل ${METHOD_META[m].name}`} />
-                    <span />
-                  </span>
-                </div>
-              </div>
-            ))}
-            <p className="tiny muted" style={{ marginTop: 8 }}>
-              PayPal مطفأ لحين وجود شريك أو شركة بدولة مدعومة.
-            </p>
+          <div className="card stack" style={{ gap: 10 }}>
+            <h3 style={{ fontSize: 17 }}>طرق السحب</h3>
+            <p className="small muted">صار في صفحة خاصة لطرق السحب: تعدّل الاسم والصورة والحد الأدنى والرسوم، أو تضيف طريقة جديدة.</p>
+            <a className="btn primary" href="/admin/methods" style={{ alignSelf: "flex-start" }}>
+              فتح طرق السحب
+            </a>
           </div>
         </div>
         <div className="card">

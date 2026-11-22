@@ -9,7 +9,7 @@ import { adjustBalanceAction, clearFlagsAction, confirmEmailAction, passwordRese
 import { Num, Risk, Usd, agoAr, WITHDRAWAL_STATUS_AR } from "@/components/admin-ui";
 import { coinsToCents } from "@/lib/money";
 import { describe } from "@/i18n/t";
-import { METHOD_META } from "@/lib/methods";
+import { methodName } from "@/lib/methods";
 
 export const metadata: Metadata = { title: "ملف المستخدم" };
 
@@ -218,7 +218,7 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
                 {withdrawals.map((w) => (
                   <tr key={w.id}>
                     <td className="small">{agoAr(w.createdAt)}</td>
-                    <td dir="ltr">{METHOD_META[w.method as keyof typeof METHOD_META]?.name ?? w.method}</td>
+                    <td dir="ltr">{methodName(settings.methods, w.method)}</td>
                     <td>
                       <Usd cents={w.amountCents} />
                     </td>

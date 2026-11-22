@@ -6,13 +6,12 @@ import type { FormState } from "@/components/forms";
 import { currentUser } from "@/server/session";
 import { getSettings } from "@/server/settings";
 import { claimDailyBonus, redeemPromo } from "@/server/rewards";
-import { requestWithdrawal, isMethodId, WithdrawalError } from "@/server/withdrawals";
+import { requestWithdrawal, WithdrawalError } from "@/server/withdrawals";
 import { checkIp, isBadConnection } from "@/server/fraud";
 import { requestIp } from "@/server/request";
 import { rateLimit } from "@/server/rate-limit";
 import { dollarsToCents, str, tFrom } from "@/server/action-utils";
 import { formatCoins, formatUsd } from "@/lib/money";
-import { METHOD_META } from "@/lib/methods";
 import { db } from "@/lib/db";
 
 async function member() {
@@ -62,14 +61,15 @@ export async function withdrawAction(_prev: FormState, fd: FormData): Promise<Fo
   const settings = await getSettings();
   if (!(await rateLimit(`withdraw:${u.id}`, 5, 600))) return { error: t("Too many attempts. Wait a few minutes and try again.") };
   const method = str(fd, "method", 20);
-  if (!isMethodId(method)) return { error: t("Choose a method") };
+  const pm = settings.methods.find((x) => x.id === method);
+  if (!pm) return { error: t("Choose a method") };
   const cents = dollarsToCents(str(fd, "amount", 12));
   if (cents === null) return { error: t("Enter an amount in dollars, like 5 or 12.50.") };
   if (await connectionBlocked()) return { error: t("Turn off your VPN to cash out") };
   try {
     const w = await requestWithdrawal({ userId: u.id, method, amountCents: cents, address: str(fd, "address", 120), settings });
     revalidatePath(`/${locale}/cashout`);
-    const name = method === "amazon" ? t("Amazon Gift Card") : METHOD_META[method].name;
+    const name = t(pm.name);
     return {
       ok:
         w.status === "APPROVED"
@@ -78,12 +78,11 @@ export async function withdrawAction(_prev: FormState, fd: FormData): Promise<Fo
     };
   } catch (e) {
     if (!(e instanceof WithdrawalError)) throw e;
-    const m = settings.methods[method];
     const messages: Record<WithdrawalError["code"], string> = {
       METHOD_DISABLED: t("This payout method is not available right now."),
-      BELOW_MINIMUM: t("The minimum for this method is {v}.", { v: formatUsd(m.minCents) }),
+      BELOW_MINIMUM: t("The minimum for this method is {v}.", { v: formatUsd(pm.minCents) }),
       ABOVE_MAXIMUM: t("The most you can withdraw at once is {v}.", { v: formatUsd(50_000) }),
-      BAD_ADDRESS: t("Check the {f}. It does not look right.", { f: t(METHOD_META[method].field) }),
+      BAD_ADDRESS: t("Check the {f}. It does not look right.", { f: t(pm.field) }),
       NOT_ACTIVE: t("Your account is suspended"),
       EMAIL_NOT_VERIFIED: t("Confirm your email address before your first withdrawal. Check your inbox for the link."),
       INSUFFICIENT_FUNDS: t("Not enough coins for this amount"),

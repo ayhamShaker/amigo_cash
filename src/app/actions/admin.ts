@@ -13,7 +13,7 @@ import { approveWithdrawal, markWithdrawalPaid, rejectWithdrawal } from "@/serve
 import { adminReverseConversion, buildSignedUrl, handlePostback, SIGNATURE_MODES, type SignatureMode } from "@/server/postback";
 import { decrypt } from "@/lib/crypto";
 import { postAdminReply, setConversationStatus } from "@/server/chat";
-import { getSettings, METHOD_IDS, saveSettings, siteSettingsSchema, type SiteSettings } from "@/server/settings";
+import { getSettings, saveSettings, siteSettingsSchema, type SiteSettings } from "@/server/settings";
 import { bool, dollarsToCents, int, str } from "@/server/action-utils";
 import { normalisePromo } from "@/server/rewards";
 import { adminPasswordResetLink, clearTotp } from "@/server/auth";
@@ -362,7 +362,6 @@ export async function saveSettingsAction(_p: FormState, fd: FormData): Promise<F
     const v = int(fd, k);
     return v === null ? fallback : v;
   };
-  const cents = (k: string, fallback: number) => dollarsToCents(str(fd, k, 12)) ?? fallback;
   const next: SiteSettings = {
     ...cur,
     coinsPerUsd: num("coinsPerUsd", cur.coinsPerUsd),
@@ -378,9 +377,6 @@ export async function saveSettingsAction(_p: FormState, fd: FormData): Promise<F
     bannerText: { en: str(fd, "banner_en", 200), es: str(fd, "banner_es", 200), ar: str(fd, "banner_ar", 200) },
     prizesCents: str(fd, "prizes", 200).split(",").map((s) => dollarsToCents(s.trim()) ?? 0).slice(0, 20),
     supportEmail: str(fd, "supportEmail", 254) || cur.supportEmail,
-    methods: Object.fromEntries(
-      METHOD_IDS.map((m) => [m, { enabled: bool(fd, `on_${m}`), minCents: cents(`min_${m}`, cur.methods[m].minCents), feeCents: cents(`fee_${m}`, cur.methods[m].feeCents) }]),
-    ) as SiteSettings["methods"],
   };
   const parsed = siteSettingsSchema.safeParse(next);
   if (!parsed.success) return { error: `${FAIL} (${parsed.error.issues[0]?.path.join(".")})` };

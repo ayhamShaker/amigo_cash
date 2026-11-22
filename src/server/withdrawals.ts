@@ -1,18 +1,9 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { centsToCoins } from "@/lib/money";
-import { METHOD_META } from "@/lib/methods";
+import { ADDRESS_KINDS } from "@/lib/methods";
 import { addEntry, debitAvailable, InsufficientFundsError } from "./ledger";
-import { METHOD_IDS, type MethodId, type SiteSettings } from "./settings";
-
-export const ADDRESS_RULES: Record<MethodId, RegExp> = {
-  usdt: /^T[1-9A-HJ-NP-Za-km-z]{33}$/, // TRON base58 address
-  ltc: /^(ltc1[02-9ac-hj-np-z]{6,87}|[LM3][1-9A-HJ-NP-Za-km-z]{26,33})$/,
-  btc: /^(bc1[02-9ac-hj-np-z]{6,87}|[13][1-9A-HJ-NP-Za-km-z]{25,34})$/,
-  binance: /^\d{6,12}$/, // Binance Pay ID
-  amazon: /^[^\s@]{1,64}@[^\s@]{1,255}\.[A-Za-z]{2,}$/,
-  paypal: /^[^\s@]{1,64}@[^\s@]{1,255}\.[A-Za-z]{2,}$/,
-};
+import type { SiteSettings } from "./settings";
 
 export type WithdrawError =
   | "METHOD_DISABLED"
@@ -32,10 +23,6 @@ export class WithdrawalError extends Error {
 
 export const MAX_WITHDRAWAL_CENTS = 50_000;
 
-export function isMethodId(v: string): v is MethodId {
-  return (METHOD_IDS as readonly string[]).includes(v);
-}
-
 /**
  * Creates a withdrawal and takes the coins in one transaction. The debit locks
  * the member's row, so a second request at the same moment waits and then sees
@@ -43,18 +30,18 @@ export function isMethodId(v: string): v is MethodId {
  */
 export async function requestWithdrawal(args: {
   userId: string;
-  method: MethodId;
+  method: string;
   amountCents: number;
   address: string;
   settings: SiteSettings;
 }) {
   const { settings } = args;
-  const m = settings.methods[args.method];
-  if (!m.enabled) throw new WithdrawalError("METHOD_DISABLED");
+  const m = settings.methods.find((x) => x.id === args.method);
+  if (!m || !m.enabled) throw new WithdrawalError("METHOD_DISABLED");
   if (!Number.isInteger(args.amountCents) || args.amountCents < m.minCents) throw new WithdrawalError("BELOW_MINIMUM");
   if (args.amountCents > MAX_WITHDRAWAL_CENTS) throw new WithdrawalError("ABOVE_MAXIMUM");
   const address = args.address.trim();
-  if (!ADDRESS_RULES[args.method].test(address)) throw new WithdrawalError("BAD_ADDRESS");
+  if (!ADDRESS_KINDS[m.kind].re.test(address)) throw new WithdrawalError("BAD_ADDRESS");
   const coins = centsToCoins(args.amountCents, settings.coinsPerUsd);
 
   return db.$transaction(async (tx) => {
@@ -71,7 +58,7 @@ export async function requestWithdrawal(args: {
         userId: args.userId,
         coins,
         kind: "WITHDRAWAL",
-        description: { k: "Withdrawal · {m}", a: { m: METHOD_META[args.method].name } },
+        description: { k: "Withdrawal · {m}", a: { m: m.name } },
         refType: "withdrawal",
       });
       debitId = entry.id;

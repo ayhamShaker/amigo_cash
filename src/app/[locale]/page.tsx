@@ -7,7 +7,7 @@ import { currentUser } from "@/server/session";
 import { liveOffers, offerCoins, parseSteps, publicStats, recentActivity } from "@/server/queries";
 import { formatUsd } from "@/lib/money";
 import { translateData } from "@/i18n/t";
-import { METHOD_META, METHOD_KEYS } from "@/lib/methods";
+import { methodName } from "@/lib/methods";
 import { db } from "@/lib/db";
 import { FaqList } from "@/components/faq";
 import { LiveRefresh } from "@/components/live-refresh";
@@ -19,14 +19,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const inviter = !user && refCode ? await db.user.findUnique({ where: { refCode }, select: { name: true, status: true } }) : null;
   const featured = offers[0];
   const steps = featured ? parseSteps(featured.steps) : [];
-  const enabledMethods = METHOD_KEYS.filter((m) => settings.methods[m].enabled);
-  const minCents = Math.min(...enabledMethods.map((m) => settings.methods[m].minCents), 100_000);
+  const enabledMethods = settings.methods.filter((m) => m.enabled);
+  const minCents = Math.min(...enabledMethods.map((m) => m.minCents), 100_000);
   const networks = await db.network.count({ where: { enabled: true } });
-  const mname = (m: keyof typeof METHOD_META) => (m === "amazon" ? t("Amazon Gift Card") : METHOD_META[m].name);
+  const mname = (id: string) => t(methodName(settings.methods, id));
 
   const tickerItems = [
     ...activity.conv.map((c) => ({ key: c.id, node: t("{n} earned {c} on {o}", { n: maskName(c.user?.name ?? "Member"), c: c.coins.toLocaleString("en-US"), o: c.offerName }) })),
-    ...activity.paid.map((w) => ({ key: w.id, node: t("{n} cashed out {v} via {m}", { n: maskName(w.user.name), v: formatUsd(w.amountCents), m: mname(w.method as keyof typeof METHOD_META) }) })),
+    ...activity.paid.map((w) => ({ key: w.id, node: t("{n} cashed out {v} via {m}", { n: maskName(w.user.name), v: formatUsd(w.amountCents), m: mname(w.method) }) })),
   ];
 
   return (
@@ -158,14 +158,13 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <div className="eyebrow">{t("Payout options")}</div>
             <h2>{t("Your money, your way")}</h2>
             <div className="methods">
-              {METHOD_KEYS.map((m) => (
-                <div className="method" key={m} style={settings.methods[m].enabled ? undefined : { opacity: 0.55 }}>
-                  <span className="mlogo" style={{ background: METHOD_META[m].color }}>
-                    {METHOD_META[m].short}
-                  </span>
+              {settings.methods.map((m) => (
+                <div className="method" key={m.id} style={m.enabled ? undefined : { opacity: 0.55 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- small static or inline icon */}
+                  <img className="mlogo" src={m.image} alt="" width={40} height={40} />
                   <div className="grow">
-                    <div style={{ fontWeight: 800 }}>{mname(m)}</div>
-                    <div className="small muted">{settings.methods[m].enabled ? t("From {v}", { v: formatUsd(settings.methods[m].minCents) }) : t("Coming soon")}</div>
+                    <div style={{ fontWeight: 800 }}>{t(m.name)}</div>
+                    <div className="small muted">{m.enabled ? t("From {v}", { v: formatUsd(m.minCents) }) : t("Coming soon")}</div>
                   </div>
                 </div>
               ))}

@@ -1,11 +1,20 @@
 import "server-only";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { ADDRESS_KIND_KEYS, DEFAULT_METHODS, isSafeMethodImage, type AddressKind, type PayMethod } from "@/lib/methods";
 
-export const METHOD_IDS = ["usdt", "ltc", "btc", "binance", "amazon", "paypal"] as const;
-export type MethodId = (typeof METHOD_IDS)[number];
-
-const method = z.object({ enabled: z.boolean(), minCents: z.number().int().min(50).max(1_000_000), feeCents: z.number().int().min(0).max(100_000) });
+const method = z.object({
+  id: z.string().regex(/^[a-z0-9][a-z0-9-]{1,23}$/),
+  name: z.string().trim().min(1).max(40),
+  sub: z.string().trim().max(60),
+  kind: z.enum(ADDRESS_KIND_KEYS as [AddressKind, ...AddressKind[]]),
+  field: z.string().trim().min(1).max(60),
+  placeholder: z.string().trim().max(80),
+  image: z.string().refine(isSafeMethodImage),
+  enabled: z.boolean(),
+  minCents: z.number().int().min(50).max(1_000_000),
+  feeCents: z.number().int().min(0).max(100_000),
+});
 
 /** Everything the owner can change from the admin panel. */
 export const siteSettingsSchema = z.object({
@@ -34,7 +43,10 @@ export const siteSettingsSchema = z.object({
   gameBoostPct: z.number().int().min(0).max(200),
   prizesCents: z.array(z.number().int().min(0).max(1_000_000)).max(20),
   supportEmail: z.email(),
-  methods: z.object(Object.fromEntries(METHOD_IDS.map((m) => [m, method])) as Record<MethodId, typeof method>),
+  methods: z
+    .array(method)
+    .max(30)
+    .refine((list) => new Set(list.map((m) => m.id)).size === list.length, "duplicate method id"),
 });
 
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
@@ -65,14 +77,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   gameBoostPct: 0,
   prizesCents: [5000, 2500, 1500, 1000, 500, 500, 500, 500, 500, 500],
   supportEmail: "support@amigo.cash",
-  methods: {
-    usdt: { enabled: true, minCents: 200, feeCents: 0 },
-    ltc: { enabled: true, minCents: 100, feeCents: 0 },
-    btc: { enabled: true, minCents: 1000, feeCents: 50 },
-    binance: { enabled: true, minCents: 100, feeCents: 0 },
-    amazon: { enabled: true, minCents: 500, feeCents: 0 },
-    paypal: { enabled: false, minCents: 500, feeCents: 0 },
-  },
+  methods: DEFAULT_METHODS,
 };
 
 const KEY = "site";
@@ -93,11 +98,25 @@ export function mergeSettings(stored: unknown): SiteSettings {
   if (stored && typeof stored === "object") {
     const s = stored as Partial<SiteSettings>;
     Object.assign(base, s);
-    base.methods = { ...DEFAULT_SETTINGS.methods, ...(s.methods ?? {}) };
+    base.methods = upgradeMethods(s.methods);
     base.bannerText = { ...DEFAULT_SETTINGS.bannerText, ...(s.bannerText ?? {}) };
   }
   const parsed = siteSettingsSchema.safeParse(base);
   return parsed.success ? parsed.data : structuredClone(DEFAULT_SETTINGS);
+}
+
+/**
+ * Settings saved before methods became editable kept only {enabled, minCents,
+ * feeCents} per built-in id. Those are folded into the full default records.
+ */
+function upgradeMethods(stored: unknown): PayMethod[] {
+  if (Array.isArray(stored)) return stored as PayMethod[];
+  if (!stored || typeof stored !== "object") return structuredClone(DEFAULT_METHODS);
+  const old = stored as Record<string, Partial<PayMethod>>;
+  return DEFAULT_METHODS.map((m) => {
+    const o = old[m.id];
+    return o ? { ...m, enabled: o.enabled ?? m.enabled, minCents: o.minCents ?? m.minCents, feeCents: o.feeCents ?? m.feeCents } : { ...m };
+  });
 }
 
 export async function saveSettings(next: SiteSettings): Promise<SiteSettings> {

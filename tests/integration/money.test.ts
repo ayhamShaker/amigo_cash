@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/db";
-import { getSettings } from "@/server/settings";
+import { getSettings, mergeSettings } from "@/server/settings";
 import { approveWithdrawal, markWithdrawalPaid, rejectWithdrawal, requestWithdrawal, WithdrawalError } from "@/server/withdrawals";
 import { claimDailyBonus, redeemPromo } from "@/server/rewards";
 import { rateLimit } from "@/server/rate-limit";
@@ -92,6 +92,37 @@ describe("withdrawals", () => {
     expect(c.ok).toBe(true);
     expect(c.user.balance).toBe(5_000);
     expect(await markWithdrawalPaid(w.id, admin.id, "late")).toBe(false);
+  });
+});
+
+describe("cash-out methods", () => {
+  it("upgrades settings saved in the old per-id format", () => {
+    const s = mergeSettings({ methods: { usdt: { enabled: false, minCents: 300, feeCents: 10 } } });
+    const usdt = s.methods.find((m) => m.id === "usdt")!;
+    expect(usdt).toMatchObject({ enabled: false, minCents: 300, feeCents: 10, kind: "trc20", image: "/methods/usdt.svg" });
+    expect(s.methods.map((m) => m.id)).toEqual(["usdt", "ltc", "btc", "binance", "amazon", "paypal"]);
+  });
+
+  it("pays out through a method the owner added, checking its address format", async () => {
+    const base = await getSettings();
+    const s = {
+      ...base,
+      methods: [...base.methods, { id: "steam", name: "Steam card", sub: "", kind: "email" as const, field: "Email", placeholder: "", image: "/methods/steam.svg", enabled: true, minCents: 500, feeCents: 25 }],
+    };
+    const u = await makeUser({ balance: 10_000 });
+    const expectCode = async (p: Promise<unknown>, code: string) => {
+      await expect(p).rejects.toSatisfy((e: unknown) => e instanceof WithdrawalError && e.code === code);
+    };
+    await expectCode(requestWithdrawal({ userId: u.id, method: "steam", amountCents: 500, address: "nope", settings: s }), "BAD_ADDRESS");
+    const w = await requestWithdrawal({ userId: u.id, method: "steam", amountCents: 500, address: "me@example.com", settings: s });
+    expect(w).toMatchObject({ method: "steam", feeCents: 25 });
+    await expectCode(requestWithdrawal({ userId: u.id, method: "gone", amountCents: 500, address: "me@example.com", settings: s }), "METHOD_DISABLED");
+    expect((await expectLedgerConsistent(u.id)).ok).toBe(true);
+  });
+
+  it("refuses unsafe method images", () => {
+    const bad = mergeSettings({ methods: [{ id: "x1", name: "X", sub: "", kind: "text", field: "F", placeholder: "", image: "https://evil.example/x.png", enabled: true, minCents: 100, feeCents: 0 }] });
+    expect(bad.methods.map((m) => m.id)).toEqual(["usdt", "ltc", "btc", "binance", "amazon", "paypal"]);
   });
 });
 

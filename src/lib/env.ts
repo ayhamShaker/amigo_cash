@@ -18,7 +18,7 @@ const schema = z.object({
   // Optional integrations. Features that need them switch off when they are missing.
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Amigo Cash <support@amigo.cash>"),
-  IPQS_API_KEY: z.string().optional(),
+  IPQS_API_KEY: z.string().trim().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   // How many reverse proxies sit in front of the app (Cloudflare + host = 1 or 2).

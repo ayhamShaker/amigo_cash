@@ -19,6 +19,17 @@ import { clearTotp } from "@/server/auth";
 import { formatCoins } from "@/lib/money";
 import { ipInAllowList } from "@/lib/ip";
 
+/**
+ * Links pasted on a phone often carry spaces, invisible direction marks or
+ * full-width brackets. Normalise them before checking the link.
+ */
+function cleanUrl(v: string): string {
+  return v
+    .normalize("NFKC") // full-width ｛ ｝ → { }
+    .replace(/[\s\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, "")
+    .replace(/%7Buser_id%7D/gi, "{user_id}");
+}
+
 const FAIL = "ما تم الحفظ. تأكد من القيم وجرب مرة ثانية.";
 
 async function ctx() {
@@ -137,7 +148,7 @@ export async function saveOfferAction(_p: FormState, fd: FormData): Promise<Form
   if (!steps) return { error: "المراحل: كل سطر «اسم المرحلة | النسبة»، ومجموع النسب لازم يكون 100." };
   const payoutCents = dollarsToCents(str(fd, "payout", 12));
   if (payoutCents === null || payoutCents <= 0) return { error: "اكتب كم بتدفع الشبكة بالدولار، مثلاً 12.50" };
-  const trackingUrl = str(fd, "trackingUrl", 1000);
+  const trackingUrl = cleanUrl(str(fd, "trackingUrl", 1000));
   try {
     const u = new URL(trackingUrl.replaceAll("{user_id}", "x"));
     if (u.protocol !== "https:" || !trackingUrl.includes("{user_id}")) throw new Error();
@@ -193,7 +204,7 @@ export async function saveNetworkAction(_p: FormState, fd: FormData): Promise<Fo
   if (userShare !== null && !Number.isFinite(userShare)) return { error: FAIL };
   const allowedIps = str(fd, "allowedIps", 1000).split(/[\s,]+/).filter(Boolean);
   if (allowedIps.some((e) => !ipInAllowList(e.split("/")[0] ?? "", [e]))) return { error: "قائمة الـ IP فيها قيمة غلط." };
-  const wallUrl = str(fd, "wallUrl", 1000);
+  const wallUrl = cleanUrl(str(fd, "wallUrl", 1000));
   if (wallUrl && (!wallUrl.startsWith("https://") || !wallUrl.includes("{user_id}"))) return { error: "رابط جدار العروض لازم يبدأ بـ https:// ويحتوي {user_id}" };
   const secret = str(fd, "secret", 200);
   const data = {

@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 /**
- * Watches for new chat messages every 5 s. On the chat page it refreshes the
- * view; elsewhere it shows a small notice with a link.
+ * Polls every 5 s. Any change (new chat message, postback, withdrawal, member)
+ * re-renders the current admin page in place, unless the admin is typing.
+ * A new chat message also shows a notice when they are not on the chat page.
  */
 export function AdminLive() {
   const router = useRouter();
   const last = useRef<string | null>(null);
+  const lastChat = useRef<string | null>(null);
   const [notice, setNotice] = useState<number>(0);
   useEffect(() => {
     let stop = false;
@@ -18,13 +20,15 @@ export function AdminLive() {
       try {
         const res = await fetch("/api/admin/chat", { cache: "no-store" });
         if (!res.ok) return;
-        const j = (await res.json()) as { waiting: number; latest: string | null };
-        if (last.current !== null && j.latest && j.latest !== last.current) {
-          const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-          if (location.pathname.startsWith("/admin/chat") && !typing) router.refresh();
-          else if (j.waiting > 0) setNotice(j.waiting);
+        const j = (await res.json()) as { waiting: number; latest: string | null; v: string };
+        const el = document.activeElement as HTMLInputElement | null;
+        const typing = !!el && /INPUT|TEXTAREA|SELECT/.test(el.tagName) && el.value !== "";
+        if (last.current !== null && j.v !== last.current) {
+          if (!typing) router.refresh();
+          if (j.latest !== lastChat.current && j.waiting > 0 && !location.pathname.startsWith("/admin/chat")) setNotice(j.waiting);
         }
-        last.current = j.latest ?? "";
+        if (!typing) last.current = j.v;
+        lastChat.current = j.latest;
       } catch {
         /* try again next tick */
       }

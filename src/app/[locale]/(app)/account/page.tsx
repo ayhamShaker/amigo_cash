@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageLocale, pwLabels, requireMember } from "../../locale";
+import { pageLocale, pwLabels, requireMember, themeCookie } from "../../locale";
+import { LangSwitch, ThemeToggle } from "@/components/client-controls";
 import { ActionForm, PasswordInput, Submit } from "@/components/forms";
 import { changePasswordAction, resendVerificationAction, signOutEverywhereAction, startTwoFactorAction, updateProfileAction, logoutAction } from "@/app/actions/auth";
 import { Icon } from "@/components/icons";
@@ -12,6 +13,7 @@ export default async function AccountPage({ params, searchParams }: { params: Pr
   const { locale, t } = await pageLocale(params);
   const user = await requireMember(locale, "/account");
   const sp = await searchParams;
+  const theme = await themeCookie();
   return (
     <>
       <div className="pagehead">
@@ -43,6 +45,18 @@ export default async function AccountPage({ params, searchParams }: { params: Pr
             </div>
           </div>
           <LevelCard earned={user.lifetimeEarned} t={t} />
+          <div className="row between wr" style={{ borderTop: "1px solid var(--line)", paddingTop: 12 }}>
+            <span className="small" style={{ fontWeight: 700 }}>
+              {t("Language")}
+            </span>
+            <div className="row" style={{ gap: 8 }}>
+              <LangSwitch current={locale} label={t("Language")} />
+              <ThemeToggle initial={theme} labels={{ toDark: t("Switch to dark mode"), toLight: t("Switch to light mode") }} />
+            </div>
+          </div>
+          <a className="small" href={`/${locale}/activity`} style={{ fontWeight: 700, color: "var(--accent)" }}>
+            {t("Activity")} →
+          </a>
         </div>
         <ActionForm action={updateProfileAction} locale={locale} className="card stack">
           <h3 style={{ fontSize: 17 }}>{t("Details")}</h3>

@@ -486,5 +486,15 @@
  "Your withdrawal of {v} was sent. Reference: {ref}": "تم إرسال سحب {v}. رقم العملية: {ref}",
  "Your withdrawal of {v} was rejected and the coins are back in your balance. Reason: {r}": "رُفض سحب {v} وعادت العملات إلى رصيدك. السبب: {r}",
  "Your email is confirmed. You can cash out once you reach the minimum.": "تم تأكيد بريدك. يمكنك السحب عند الوصول إلى الحد الأدنى.",
- "Support replied to your message.": "رد الدعم على رسالتك."
+ "Support replied to your message.": "رد الدعم على رسالتك.",
+ "All offers": "كل العروض",
+ "Cash out from": "اسحب ابتداءً من",
+ "Daily chest": "الصندوق اليومي",
+ "Earn {p}% of everything your friends make.": "اربح {p}% من كل شي بيربحه أصحابك.",
+ "Get your link": "خذ رابطك",
+ "Just paid": "آخر الأرباح",
+ "Live": "مباشر",
+ "New offers are on their way. Check back soon.": "في عروض جديدة جاية. ارجع بعد شوي.",
+ "Open it every day for up to {c} coins.": "افتحه كل يوم واربح لحد {c} عملة.",
+ "Paying today": "بتدفع اليوم"
 }

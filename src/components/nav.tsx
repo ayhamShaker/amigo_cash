@@ -9,6 +9,23 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** Page links in the floating header (desktop). */
+export function TopNav({ items, label }: { items: NavItem[]; label: string }) {
+  const pathname = usePathname() ?? "";
+  return (
+    <nav className="toplinks" aria-label={label}>
+      {items.map((it) => {
+        const on = isActive(pathname, it.href);
+        return (
+          <a key={it.href} href={it.href} className={on ? "on" : ""} aria-current={on ? "page" : undefined}>
+            {it.label}
+          </a>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function SideNav({ items, lockLabel }: { items: NavItem[]; lockLabel: string }) {
   const pathname = usePathname() ?? "";
   return (
@@ -34,7 +51,7 @@ export function BottomNav({ items, label }: { items: NavItem[]; label: string })
   return (
     <nav className="bottomnav" aria-label={label}>
       {items.map((it) => (
-        <a key={it.href} href={it.href} className={isActive(pathname, it.href) ? "on" : ""}>
+        <a key={it.href} href={it.href} className={isActive(pathname, it.href) ? "on" : ""} aria-current={isActive(pathname, it.href) ? "page" : undefined}>
           <Icon name={it.icon} />
           {it.label}
         </a>

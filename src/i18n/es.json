@@ -486,5 +486,15 @@
  "Your withdrawal of {v} was sent. Reference: {ref}": "Tu retiro de {v} fue enviado. Referencia: {ref}",
  "Your withdrawal of {v} was rejected and the coins are back in your balance. Reason: {r}": "Tu retiro de {v} fue rechazado y las monedas volvieron a tu saldo. Motivo: {r}",
  "Your email is confirmed. You can cash out once you reach the minimum.": "Tu email está confirmado. Ya podés retirar cuando llegues al mínimo.",
- "Support replied to your message.": "Soporte respondió tu mensaje."
+ "Support replied to your message.": "Soporte respondió tu mensaje.",
+ "All offers": "Todas las ofertas",
+ "Cash out from": "Retirá desde",
+ "Daily chest": "Cofre diario",
+ "Earn {p}% of everything your friends make.": "Ganá el {p}% de todo lo que ganen tus amigos.",
+ "Get your link": "Obtené tu link",
+ "Just paid": "Recién pagado",
+ "Live": "En vivo",
+ "New offers are on their way. Check back soon.": "Están llegando ofertas nuevas. Volvé pronto.",
+ "Open it every day for up to {c} coins.": "Abrilo todos los días y ganá hasta {c} monedas.",
+ "Paying today": "Pagando hoy"
 }

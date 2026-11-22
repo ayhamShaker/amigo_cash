@@ -91,10 +91,15 @@ export default async function MethodsPage() {
       {s.methods.map((m, i) => (
         <div className="card stack" key={m.id}>
           <div className="row between wr">
-            <div className="row" style={{ gap: 10 }}>
+            <div className="row wr" style={{ gap: 10 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- local icon or inline upload */}
+              <img className="mlogo" src={m.image} alt="" width={40} height={40} />
               <b style={{ fontSize: 17 }} dir="ltr">
                 {m.name}
               </b>
+              <span className="small muted" dir="ltr">
+                {`min $${usd(m.minCents)}${m.feeCents ? ` · fee $${usd(m.feeCents)}` : ""}`}
+              </span>
               <span className={`pill ${m.enabled ? "good" : ""}`}>{m.enabled ? "مفعّلة" : "مطفأة"}</span>
               <span className="cc">{m.id}</span>
             </div>
@@ -115,20 +120,22 @@ export default async function MethodsPage() {
               </form>
             </div>
           </div>
-          <ActionForm action={saveMethodAction} className="stack">
-            <input type="hidden" name="id" value={m.id} />
-            <Fields m={m} />
-            <Submit className="btn primary">حفظ</Submit>
-          </ActionForm>
           <details>
-            <summary className="small muted" style={{ cursor: "pointer" }}>
-              حذف هالطريقة
+            <summary className="btn ghost sm" style={{ width: "fit-content" }}>
+              تعديل
             </summary>
-            <ActionForm action={deleteMethodAction} className="row wr">
-              <input type="hidden" name="id" value={m.id} />
-              <span className="small">السحوبات القديمة بتضل محفوظة. إذا بدك توقفها مؤقتاً، أطفيها بدل الحذف.</span>
-              <Submit className="btn bad sm">تأكيد الحذف</Submit>
-            </ActionForm>
+            <div className="stack" style={{ marginTop: 12 }}>
+              <ActionForm action={saveMethodAction} className="stack">
+                <input type="hidden" name="id" value={m.id} />
+                <Fields m={m} />
+                <Submit className="btn primary">حفظ</Submit>
+              </ActionForm>
+              <ActionForm action={deleteMethodAction} className="row wr">
+                <input type="hidden" name="id" value={m.id} />
+                <span className="small muted grow">حذف الطريقة: السحوبات القديمة بتضل محفوظة. لتوقفها مؤقتاً، أطفيها بدل الحذف.</span>
+                <Submit className="btn bad sm">حذف</Submit>
+              </ActionForm>
+            </div>
           </details>
         </div>
       ))}

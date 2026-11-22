@@ -11,6 +11,7 @@ import { methodName } from "@/lib/methods";
 import { db } from "@/lib/db";
 import { FaqList } from "@/components/faq";
 import { LiveRefresh } from "@/components/live-refresh";
+import { OfferCard } from "@/components/offer-card";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale, t } = await pageLocale(params);
@@ -18,7 +19,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const refCode = (await cookies()).get("amigo_ref")?.value;
   const inviter = !user && refCode ? await db.user.findUnique({ where: { refCode }, select: { name: true, status: true } }) : null;
   const featured = offers[0];
-  const steps = featured ? parseSteps(featured.steps) : [];
   const enabledMethods = settings.methods.filter((m) => m.enabled);
   const minCents = Math.min(...enabledMethods.map((m) => m.minCents), 100_000);
   const networks = await db.network.count({ where: { enabled: true } });
@@ -48,116 +48,156 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </div>
       ) : null}
       <SiteHeader locale={locale} t={t} theme={theme} signedIn={!!user} />
-      {tickerItems.length >= 4 ? (
-        <div className="ticker" aria-label={t("Recent earnings")}>
-          <div className="ticker-in">
-            {[...tickerItems, ...tickerItems].map((it, i) => (
-              <span className="ticker-item" dir="auto" key={`${it.key}-${i}`} aria-hidden={i >= tickerItems.length}>
-                {it.node}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-      <main>
-        <section className="hero">
-          <div className="wrap hero-grid">
-            <div>
-              <div className="eyebrow">{t("Rewards for your free time")}</div>
-              <h1>
-                {t("Play games. Try apps.")} <em>{t("Get paid")}</em> {t("in minutes.")}
-              </h1>
-              <p className="lede">{t("Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from {min} in crypto or gift cards.", { min: formatUsd(minCents) })}</p>
-              <div className="hero-cta">
-                <a className="btn primary lg" href={user ? `/${locale}/earn` : `/${locale}/signup`}>
+      <main className="wrap stack" style={{ gap: 14, paddingBlock: "14px 24px" }}>
+        <div className="bento">
+          <section className="tile hero c2 r2" style={{ padding: 34, justifyContent: "space-between", gap: 24 }}>
+            <span className="pill" style={{ alignSelf: "flex-start", background: "rgba(255,255,255,.18)", color: "#fff" }}>
+              {t("Rewards for your free time")}
+            </span>
+            <h1 style={{ fontSize: "clamp(36px,4.6vw,58px)", fontWeight: 900, letterSpacing: "-.035em", lineHeight: 1.02 }}>
+              {t("Play games. Try apps.")} {t("Get paid")} {t("in minutes.")}
+            </h1>
+            <div className="stack" style={{ gap: 18 }}>
+              <p className="muted" style={{ fontSize: 17, maxWidth: 460 }}>
+                {t("Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from {min} in crypto or gift cards.", { min: formatUsd(minCents) })}
+              </p>
+              <div className="row wr">
+                <a className="btn lg" style={{ background: "#fff", color: "var(--hero-2)" }} href={user ? `/${locale}/earn` : `/${locale}/signup`}>
                   {user ? t("Open dashboard") : t("Start earning")}
                 </a>
-                <a className="btn ghost lg" href={`/${locale}/earn`}>
+                <a className="btn lg" style={{ background: "rgba(255,255,255,.16)", color: "#fff", border: "1px solid rgba(255,255,255,.35)" }} href={`/${locale}/earn`}>
                   {t("Browse offers")}
                 </a>
               </div>
-              {stats.paidCents >= 10_000 || stats.members >= 100 ? (
-                <div className="proofrow">
-                  {stats.paidCents >= 10_000 ? (
-                    <div>
-                      <strong className="num">{formatUsd(stats.paidCents).replace(".00", "")}</strong>
-                      <span>{t("paid to members")}</span>
-                    </div>
-                  ) : null}
-                  {stats.members >= 100 ? (
-                    <div>
-                      <strong className="num">{stats.members.toLocaleString("en-US")}</strong>
-                      <span>{t("members")}</span>
-                    </div>
-                  ) : null}
+            </div>
+          </section>
+
+          {featured ? (
+            <a className="tile c2" href={`/${locale}/earn/offer/${featured.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+              <div className="row">
+                <span className="appicon" style={{ background: featured.color, width: 56, height: 56, borderRadius: 12 }}>
+                  {featured.title[0]}
+                </span>
+                <div className="grow">
+                  <div className="eyebrow">{t("Featured game")}</div>
+                  <b style={{ fontSize: 19 }}>{featured.title}</b>
+                  <div className="small muted">
+                    {translateData(locale, featured.platform)} · {t("{d} days to finish", { d: featured.days })}
+                  </div>
                 </div>
+              </div>
+              <div className="row between" style={{ marginTop: "auto" }}>
+                <span className="small muted">{t("Total reward")}</span>
+                <span style={{ fontSize: 22 }}>
+                  <Coins n={offerCoins(featured, settings)} />
+                </span>
+              </div>
+            </a>
+          ) : (
+            <section className="tile c2" style={{ justifyContent: "center" }}>
+              <b style={{ fontSize: 20 }}>{t("Three steps from sign-up to payout")}</b>
+            </section>
+          )}
+
+          <section className="tile dark half" style={{ justifyContent: "space-between" }}>
+            <span className="small muted">{t("Cash out from")}</span>
+            <span className="big">{formatUsd(minCents).replace(".00", "")}</span>
+          </section>
+
+          <section className="tile gold half" style={{ justifyContent: "space-between" }}>
+            <span className="small muted" style={{ fontWeight: 700 }}>
+              {t("Daily chest")}
+            </span>
+            <b style={{ fontSize: 20, lineHeight: 1.2 }}>{t("Open it every day for up to {c} coins.", { c: settings.dailyMax.toLocaleString("en-US") })}</b>
+          </section>
+
+          <section className={`tile ${tickerItems.length ? "c3" : "c4"}`}>
+            <div className="row between">
+              <h2 style={{ fontSize: 22 }}>{t("Paying today")}</h2>
+              <a className="small" href={`/${locale}/earn`} style={{ fontWeight: 700, color: "var(--accent)", textDecoration: "none" }}>
+                {t("All offers")} →
+              </a>
+            </div>
+            {offers.length ? (
+              <div className="offers">
+                {offers.slice(0, 3).map((o) => (
+                  <OfferCard
+                    key={o.id}
+                    href={`/${locale}/earn/offer/${o.id}`}
+                    title={o.title}
+                    color={o.color}
+                    category={o.category}
+                    networkName={o.network.name}
+                    steps={parseSteps(o.steps).length}
+                    coins={offerCoins(o, settings)}
+                    usdCents={Math.round((offerCoins(o, settings) * 100) / settings.coinsPerUsd)}
+                    t={t}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="muted">{t("New offers are on their way. Check back soon.")}</p>
+            )}
+          </section>
+
+          {tickerItems.length ? (
+            <section className="tile r2">
+              <div className="row between">
+                <h2 style={{ fontSize: 18 }}>{t("Just paid")}</h2>
+                <span className="row tiny" style={{ gap: 6, color: "var(--good)", fontWeight: 700 }}>
+                  <span className="dot" />
+                  {t("Live")}
+                </span>
+              </div>
+              <div className="stack" style={{ gap: 0 }}>
+                {tickerItems.slice(0, 7).map((it) => (
+                  <div key={it.key} className="small" dir="auto" style={{ padding: "9px 0", borderBottom: "1px solid var(--line)" }}>
+                    {it.node}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          <section className="tile c2">
+            <h2 style={{ fontSize: 22 }}>{t("How it works")}</h2>
+            <ol className="hiw">
+              <li>
+                <span className="num">1</span>
+                <b>{t("Choose an offer")}</b>
+                <span className="small muted">{t("Games, app sign-ups and short surveys from {n} offer partners. Every task shows the exact coins before you start.", { n: Math.max(networks, 1) })}</span>
+              </li>
+              <li>
+                <span className="num">2</span>
+                <b>{t("Reach the goal")}</b>
+                <span className="small muted">{t("Play to a level, open an account or finish a survey. The advertiser confirms it and your coins arrive automatically.")}</span>
+              </li>
+              <li>
+                <span className="num">3</span>
+                <b>{t("Cash out")}</b>
+                <span className="small muted">{t("{c} coins = $1. Withdraw to USDT, Litecoin, Binance Pay or an Amazon gift card.", { c: settings.coinsPerUsd.toLocaleString("en-US") })}</span>
+              </li>
+            </ol>
+          </section>
+
+          <section className="tile soft">
+            <b style={{ fontSize: 13, color: "var(--accent)" }}>{t("Invite friends")}</b>
+            <b style={{ fontSize: 19, lineHeight: 1.2 }}>{t("Earn {p}% of everything your friends make.", { p: settings.referralPct })}</b>
+            <a href={`/${locale}/referrals`} style={{ marginTop: "auto", fontWeight: 800, color: "var(--accent)", textDecoration: "none" }}>
+              {t("Get your link")} →
+            </a>
+          </section>
+
+          <section className="tile c4">
+            <div className="row between wr">
+              <h2 style={{ fontSize: 22 }}>{t("Your money, your way")}</h2>
+              {stats.paidCents >= 10_000 ? (
+                <span className="small muted">
+                  <b className="num">{formatUsd(stats.paidCents).replace(".00", "")}</b> {t("paid to members")}
+                </span>
               ) : null}
             </div>
-            {featured ? (
-              <a className="phone" href={`/${locale}/earn/offer/${featured.id}`} style={{ textDecoration: "none" }}>
-                <div className="offer-head">
-                  <div className="appicon" style={{ background: featured.color }}>
-                    {featured.title[0]}
-                  </div>
-                  <div className="grow">
-                    <div className="eyebrow">{t("Featured game")}</div>
-                    <h3 style={{ fontSize: 20 }}>{featured.title}</h3>
-                    <div className="small muted">
-                      {translateData(locale, featured.platform)} · {t("{d} days to finish", { d: featured.days })}
-                    </div>
-                  </div>
-                </div>
-                <div className="ms">
-                  {steps.map((s, i) => (
-                    <div className={`ms-item ${i === 0 ? "next" : ""}`} key={i}>
-                      <span className="ms-dot" />
-                      <span className="small" style={{ fontWeight: i === 0 ? 800 : 600 }}>
-                        {translateData(locale, s.label)}
-                      </span>
-                      <Coins n={offerCoins(featured, settings, s.pct)} />
-                    </div>
-                  ))}
-                </div>
-                <div className="row between" style={{ marginTop: 12, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-                  <span className="small muted">{t("Total reward")}</span>
-                  <span style={{ fontSize: 20 }}>
-                    <Coins n={offerCoins(featured, settings)} />
-                  </span>
-                </div>
-              </a>
-            ) : null}
-          </div>
-        </section>
-
-        <section className="section" style={{ background: "var(--surface)", borderBlock: "1px solid var(--line)" }}>
-          <div className="wrap">
-            <div className="eyebrow">{t("How it works")}</div>
-            <h2>{t("Three steps from sign-up to payout")}</h2>
-            <div className="steps">
-              <div className="step">
-                <span className="n">01</span>
-                <h3>{t("Choose an offer")}</h3>
-                <p>{t("Games, app sign-ups and short surveys from {n} offer partners. Every task shows the exact coins before you start.", { n: Math.max(networks, 1) })}</p>
-              </div>
-              <div className="step">
-                <span className="n">02</span>
-                <h3>{t("Reach the goal")}</h3>
-                <p>{t("Play to a level, open an account or finish a survey. The advertiser confirms it and your coins arrive automatically.")}</p>
-              </div>
-              <div className="step">
-                <span className="n">03</span>
-                <h3>{t("Cash out")}</h3>
-                <p>{t("{c} coins = $1. Withdraw to USDT, Litecoin, Binance Pay or an Amazon gift card.", { c: settings.coinsPerUsd.toLocaleString("en-US") })}</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="wrap">
-            <div className="eyebrow">{t("Payout options")}</div>
-            <h2>{t("Your money, your way")}</h2>
-            <div className="methods">
+            <div className="methods" style={{ marginTop: 4 }}>
               {settings.methods.map((m) => (
                 <div className="method" key={m.id} style={m.enabled ? undefined : { opacity: 0.55 }}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- small static or inline icon */}
@@ -169,11 +209,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
-        <section className="section" style={{ paddingTop: 8 }}>
-          <div className="wrap">
+        <section className="tile" style={{ padding: "32px 22px" }}>
+          <div>
             <div className="faq faq-center">
               <div className="eyebrow">{t("Questions")}</div>
               <h2>{t("Before you sign up")}</h2>

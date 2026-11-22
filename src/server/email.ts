@@ -14,7 +14,7 @@ export function simpleHtml(text: string, button?: { label: string; url: string }
     ? `<p style="margin:20px 0"><a href="${escapeHtml(button.url)}" style="background:#0284C7;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:700">${escapeHtml(button.label)}</a></p>`
     : "";
   return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#151823;max-width:520px">
-<p style="font-size:20px;font-weight:800;margin:0 0 18px">amigo <span style="background:#0284C7;color:#fff;font-size:11px;padding:3px 6px;border-radius:3px">CASH</span></p>
+<p style="font-size:20px;font-weight:800;margin:0 0 18px"><img src="${escapeHtml(env().APP_URL)}/logo-tile.png" width="32" height="32" alt="" style="vertical-align:middle;margin-right:8px;border:0">amigo <span style="background:#0284C7;color:#fff;font-size:11px;padding:3px 6px;border-radius:3px">CASH</span></p>
 ${paras}${btn}<p style="color:#5F6678;font-size:12px;margin-top:28px">Amigo Cash</p></div>`;
 }
 

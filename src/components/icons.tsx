@@ -57,6 +57,8 @@ export function Coins({ n }: { n: number }) {
 export function Logo({ href }: { href: string }) {
   return (
     <a className="logo" href={href} aria-label="Amigo Cash">
+      {/* eslint-disable-next-line @next/next/no-img-element -- tiny static PNG, no optimisation needed */}
+      <img className="logo-mark" src="/logo-mark-128.png" alt="" width={36} height={36} />
       <b>amigo</b>
       <i>cash</i>
     </a>

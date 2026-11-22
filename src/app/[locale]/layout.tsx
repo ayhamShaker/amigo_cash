@@ -30,7 +30,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: { default: "Amigo Cash", template: "%s · Amigo Cash" },
     description: t("Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from {min} in crypto or gift cards.", { min: "$1.00" }),
     alternates: { languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])) },
-    icons: { icon: "/icon.svg" },
+    icons: { icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/icon.png", type: "image/png" }], apple: "/apple-touch-icon.png" },
+    manifest: "/manifest.webmanifest",
     other: { "content-language": locale },
   };
 }

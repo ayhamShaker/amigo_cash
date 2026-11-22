@@ -109,6 +109,7 @@ td.r,th.r{text-align:end}
 .topbar-in{display:flex;align-items:center;gap:16px;height:64px;max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .logo{display:inline-flex;align-items:baseline;gap:6px;font:800 23px/1 var(--f-display);letter-spacing:-.03em;text-decoration:none;color:var(--fg);cursor:pointer}
 .logo b{font-weight:800}
+.logo-mark{width:36px;height:36px;align-self:center;margin-inline-end:2px;flex:none}
 .logo i{font-style:normal;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:4px 7px 3px;border-radius:3px;transform:translateY(-3px)}
 .wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .ticker{background:var(--ink-band);color:var(--ink-band-fg);overflow:hidden;white-space:nowrap;font-size:13px}
@@ -308,6 +309,7 @@ td.r,th.r{text-align:end}
   .hide-xs{display:none!important}
   .topbar .btn{padding:8px 11px;font-size:13px}
   .logo{font-size:18px;gap:4px}
+  .logo-mark{width:28px;height:28px}
   .logo i{font-size:10px;padding:3px 5px 2px}
   .iconbtn{width:34px;height:34px}
   .topbar .avatar{display:none}

@@ -6,6 +6,8 @@ import { getSettings } from "@/server/settings";
 import { ActionForm, Submit } from "@/components/forms";
 import { saveFraudRulesAction } from "@/app/actions/admin";
 import { Risk } from "@/components/admin-ui";
+import { checkIp } from "@/server/fraud";
+import { requestIp } from "@/server/request";
 
 export const metadata: Metadata = { title: "مكافحة الاحتيال" };
 
@@ -19,6 +21,8 @@ export default async function FraudPage() {
     select: { id: true, name: true, country: true, riskScore: true, flags: true, status: true },
   });
   const ipqs = !!env().IPQS_API_KEY;
+  const myIp = await requestIp();
+  const probe = ipqs ? await checkIp(myIp) : null;
   return (
     <>
       <div className="pagehead">
@@ -28,6 +32,32 @@ export default async function FraudPage() {
         </div>
       </div>
       {!ipqs ? <div className="formmsg bad">كشف الـ VPN متوقف لأن مفتاح IPQualityScore مو محطوط بإعدادات السيرفر (IPQS_API_KEY).</div> : null}
+      <div className="card stack" style={{ gap: 8 }}>
+        <h3 style={{ fontSize: 17 }}>فحص كشف الـ VPN (على اتصالك أنت الآن)</h3>
+        <div className="row between wr small">
+          <span className="muted">الـ IP اللي شايفه الموقع</span>
+          <span className="num" dir="ltr">{myIp ?? "غير معروف"}</span>
+        </div>
+        {!probe ? (
+          <span className="pill warn" style={{ alignSelf: "flex-start" }}>المفتاح غير موجود</span>
+        ) : probe.checked ? (
+          <>
+            <div className="row wr">
+              <span className="pill good">✓ IPQualityScore شغّال</span>
+              <span className={`pill ${probe.vpn ? "bad" : ""}`}>VPN: {probe.vpn ? "نعم" : "لا"}</span>
+              <span className={`pill ${probe.proxy ? "bad" : ""}`}>Proxy: {probe.proxy ? "نعم" : "لا"}</span>
+              <span className={`pill ${probe.tor ? "bad" : ""}`}>Tor: {probe.tor ? "نعم" : "لا"}</span>
+              <span className="pill" dir="ltr">Fraud score: {probe.fraudScore}</span>
+              {probe.country ? <span className="cc">{probe.country}</span> : null}
+            </div>
+            <p className="tiny muted">جرّب تشغّل VPN على موبايلك وافتح هالصفحة: لازم يطلع VPN أو Proxy «نعم».</p>
+          </>
+        ) : (
+          <span className="pill bad" style={{ alignSelf: "flex-start" }} dir="ltr">
+            IPQualityScore error: {probe.error}
+          </span>
+        )}
+      </div>
       <div className="grid2">
         <ActionForm action={saveFraudRulesAction} className="card">
           <h3 style={{ fontSize: 17, marginBottom: 6 }}>القواعد</h3>

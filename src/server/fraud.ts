@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { getSettings } from "./settings";
 
-export type IpVerdict = { vpn: boolean; proxy: boolean; tor: boolean; fraudScore: number; country: string | null; checked: boolean };
+export type IpVerdict = { vpn: boolean; proxy: boolean; tor: boolean; fraudScore: number; country: string | null; checked: boolean; error?: string };
 
 const cache = new Map<string, { v: IpVerdict; at: number }>();
 const TTL = 60 * 60 * 1000;
@@ -21,15 +21,25 @@ export async function checkIp(ip: string | null): Promise<IpVerdict> {
   try {
     const url = `https://ipqualityscore.com/api/json/ip/${encodeURIComponent(key)}/${encodeURIComponent(ip)}?strictness=1&allow_public_access_points=true`;
     const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
-    if (!res.ok) return none;
-    const j = (await res.json()) as { success?: boolean; vpn?: boolean; proxy?: boolean; tor?: boolean; fraud_score?: number; country_code?: string };
-    if (!j.success) return none;
+    if (!res.ok) {
+      console.error(`[ipqs] HTTP ${res.status}`);
+      return { ...none, error: `HTTP ${res.status}` };
+    }
+    const j = (await res.json()) as { success?: boolean; message?: string; vpn?: boolean; proxy?: boolean; tor?: boolean; fraud_score?: number; country_code?: string };
+    if (!j.success) {
+      // e.g. invalid key, unverified account or monthly quota reached
+      const msg = String(j.message ?? "unknown error").slice(0, 200);
+      console.error(`[ipqs] ${msg}`);
+      return { ...none, error: msg };
+    }
     const v: IpVerdict = { vpn: !!j.vpn, proxy: !!j.proxy, tor: !!j.tor, fraudScore: Number(j.fraud_score ?? 0), country: j.country_code ?? null, checked: true };
     if (cache.size > 5000) cache.clear();
     cache.set(ip, { v, at: Date.now() });
     return v;
-  } catch {
-    return none;
+  } catch (e) {
+    const msg = (e as Error).name === "TimeoutError" ? "timeout" : (e as Error).message;
+    console.error(`[ipqs] ${msg}`);
+    return { ...none, error: msg };
   }
 }
 

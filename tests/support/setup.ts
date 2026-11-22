@@ -4,3 +4,4 @@ process.env.APP_URL = "http://localhost:3000";
 process.env.SESSION_SECRET = "test-session-secret-0123456789abcdefghijklmnop";
 process.env.ENCRYPTION_KEY = Buffer.alloc(32, 7).toString("base64");
 process.env.CRON_SECRET = "test-cron-secret";
+process.env.BOOTSTRAP_ADMIN_EMAIL = "owner@example.com";

@@ -22,6 +22,8 @@ const schema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   // How many reverse proxies sit in front of the app (Cloudflare + host = 1 or 2).
+  // The owner's email. When that address is confirmed (email link or Google), the account becomes admin.
+  BOOTSTRAP_ADMIN_EMAIL: z.string().optional(),
   TRUSTED_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(1),
   // Set to "true" only when the origin firewall accepts traffic from Cloudflare alone.
   TRUST_CLOUDFLARE: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),

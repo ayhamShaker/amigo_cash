@@ -298,6 +298,22 @@ export async function verifyEmail(token: string): Promise<boolean> {
   const userId = await consumeToken(token, "EMAIL_VERIFY");
   if (!userId) return false;
   await db.user.update({ where: { id: userId }, data: { emailVerifiedAt: new Date() } });
+  await maybeBootstrapAdmin(userId);
+  return true;
+}
+
+/**
+ * Makes the owner's account admin once its email is confirmed, so the first
+ * admin can be created without database access. The address must be proven
+ * (email link or verified Google login), so nobody else can claim it.
+ */
+export async function maybeBootstrapAdmin(userId: string): Promise<boolean> {
+  const owner = env().BOOTSTRAP_ADMIN_EMAIL?.trim().toLowerCase();
+  if (!owner) return false;
+  const u = await db.user.findUnique({ where: { id: userId }, select: { email: true, role: true, emailVerifiedAt: true } });
+  if (!u || u.role === "ADMIN" || !u.emailVerifiedAt || u.email !== owner) return false;
+  await db.user.update({ where: { id: userId }, data: { role: "ADMIN" } });
+  await db.auditLog.create({ data: { actorId: null, action: "user.make_admin.bootstrap", targetType: "user", targetId: userId } });
   return true;
 }
 
@@ -312,12 +328,16 @@ export type GoogleProfile = { sub: string; email: string; emailVerified: boolean
 export async function upsertGoogleUser(p: GoogleProfile, ctx: { locale: Locale; refCode?: string; ip: string | null; deviceId: string | null; country: string }) {
   const settings = await getSettings();
   const byGoogle = await db.user.findUnique({ where: { googleId: p.sub }, select: { id: true, status: true, totpEnabled: true } });
-  if (byGoogle) return { ...byGoogle, created: false };
+  if (byGoogle) {
+    await maybeBootstrapAdmin(byGoogle.id);
+    return { ...byGoogle, created: false };
+  }
   const email = normaliseEmail(p.email);
   if (!p.emailVerified || !EMAIL_RE.test(email)) return { error: "EMAIL_NOT_VERIFIED" as const };
   const byEmail = await db.user.findUnique({ where: { email }, select: { id: true, status: true, totpEnabled: true } });
   if (byEmail) {
     await db.user.update({ where: { id: byEmail.id }, data: { googleId: p.sub, emailVerifiedAt: new Date() } });
+    await maybeBootstrapAdmin(byEmail.id);
     return { ...byEmail, created: false };
   }
   if (!settings.registrationOpen) return { error: "CLOSED" as const };
@@ -338,6 +358,7 @@ export async function upsertGoogleUser(p: GoogleProfile, ctx: { locale: Locale; 
     ip: ctx.ip,
   });
   await recordDevice(user.id, ctx.deviceId, ctx.ip);
+  await maybeBootstrapAdmin(user.id);
   return { id: user.id, status: user.status, totpEnabled: false, created: true };
 }
 

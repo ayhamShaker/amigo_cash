@@ -176,6 +176,23 @@ describe("passwords and email", () => {
   });
 });
 
+describe("owner bootstrap", () => {
+  it("makes only the confirmed owner email an admin", async () => {
+    const logs: string[] = [];
+    vi.spyOn(console, "info").mockImplementation((m: string) => void logs.push(m));
+    await signup({ ...base, email: "Owner@Example.com", ip: nextIp(), deviceId: "owner-aaaaaaaaaaaaaaaaaa" });
+    expect((await db.user.findUniqueOrThrow({ where: { email: "owner@example.com" } })).role).toBe("USER");
+    const token = /token=([A-Za-z0-9_-]+)/.exec(logs.join("\n"))?.[1];
+    expect(await verifyEmail(token!)).toBe(true);
+    expect((await db.user.findUniqueOrThrow({ where: { email: "owner@example.com" } })).role).toBe("ADMIN");
+    await signup({ ...base, email: "other@example.com", ip: nextIp(), deviceId: "other-aaaaaaaaaaaaaaaaaa" });
+    const t2 = /token=([A-Za-z0-9_-]+)/g;
+    const all = [...logs.join("\n").matchAll(t2)].map((m) => m[1]);
+    await verifyEmail(all.at(-1)!);
+    expect((await db.user.findUniqueOrThrow({ where: { email: "other@example.com" } })).role).toBe("USER");
+  });
+});
+
 describe("Google sign-in", () => {
   const ctx = { locale: "en" as const, ip: "198.51.100.77", deviceId: "google-aaaaaaaaaaaaaaaa", country: "US" };
   it("creates a verified member and finds them again", async () => {

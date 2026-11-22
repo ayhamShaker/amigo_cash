@@ -20,7 +20,8 @@
     "i18n:check": "tsx scripts/check-i18n.ts",
     "admin:make": "tsx scripts/make-admin.ts",
     "demo:data": "tsx scripts/demo-data.ts",
-    "check": "npm run typecheck && npm run lint && npm run i18n:check && npm test"
+    "check": "npm run typecheck && npm run lint && npm run i18n:check && npm test",
+    "vercel-build": "prisma generate && prisma migrate deploy && tsx prisma/seed.ts && next build"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

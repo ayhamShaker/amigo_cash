@@ -1,0 +1,381 @@
+// Amigo Cash database schema.
+// Money rules:
+//   * Member balances are integer "coins" (default 1,000 coins = 1 USD).
+//   * Network payouts and withdrawals are integer US cents.
+//   * Every balance change is a LedgerEntry; User.balance / User.pending are
+//     caches that are only ever changed in the same transaction as the entry.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+enum LedgerBucket {
+  AVAILABLE
+  PENDING
+}
+
+enum LedgerKind {
+  WELCOME
+  OFFER
+  SURVEY
+  BONUS
+  REFERRAL
+  INVITE_BONUS
+  PROMO
+  CONTEST
+  ADJUST
+  WITHDRAWAL
+  REFUND
+  REVERSAL
+  RELEASE
+}
+
+enum ConversionStatus {
+  CREDITED
+  REVERSED
+  REJECTED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+enum ChatSender {
+  USER
+  ADMIN
+  BOT
+  SYSTEM
+}
+
+enum ChatStatus {
+  OPEN
+  CLOSED
+}
+
+enum TokenPurpose {
+  PASSWORD_RESET
+  EMAIL_VERIFY
+}
+
+model User {
+  id              String     @id @default(cuid())
+  email           String     @unique // always stored lower-case
+  name            String
+  passwordHash    String?
+  googleId        String?    @unique
+  role            Role       @default(USER)
+  status          UserStatus @default(ACTIVE)
+  country         String     @default("US")
+  locale          String     @default("en")
+  emailVerifiedAt DateTime?
+
+  refCode      String  @unique
+  referredById String?
+  referredBy   User?   @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals    User[]  @relation("Referrals")
+
+  // Cached balances, in coins. Only changed together with a LedgerEntry.
+  balance        Int @default(0)
+  pending        Int @default(0)
+  lifetimeEarned Int @default(0)
+
+  totpSecretEnc   String? // AES-256-GCM encrypted base32 secret
+  totpEnabled     Boolean @default(false)
+  totpLastCounter Int? // last accepted TOTP step, blocks replaying a code
+
+  riskScore Int      @default(0)
+  flags     String[] @default([])
+  signupIp  String?
+  paidOnce  Boolean  @default(false)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSeenAt DateTime @default(now())
+
+  sessions      Session[]
+  ledger        LedgerEntry[]
+  conversions   Conversion[]
+  withdrawals   Withdrawal[]       @relation("WithdrawalOwner")
+  reviewed      Withdrawal[]       @relation("WithdrawalReviewer")
+  devices       UserDevice[]
+  promoUses     PromoRedemption[]
+  dailyClaims   DailyClaim[]
+  offerProgress OfferProgress[]
+  chats         ChatConversation[]
+  tokens        AuthToken[]
+  auditLogs     AuditLog[]
+
+  @@index([referredById])
+  @@index([createdAt])
+}
+
+model Session {
+  id         String   @id // SHA-256 of the cookie token, never the token itself
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  lastUsedAt DateTime @default(now())
+  ip         String?
+  userAgent  String?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// Short-lived "password correct, waiting for the authenticator code" state.
+model PendingLogin {
+  id        String   @id // SHA-256 of the cookie token
+  userId    String
+  attempts  Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+
+model AuthToken {
+  id        String       @id // SHA-256 of the emailed token
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   TokenPurpose
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime     @default(now())
+
+  @@index([userId, purpose])
+}
+
+model UserDevice {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId  String
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, deviceId])
+  @@index([deviceId])
+  @@index([ip])
+}
+
+model LedgerEntry {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  amount      Int // signed, in coins
+  bucket      LedgerBucket
+  kind        LedgerKind
+  // Translatable description: { k: "message key", a: { ...args } }
+  description Json
+  refType     String?
+  refId       String?
+  releaseAt   DateTime? // for PENDING credits
+  releasedAt  DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([userId, createdAt])
+  @@index([bucket, releaseAt])
+  @@index([refType, refId])
+}
+
+model Network {
+  id            String       @id // slug, e.g. "torox"
+  name          String
+  kind          String // "Games", "Surveys", ...
+  enabled       Boolean      @default(false)
+  userShare     Int? // percent; null = use the site default
+  // Postback verification
+  secretEnc     String? // AES-256-GCM encrypted
+  signatureMode String       @default("HMAC_SHA256") // HMAC_SHA256 | MD5_CONCAT | SECRET_PARAM
+  allowedIps    String[]     @default([])
+  // Offer wall iframe, e.g. https://wall.example.com/?app=123&user={user_id}
+  wallUrl       String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  conversions   Conversion[]
+  offers        Offer[]
+}
+
+model Conversion {
+  id          String           @id @default(cuid())
+  networkId   String
+  network     Network          @relation(fields: [networkId], references: [id])
+  txid        String
+  userId      String?
+  user        User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  offerName   String
+  payoutCents Int
+  coins       Int
+  status      ConversionStatus
+  reason      String?
+  ip          String?
+  raw         Json
+  createdAt   DateTime         @default(now())
+  reversedAt  DateTime?
+
+  @@unique([networkId, txid])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Offer {
+  id          String          @id @default(cuid())
+  title       String
+  networkId   String
+  network     Network         @relation(fields: [networkId], references: [id])
+  category    String // game | app | signup | finance | trial
+  payoutCents Int
+  color       String          @default("#0284C7")
+  countries   String[]        @default([])
+  platform    String          @default("Android · iOS")
+  days        Int             @default(14)
+  description String          @default("")
+  // [{ label: "Reach level 20", pct: 13 }]  pct values add up to 100
+  steps       Json
+  trackingUrl String // must contain {user_id}
+  active      Boolean         @default(true)
+  featured    Boolean         @default(true)
+  completions Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  progress    OfferProgress[]
+}
+
+model OfferProgress {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  offerId   String
+  offer     Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  startedAt DateTime @default(now())
+
+  @@id([userId, offerId])
+}
+
+model Withdrawal {
+  id           String           @id @default(cuid())
+  userId       String
+  user         User             @relation("WithdrawalOwner", fields: [userId], references: [id], onDelete: Restrict)
+  method       String
+  amountCents  Int
+  feeCents     Int              @default(0)
+  coins        Int
+  address      String
+  status       WithdrawalStatus @default(PENDING)
+  note         String?
+  txRef        String?
+  firstPayout  Boolean          @default(false)
+  reviewedById String?
+  reviewedBy   User?            @relation("WithdrawalReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime         @default(now())
+  reviewedAt   DateTime?
+
+  @@index([status, createdAt])
+  @@index([userId])
+}
+
+model PromoCode {
+  code        String            @id
+  coins       Int
+  maxUses     Int
+  uses        Int               @default(0)
+  active      Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  redemptions PromoRedemption[]
+}
+
+model PromoRedemption {
+  code      String
+  promo     PromoCode @relation(fields: [code], references: [code], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@id([code, userId])
+}
+
+model DailyClaim {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day       String // YYYY-MM-DD (UTC)
+  coins     Int
+  createdAt DateTime @default(now())
+
+  @@id([userId, day])
+}
+
+model ChatConversation {
+  id             String        @id @default(cuid())
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  guestName      String?
+  guestEmail     String?
+  guestTokenHash String?       @unique
+  locale         String        @default("en")
+  status         ChatStatus    @default(OPEN)
+  unreadAdmin    Int           @default(0)
+  unreadUser     Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  messages       ChatMessage[]
+
+  @@index([updatedAt])
+  @@index([userId])
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         ChatSender
+  authorName     String?
+  body           String
+  emailed        Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  targetType String?
+  targetId   String?
+  data       Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([targetType, targetId])
+}
+
+model RateLimit {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+}

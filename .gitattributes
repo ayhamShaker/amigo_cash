@@ -1,0 +1,3 @@
+# Keep GitHub language stats about the real app, not the design prototype.
+prototype/** linguist-documentation
+src/generated/** linguist-generated

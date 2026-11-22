@@ -472,5 +472,10 @@
  "{s}% of the payout goes to you": "El {s}% del pago es para vos",
  "{o} · {n}": "{o} · {n}",
  "{r}": "{r}",
- "Released after review": "Liberado tras la revisión"
+ "Released after review": "Liberado tras la revisión",
+ "Enter the current 6-digit code from Google Authenticator. Backup codes do not work here.": "Ingresá el código actual de 6 dígitos de Google Authenticator. Acá no sirven los códigos de respaldo.",
+ "New backup codes are ready. The old ones no longer work.": "Tus nuevos códigos de respaldo están listos. Los anteriores ya no sirven.",
+ "New backup codes": "Nuevos códigos de respaldo",
+ "Enter the current 6-digit code from Google Authenticator.": "Ingresá el código actual de 6 dígitos de Google Authenticator.",
+ "Create new backup codes": "Crear nuevos códigos de respaldo"
 }

@@ -159,7 +159,7 @@ export async function checkPasswordLogin(emailRaw: string, password: string, ip:
  * Accepts a current authenticator code (not reused) or an unused backup code.
  * Each successful code is consumed, so it cannot be replayed.
  */
-export async function verifySecondFactor(userId: string, input: string): Promise<boolean> {
+export async function verifySecondFactor(userId: string, input: string, allowBackup = true): Promise<boolean> {
   if (!(await rateLimit(`2fa:${userId}`, 10, 900))) return false;
   const user = await db.user.findUnique({ where: { id: userId }, select: { totpSecretEnc: true, totpEnabled: true, totpLastCounter: true } });
   if (!user?.totpEnabled || !user.totpSecretEnc) return false;
@@ -173,6 +173,7 @@ export async function verifySecondFactor(userId: string, input: string): Promise
     });
     return res.count === 1;
   }
+  if (!allowBackup) return false;
   const backup = normaliseBackupCode(input);
   if (!backup) return false;
   const res = await db.backupCode.updateMany({ where: { userId, codeHash: backupHash(backup), usedAt: null }, data: { usedAt: new Date() } });
@@ -217,6 +218,20 @@ export async function disableTotp(userId: string, code: string): Promise<boolean
     db.backupCode.deleteMany({ where: { userId } }),
   ]);
   return true;
+}
+
+/**
+ * Replaces all backup codes (for example after they were seen by someone else).
+ * Needs a current authenticator code; an old backup code is not accepted.
+ */
+export async function regenerateBackupCodes(userId: string, code: string): Promise<string[] | null> {
+  if (!(await verifySecondFactor(userId, code, false))) return null;
+  const codes = newBackupCodes();
+  await db.$transaction([
+    db.backupCode.deleteMany({ where: { userId } }),
+    db.backupCode.createMany({ data: codes.map((c) => ({ userId, codeHash: backupHash(c) })) }),
+  ]);
+  return codes;
 }
 
 /* ---------------- passwords ---------------- */

@@ -472,5 +472,10 @@
  "{s}% of the payout goes to you": "{s}% من المبلغ لك",
  "{o} · {n}": "{o} · {n}",
  "{r}": "{r}",
- "Released after review": "تم التحرير بعد المراجعة"
+ "Released after review": "تم التحرير بعد المراجعة",
+ "Enter the current 6-digit code from Google Authenticator. Backup codes do not work here.": "أدخل الرمز الحالي المكوّن من 6 أرقام من Google Authenticator. رموز الاحتياط لا تعمل هنا.",
+ "New backup codes are ready. The old ones no longer work.": "رموز الاحتياط الجديدة جاهزة. الرموز القديمة لم تعد تعمل.",
+ "New backup codes": "رموز احتياط جديدة",
+ "Enter the current 6-digit code from Google Authenticator.": "أدخل الرمز الحالي المكوّن من 6 أرقام من Google Authenticator.",
+ "Create new backup codes": "إنشاء رموز احتياط جديدة"
 }

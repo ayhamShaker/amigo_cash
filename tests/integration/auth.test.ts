@@ -209,3 +209,18 @@ describe("Google sign-in", () => {
     expect((await db.user.findUniqueOrThrow({ where: { email: "link@example.com" } })).googleId).toBe("g-2");
   });
 });
+
+describe("backup code rotation", () => {
+  it("replaces all codes, needs a live authenticator code, and old codes stop working", async () => {
+    const { regenerateBackupCodes } = await import("@/server/auth");
+    const u = await makeUser();
+    const secret = await beginTotpSetup(u.id);
+    const old = (await confirmTotpSetup(u.id, totp(secret)))!;
+    expect(await regenerateBackupCodes(u.id, old[0]!)).toBeNull();
+    const fresh = await regenerateBackupCodes(u.id, totp(secret, Date.now() + 30_000));
+    expect(fresh).toHaveLength(8);
+    expect(await verifySecondFactor(u.id, old[1]!)).toBe(false);
+    expect(await verifySecondFactor(u.id, fresh![0]!)).toBe(true);
+    expect(await db.backupCode.count({ where: { userId: u.id } })).toBe(8);
+  });
+});

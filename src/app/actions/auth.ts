@@ -9,6 +9,7 @@ import {
   confirmTotpSetup,
   beginTotpSetup,
   disableTotp,
+  regenerateBackupCodes,
   requestPasswordReset,
   resetPassword,
   sendVerificationEmail,
@@ -160,6 +161,14 @@ export async function disableTwoFactorAction(_prev: FormState, fd: FormData): Pr
   if (u.role === "ADMIN") return { error: t("Admins must keep two-factor login on.") };
   if (!(await disableTotp(u.id, str(fd, "code", 20)))) return { error: t("That code is not right. Check the time on your phone and try the newest code.") };
   return { ok: t("Two-factor login is off") };
+}
+
+export async function regenerateBackupCodesAction(_prev: FormState, fd: FormData): Promise<FormState> {
+  const { t } = tFrom(fd);
+  const u = await me();
+  const codes = await regenerateBackupCodes(u.id, str(fd, "code", 20));
+  if (!codes) return { error: t("Enter the current 6-digit code from Google Authenticator. Backup codes do not work here.") };
+  return { ok: t("New backup codes are ready. The old ones no longer work."), data: { codes } };
 }
 
 export async function resendVerificationAction(_prev: FormState, fd: FormData): Promise<FormState> {

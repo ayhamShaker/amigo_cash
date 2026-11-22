@@ -546,3 +546,4 @@ th{background:transparent}
 
 .banner{max-width:1208px;width:calc(100% - 2*max(16px,env(safe-area-inset-left,0px)));margin:10px auto 0;border-radius:var(--r)}
 [dir="rtl"] .pw input{padding-left:46px;padding-right:14px}
+[dir="rtl"] .arr{display:inline-block;transform:scaleX(-1)}

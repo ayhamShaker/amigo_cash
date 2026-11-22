@@ -115,7 +115,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <div className="row between">
               <h2 style={{ fontSize: 22 }}>{t("Paying today")}</h2>
               <a className="small" href={`/${locale}/earn`} style={{ fontWeight: 700, color: "var(--accent)", textDecoration: "none" }}>
-                {t("All offers")} →
+                {t("All offers")} <span className="arr">→</span>
               </a>
             </div>
             {offers.length ? (
@@ -184,7 +184,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <b style={{ fontSize: 13, color: "var(--accent)" }}>{t("Invite friends")}</b>
             <b style={{ fontSize: 19, lineHeight: 1.2 }}>{t("Earn {p}% of everything your friends make.", { p: settings.referralPct })}</b>
             <a href={`/${locale}/referrals`} style={{ marginTop: "auto", fontWeight: 800, color: "var(--accent)", textDecoration: "none" }}>
-              {t("Get your link")} →
+              {t("Get your link")} <span className="arr">→</span>
             </a>
           </section>
 

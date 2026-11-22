@@ -55,7 +55,7 @@ export default async function AccountPage({ params, searchParams }: { params: Pr
             </div>
           </div>
           <a className="small" href={`/${locale}/activity`} style={{ fontWeight: 700, color: "var(--accent)" }}>
-            {t("Activity")} →
+            {t("Activity")} <span className="arr">→</span>
           </a>
         </div>
         <ActionForm action={updateProfileAction} locale={locale} className="card stack">

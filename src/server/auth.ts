@@ -281,9 +281,12 @@ export async function resetPassword(token: string, next: string): Promise<boolea
   if (next.length < PASSWORD_MIN || next.length > PASSWORD_MAX) return false;
   const userId = await consumeToken(token, "PASSWORD_RESET");
   if (!userId) return false;
+  const passwordHash = await hashPassword(next);
+  const user = await db.user.update({ where: { id: userId }, data: { passwordHash, emailVerifiedAt: new Date() }, select: { email: true } });
   await db.$transaction([
-    db.user.update({ where: { id: userId }, data: { passwordHash: await hashPassword(next), emailVerifiedAt: new Date() } }),
     db.session.deleteMany({ where: { userId } }),
+    // The owner just proved control of the account: lift the failed-login lock.
+    db.rateLimit.deleteMany({ where: { key: `login:email:${sha256(user.email)}` } }),
   ]);
   return true;
 }

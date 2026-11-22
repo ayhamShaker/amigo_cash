@@ -227,6 +227,8 @@ describe("admin password reset link", () => {
     const link = await adminPasswordResetLink(u.id);
     const token = new URL(link).searchParams.get("token")!;
     expect(link.startsWith("http://localhost:3000/en/reset-password?token=")).toBe(true);
+    for (let i = 0; i < 10; i++) await checkPasswordLogin("forgot@example.com", `wrong-${i}`, nextIp());
+    expect(await checkPasswordLogin("forgot@example.com", base.password, nextIp())).toEqual({ ok: false, error: "RATE_LIMIT" });
     expect(await resetPassword(token, "fresh password 9")).toBe(true);
     expect(await resetPassword(token, "again password 9")).toBe(false);
     expect((await checkPasswordLogin("forgot@example.com", "fresh password 9", nextIp())).ok).toBe(true);

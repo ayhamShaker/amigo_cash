@@ -172,7 +172,7 @@ export function ChatWidget({ locale, signedIn, labels, startOpen }: { locale: st
             </div>
             <div className="field">
               <label htmlFor="ch-email">{labels.email}</label>
-              <input className="input" id="ch-email" name="email" type="email" dir="ltr" autoComplete="email" maxLength={254} />
+              <input className="input" id="ch-email" name="email" type="email" dir="ltr" autoComplete="email" maxLength={254} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
             </div>
             <div className="tiny muted">{labels.why}</div>
             <button className="btn primary block" type="submit" disabled={busy}>

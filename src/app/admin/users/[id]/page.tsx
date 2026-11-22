@@ -4,7 +4,8 @@ import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
 import { requireAdminPage } from "@/server/admin-guard";
 import { ActionForm, Submit } from "@/components/forms";
-import { adjustBalanceAction, clearFlagsAction, confirmEmailAction, releaseUserHoldsAction, resetTwoFactorAction, setRoleAction, setUserStatusAction } from "@/app/actions/admin";
+import { ResetLinkForm } from "@/components/reset-link";
+import { adjustBalanceAction, clearFlagsAction, confirmEmailAction, passwordResetLinkAction, releaseUserHoldsAction, resetTwoFactorAction, setRoleAction, setUserStatusAction } from "@/app/actions/admin";
 import { Num, Risk, Usd, agoAr, WITHDRAWAL_STATUS_AR } from "@/components/admin-ui";
 import { coinsToCents } from "@/lib/money";
 import { describe } from "@/i18n/t";
@@ -113,6 +114,7 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
         <Row k="درجة الخطورة">
           <Risk score={u.riskScore} />
         </Row>
+        <Row k="طريقة الدخول">{u.passwordHash ? "إيميل وكلمة مرور" : <span className="pill warn">Google فقط (بدون كلمة مرور)</span>}</Row>
         <Row k="التحقق بخطوتين">{u.totpEnabled ? <span className="pill good">مفعّل</span> : <span className="pill">غير مفعّل</span>}</Row>
         <Row k="جلسات فعّالة">
           <Num n={sessions} />
@@ -166,6 +168,8 @@ export default async function UserDetail({ params }: { params: Promise<{ id: str
           </ActionForm>
         ) : null}
       </div>
+
+      {u.id !== me.id ? <ResetLinkForm action={passwordResetLinkAction} userId={u.id} /> : null}
 
       {u.totpEnabled && u.id !== me.id ? (
         <ActionForm action={resetTwoFactorAction} className="card row wr">

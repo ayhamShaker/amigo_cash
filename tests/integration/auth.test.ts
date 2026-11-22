@@ -218,3 +218,17 @@ describe("Google sign-in", () => {
     expect((await db.user.findUniqueOrThrow({ where: { email: "link@example.com" } })).googleId).toBe("g-2");
   });
 });
+
+describe("admin password reset link", () => {
+  it("gives a one-time link that sets a new password", async () => {
+    const { adminPasswordResetLink } = await import("@/server/auth");
+    await signup({ ...base, email: "forgot@example.com", ip: nextIp(), deviceId: "forgot-aaaaaaaaaaaaaaaa" });
+    const u = await db.user.findUniqueOrThrow({ where: { email: "forgot@example.com" } });
+    const link = await adminPasswordResetLink(u.id);
+    const token = new URL(link).searchParams.get("token")!;
+    expect(link.startsWith("http://localhost:3000/en/reset-password?token=")).toBe(true);
+    expect(await resetPassword(token, "fresh password 9")).toBe(true);
+    expect(await resetPassword(token, "again password 9")).toBe(false);
+    expect((await checkPasswordLogin("forgot@example.com", "fresh password 9", nextIp())).ok).toBe(true);
+  });
+});

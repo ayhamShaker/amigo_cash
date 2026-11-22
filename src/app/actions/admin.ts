@@ -16,7 +16,7 @@ import { postAdminReply, setConversationStatus } from "@/server/chat";
 import { getSettings, METHOD_IDS, saveSettings, siteSettingsSchema, type SiteSettings } from "@/server/settings";
 import { bool, dollarsToCents, int, str } from "@/server/action-utils";
 import { normalisePromo } from "@/server/rewards";
-import { clearTotp } from "@/server/auth";
+import { adminPasswordResetLink, clearTotp } from "@/server/auth";
 import { notify } from "@/server/notify";
 import { formatCoins, formatUsd } from "@/lib/money";
 import { ipInAllowList } from "@/lib/ip";
@@ -110,6 +110,15 @@ export async function confirmEmailAction(_p: FormState, fd: FormData): Promise<F
   await notify(userId, "account", { k: "Your email is confirmed. You can cash out once you reach the minimum." }, "/cashout");
   revalidatePath(`/admin/users/${userId}`);
   return { ok: "تم تأكيد إيميل العضو يدوياً." };
+}
+
+export async function passwordResetLinkAction(_p: FormState, fd: FormData): Promise<FormState> {
+  const { admin, ip } = await ctx();
+  const userId = str(fd, "userId", 40);
+  if (userId === admin.id) return { error: "لحسابك استعمل «نسيت كلمة المرور» من صفحة الدخول." };
+  const link = await adminPasswordResetLink(userId);
+  await audit({ actorId: admin.id, action: "user.password_reset_link", targetType: "user", targetId: userId, ip });
+  return { ok: "انسخ الرابط وابعته للعضو بالشات. بيشتغل مرة وحدة ولمدة ساعة.", data: { link } };
 }
 
 export async function resetTwoFactorAction(_p: FormState, fd: FormData): Promise<FormState> {

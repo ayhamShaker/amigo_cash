@@ -14,7 +14,7 @@ export default async function ForgotPage({ params }: { params: Promise<{ locale:
       <ActionForm action={forgotPasswordAction} locale={locale} className="stack">
         <div className="field">
           <label htmlFor="fg-email">{t("Email")}</label>
-          <input className="input" id="fg-email" name="email" type="email" dir="ltr" autoComplete="email" maxLength={254} placeholder="you@email.com" />
+          <input className="input" id="fg-email" name="email" type="email" dir="ltr" autoComplete="email" maxLength={254} placeholder="you@email.com" autoCapitalize="none" autoCorrect="off" spellCheck={false} />
         </div>
         <Submit className="btn primary block">{t("Send reset link")}</Submit>
       </ActionForm>

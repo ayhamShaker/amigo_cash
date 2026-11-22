@@ -41,7 +41,7 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
         <input type="hidden" name="next" value={next} />
         <div className="field">
           <label htmlFor="f-email">{t("Email")}</label>
-          <input className="input" id="f-email" name="email" type="email" dir="ltr" autoComplete="email" required maxLength={254} />
+          <input className="input" id="f-email" name="email" type="email" dir="ltr" autoComplete="email" required maxLength={254} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
         </div>
         <div className="field">
           <div className="row between">

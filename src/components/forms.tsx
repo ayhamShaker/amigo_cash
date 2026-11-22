@@ -97,7 +97,7 @@ export function PasswordInput({
   const [show, setShow] = useState(false);
   return (
     <div className="pw">
-      <input className="input" id={id} name={name} type={show ? "text" : "password"} autoComplete={autoComplete} placeholder={placeholder} maxLength={128} />
+      <input className="input" id={id} name={name} type={show ? "text" : "password"} autoComplete={autoComplete} placeholder={placeholder} maxLength={128} autoCapitalize="none" autoCorrect="off" spellCheck={false} dir="ltr" />
       <button type="button" className="pw-eye" onClick={() => setShow((s) => !s)} aria-label={show ? labels.hide : labels.show} aria-pressed={show}>
         <Icon name={show ? "eyeOff" : "eye"} />
       </button>

@@ -49,7 +49,7 @@ export default async function SignupPage({ params }: { params: Promise<{ locale:
         </div>
         <div className="field">
           <label htmlFor="f-email">{t("Email")}</label>
-          <input className="input" id="f-email" name="email" type="email" dir="ltr" autoComplete="email" maxLength={254} placeholder="you@email.com" />
+          <input className="input" id="f-email" name="email" type="email" dir="ltr" autoComplete="email" maxLength={254} placeholder="you@email.com" autoCapitalize="none" autoCorrect="off" spellCheck={false} />
         </div>
         <div className="field">
           <label htmlFor="f-pass">{t("Password")}</label>

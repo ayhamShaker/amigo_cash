@@ -252,6 +252,16 @@ function localeOf(v: string): Locale {
   return isLocale(v) ? v : "en";
 }
 
+/**
+ * Support tool: a one-hour, single-use password reset link the admin can hand
+ * to a member directly (chat), without email.
+ */
+export async function adminPasswordResetLink(userId: string): Promise<string> {
+  const u = await db.user.findUniqueOrThrow({ where: { id: userId }, select: { locale: true } });
+  const token = await issueToken(userId, "PASSWORD_RESET");
+  return `${env().APP_URL}/${localeOf(u.locale)}/reset-password?token=${token}`;
+}
+
 /** Always behaves the same, so it cannot be used to find out which emails have accounts. */
 export async function requestPasswordReset(emailRaw: string, ip: string | null) {
   const email = normaliseEmail(emailRaw);

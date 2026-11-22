@@ -235,3 +235,21 @@ describe("admin test postback", () => {
     expect((await expectLedgerConsistent(u.id)).user.balance).toBe(2800);
   });
 });
+
+describe("notifications", () => {
+  it("tells the member about credits, holds, reversals and the referrer about commission", async () => {
+    const ref = await makeUser();
+    const u = await makeUser({ referredById: ref.id });
+    await makeNetwork();
+    await handlePostback("testnet", signedUrl({ subid: u.id, txid: "n1", payout: "2.00" }), null);
+    await handlePostback("testnet", signedUrl({ subid: u.id, txid: "n2", payout: "20.00" }), null);
+    await handlePostback("testnet", signedUrl({ subid: u.id, txid: "n1", payout: "2.00", status: "2" }), null);
+    const mine = await db.notification.findMany({ where: { userId: u.id }, orderBy: { createdAt: "asc" } });
+    expect(mine.map((n) => (n.body as { k: string }).k)).toEqual([
+      "+{c} coins for {o} were added to your balance.",
+      "{c} coins for {o} are on hold for {d} days while the advertiser checks it.",
+      "The advertiser reversed {o}. Those coins were removed from your balance.",
+    ]);
+    expect(await db.notification.count({ where: { userId: ref.id } })).toBe(2);
+  });
+});

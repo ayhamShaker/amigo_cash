@@ -17,7 +17,8 @@ import { getSettings, METHOD_IDS, saveSettings, siteSettingsSchema, type SiteSet
 import { bool, dollarsToCents, int, str } from "@/server/action-utils";
 import { normalisePromo } from "@/server/rewards";
 import { clearTotp } from "@/server/auth";
-import { formatCoins } from "@/lib/money";
+import { notify } from "@/server/notify";
+import { formatCoins, formatUsd } from "@/lib/money";
 import { ipInAllowList } from "@/lib/ip";
 
 /**
@@ -48,6 +49,12 @@ export async function adjustBalanceAction(_p: FormState, fd: FormData): Promise<
   if (!coins || Math.abs(coins) > 10_000_000) return { error: "أدخل عدد كوينز صحيح (موجب للإضافة، سالب للخصم)." };
   await db.$transaction((tx) => adjustBalance(tx, userId, coins, reason));
   await audit({ actorId: admin.id, action: "user.adjust_balance", targetType: "user", targetId: userId, data: { coins, reason }, ip });
+  await notify(
+    userId,
+    "balance",
+    coins > 0 ? { k: "Support added {c} coins to your balance: {r}", a: { c: formatCoins(coins), r: reason } } : { k: "Support removed {c} coins from your balance: {r}", a: { c: formatCoins(-coins), r: reason } },
+    "/activity",
+  );
   revalidatePath(`/admin/users/${userId}`);
   return { ok: `تم تعديل الرصيد ${coins > 0 ? "+" : ""}${formatCoins(coins)}` };
 }
@@ -100,6 +107,7 @@ export async function confirmEmailAction(_p: FormState, fd: FormData): Promise<F
   const userId = str(fd, "userId", 40);
   await db.user.update({ where: { id: userId }, data: { emailVerifiedAt: new Date() } });
   await audit({ actorId: admin.id, action: "user.confirm_email", targetType: "user", targetId: userId, ip });
+  await notify(userId, "account", { k: "Your email is confirmed. You can cash out once you reach the minimum." }, "/cashout");
   revalidatePath(`/admin/users/${userId}`);
   return { ok: "تم تأكيد إيميل العضو يدوياً." };
 }
@@ -131,6 +139,13 @@ export async function withdrawalAction(_p: FormState, fd: FormData): Promise<For
   }
   if (!ok) return { error: "هالطلب انعالج من قبل أو حالته ما بتسمح بهالعملية." };
   await audit({ actorId: admin.id, action: `withdrawal.${op}`, targetType: "withdrawal", targetId: id, ip });
+  const w = await db.withdrawal.findUnique({ where: { id }, select: { userId: true, amountCents: true, feeCents: true, note: true, txRef: true } });
+  if (w) {
+    const v = formatUsd(w.amountCents - w.feeCents);
+    if (op === "approve") await notify(w.userId, "withdrawal", { k: "Your withdrawal of {v} was approved. It will be sent soon.", a: { v } }, "/cashout");
+    if (op === "paid") await notify(w.userId, "withdrawal", { k: "Your withdrawal of {v} was sent. Reference: {ref}", a: { v, ref: w.txRef ?? "—" } }, "/cashout");
+    if (op === "reject") await notify(w.userId, "withdrawal", { k: "Your withdrawal of {v} was rejected and the coins are back in your balance. Reason: {r}", a: { v, r: w.note ?? "" } }, "/cashout");
+  }
   revalidatePath("/admin/withdrawals");
   return { ok: op === "approve" ? "تمت الموافقة. أرسل المبلغ وبعدين اضغط «تم الدفع»." : op === "paid" ? "تم تسجيل الدفع." : "تم الرفض وإرجاع الرصيد للمستخدم." };
 }

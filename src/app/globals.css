@@ -425,3 +425,12 @@ a.offer,a.wall,a.phone,a.method{text-decoration:none;color:inherit}
   .chest .btn{width:100%}
 }
 a.inbox-item,a.flagrow{text-decoration:none;color:inherit}
+
+.bellwrap{position:relative}
+.bellcount{position:absolute;top:-5px;inset-inline-end:-5px;min-width:18px;height:18px;border-radius:9px;background:var(--bad);color:#fff;font:700 10px/18px var(--f-mono);padding:0 4px;text-align:center}
+.bellmenu{position:absolute;top:44px;inset-inline-end:0;width:320px;max-width:calc(100vw - 32px);max-height:420px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 18px 40px rgba(0,0,0,.25);padding:12px;display:flex;flex-direction:column;gap:6px;z-index:70}
+.bellitem{display:flex;flex-direction:column;gap:3px;padding:9px 10px;border-radius:6px;text-decoration:none;color:inherit;font-size:14px}
+.bellitem:hover{background:var(--surface-2)}
+.bellitem.new{background:var(--accent-soft)}
+.toasts.live{z-index:180}
+@media (max-width:480px){.bellmenu{position:fixed;top:calc(64px + env(safe-area-inset-top,0px));inset-inline:16px;width:auto}}

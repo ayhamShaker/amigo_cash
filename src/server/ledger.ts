@@ -112,7 +112,7 @@ export async function creditEarning(
 ) {
   const { settings } = args;
   const now = args.now ?? new Date();
-  if (args.coins <= 0) return { held: false, commission: 0 };
+  if (args.coins <= 0) return { held: false, commission: 0, referrerId: null as string | null };
   const holdCoins = Math.ceil((settings.holdThresholdCents * settings.coinsPerUsd) / 100);
   const held = settings.holdDays > 0 && args.coins >= holdCoins;
   const releaseAt = held ? new Date(now.getTime() + settings.holdDays * 86_400_000) : null;
@@ -150,7 +150,7 @@ export async function creditEarning(
     }
   }
   await tx.user.update({ where: { id: args.userId }, data: { lastSeenAt: now } });
-  return { held, commission };
+  return { held, commission, referrerId: commission > 0 ? user.referredBy!.id : null };
 }
 
 /**

@@ -473,5 +473,18 @@
  "Enter the current 6-digit code from Google Authenticator.": "أدخل الرمز الحالي المكوّن من 6 أرقام من Google Authenticator.",
  "Tip: turn on cloud backup in Google Authenticator (sign in with your Google account in the app), so your codes come back if you change phones.": "نصيحة: فعّل النسخ الاحتياطي السحابي في Google Authenticator (سجّل دخولك بحساب Google داخل التطبيق) حتى تعود رموزك إذا غيّرت هاتفك.",
  "Lost your phone? Write to us in the live chat and we will help you get back in.": "فقدت هاتفك؟ راسلنا في المحادثة المباشرة وسنساعدك على الدخول مجدداً.",
- "Optional: ask for a code from Google Authenticator every time you log in.": "اختياري: اطلب رمزاً من Google Authenticator عند كل تسجيل دخول."
+ "Optional: ask for a code from Google Authenticator every time you log in.": "اختياري: اطلب رمزاً من Google Authenticator عند كل تسجيل دخول.",
+ "Notifications": "الإشعارات",
+ "No notifications yet.": "لا توجد إشعارات بعد.",
+ "{c} coins for {o} are on hold for {d} days while the advertiser checks it.": "{c} عملة من {o} معلّقة لمدة {d} أيام ريثما يتحقق المعلن.",
+ "+{c} coins for {o} were added to your balance.": "أُضيفت +{c} عملة من {o} إلى رصيدك.",
+ "+{c} coins referral commission from a friend.": "+{c} عملة عمولة إحالة من صديق.",
+ "The advertiser reversed {o}. Those coins were removed from your balance.": "ألغى المعلن {o}. خُصمت تلك العملات من رصيدك.",
+ "Support added {c} coins to your balance: {r}": "أضاف الدعم {c} عملة إلى رصيدك: {r}",
+ "Support removed {c} coins from your balance: {r}": "خصم الدعم {c} عملة من رصيدك: {r}",
+ "Your withdrawal of {v} was approved. It will be sent soon.": "تمت الموافقة على سحب {v}. سيُرسل قريباً.",
+ "Your withdrawal of {v} was sent. Reference: {ref}": "تم إرسال سحب {v}. رقم العملية: {ref}",
+ "Your withdrawal of {v} was rejected and the coins are back in your balance. Reason: {r}": "رُفض سحب {v} وعادت العملات إلى رصيدك. السبب: {r}",
+ "Your email is confirmed. You can cash out once you reach the minimum.": "تم تأكيد بريدك. يمكنك السحب عند الوصول إلى الحد الأدنى.",
+ "Support replied to your message.": "رد الدعم على رسالتك."
 }

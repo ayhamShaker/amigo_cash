@@ -6,6 +6,7 @@ import { makeT } from "@/i18n/t";
 import { isLocale, type Locale } from "@/i18n/config";
 import { rateLimit } from "./rate-limit";
 import { sendEmail, simpleHtml } from "./email";
+import { notify } from "./notify";
 
 export const CHAT_MAX_LEN = 2000;
 
@@ -87,6 +88,7 @@ export async function postAdminReply(conversationId: string, adminName: string, 
   const msg = await db.chatMessage.create({ data: { conversationId, sender: "ADMIN", authorName: adminName.slice(0, 40), body } });
   await db.chatConversation.update({ where: { id: conversationId }, data: { unreadUser: { increment: 1 }, unreadAdmin: 0 } });
 
+  if (conv.userId) await notify(conv.userId, "support", { k: "Support replied to your message." }, "/help?chat=1");
   const to = conv.user?.email ?? conv.guestEmail;
   let emailed = false;
   if (to) {

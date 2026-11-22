@@ -10,6 +10,7 @@ import { translateData } from "@/i18n/t";
 import { METHOD_META, METHOD_KEYS } from "@/lib/methods";
 import { db } from "@/lib/db";
 import { FaqList } from "@/components/faq";
+import { LiveRefresh } from "@/components/live-refresh";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale, t } = await pageLocale(params);
@@ -184,6 +185,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           </div>
         </section>
       </main>
+      <LiveRefresh locale={locale} intervalMs={20000} />
       <footer className="footer">
         <div className="wrap row between wr">
           <span>{t("© 2026 Amigo Cash. Members must be {age}+. Earnings depend on the offers you complete.", { age: settings.minAge })}</span>

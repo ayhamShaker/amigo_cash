@@ -9,6 +9,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { creditEarning, isUniqueViolation, reverseEarning } from "./ledger";
 import { getSettings } from "./settings";
 import { enforceAutoBan } from "./fraud";
+import { notify } from "./notify";
 
 /**
  * Offer-network callback ("postback"). Every network gets this URL with its
@@ -133,7 +134,7 @@ export async function handlePostback(networkId: string, url: URL, ip: string | n
   const rejectReason = !user ? "unknown user" : user.status !== "ACTIVE" ? "user banned" : null;
 
   try {
-    return await db.$transaction(async (tx) => {
+    const result = await db.$transaction(async (tx) => {
       const conv = await tx.conversion.create({
         data: {
           networkId: network.id,
@@ -150,7 +151,7 @@ export async function handlePostback(networkId: string, url: URL, ip: string | n
       });
       if (rejectReason || !user) return { http: 200, body: "0", outcome: "rejected", reason: rejectReason ?? "unknown user" } as const;
       const isSurvey = network.kind.toLowerCase().includes("survey");
-      await creditEarning(tx, {
+      const credit = await creditEarning(tx, {
         userId: user.id,
         coins,
         kind: isSurvey ? "SURVEY" : "OFFER",
@@ -159,8 +160,22 @@ export async function handlePostback(networkId: string, url: URL, ip: string | n
         refId: conv.id,
         settings,
       });
-      return { http: 200, body: "1", outcome: "credited" } as const;
+      return { http: 200, body: "1", outcome: "credited", credit } as const;
     });
+    if (result.outcome === "credited" && user) {
+      const { credit } = result;
+      await notify(
+        user.id,
+        "earning",
+        credit.held
+          ? { k: "{c} coins for {o} are on hold for {d} days while the advertiser checks it.", a: { c: coins.toLocaleString("en-US"), o: offerName, d: settings.holdDays } }
+          : { k: "+{c} coins for {o} were added to your balance.", a: { c: coins.toLocaleString("en-US"), o: offerName } },
+        "/activity",
+      );
+      if (credit.referrerId) await notify(credit.referrerId, "earning", { k: "+{c} coins referral commission from a friend.", a: { c: credit.commission.toLocaleString("en-US") } }, "/referrals");
+      return { http: 200, body: "1", outcome: "credited" };
+    }
+    return result.outcome === "rejected" ? result : { http: 200, body: "1", outcome: "credited" };
   } catch (err) {
     if (isUniqueViolation(err)) return { http: 200, body: "1", outcome: "duplicate" };
     throw err;
@@ -178,7 +193,10 @@ async function handleReversal(
 ): Promise<PostbackResult> {
   try {
     const result = await reversalTx(networkId, txid, subid, offerName, payoutCents, ip, raw);
-    if (result.outcome === "reversed" && result.userId) await enforceAutoBan(result.userId);
+    if (result.outcome === "reversed" && result.userId) {
+      await notify(result.userId, "reversal", { k: "The advertiser reversed {o}. Those coins were removed from your balance.", a: { o: offerName } }, "/activity");
+      await enforceAutoBan(result.userId);
+    }
     return { http: 200, body: "1", outcome: result.outcome };
   } catch (err) {
     if (isUniqueViolation(err)) return { http: 200, body: "1", outcome: "duplicate" };

@@ -4,7 +4,7 @@ import { Coins, Icon, Logo } from "@/components/icons";
 import { LangSwitch, ThemeToggle } from "@/components/client-controls";
 import { BottomNav, SideNav, type NavItem } from "@/components/nav";
 import { LevelCard } from "@/components/level";
-import { LiveRefresh } from "@/components/live-refresh";
+import { LiveRefresh, MemberLive } from "@/components/live-refresh";
 import { logoutAction } from "@/app/actions/auth";
 import { releaseDueHolds } from "@/server/ledger";
 import { checkIp, isBadConnection } from "@/server/fraud";
@@ -49,6 +49,7 @@ export default async function AppLayout({ children, params }: { children: React.
           <ThemeToggle initial={theme} labels={{ toDark: t("Switch to dark mode"), toLight: t("Switch to light mode") }} />
           {user ? (
             <>
+              <MemberLive locale={locale} labels={{ title: t("Notifications"), empty: t("No notifications yet."), open: t("Notifications") }} />
               <div className="balance-chip">
                 <span className="lbl small muted">{t("Balance")}</span>
                 <Coins n={user.balance} />
@@ -116,7 +117,7 @@ export default async function AppLayout({ children, params }: { children: React.
         </main>
       </div>
       <BottomNav items={bottom} label={t("Main")} />
-      {user ? <LiveRefresh url="/api/me/state" /> : null}
+      {user ? null : <LiveRefresh locale={locale} />}
     </>
   );
 }

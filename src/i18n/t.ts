@@ -1,5 +1,6 @@
 import es from "./es.json";
 import ar from "./ar.json";
+import hi from "./hi.json";
 import stepPatterns from "./step-patterns.json";
 import { intlTag, type Locale } from "./config";
 
@@ -7,8 +8,8 @@ import { intlTag, type Locale } from "./config";
  * Messages are keyed by their English text. English needs no dictionary;
  * a missing translation falls back to English (scripts/check-i18n.ts reports gaps).
  */
-const DICTS: Record<Exclude<Locale, "en">, Record<string, string>> = { es, ar };
-const PATTERNS = (stepPatterns as [string, string, string][]).map(([src, esT, arT]) => ({ re: new RegExp(src), es: esT, ar: arT }));
+const DICTS: Record<Exclude<Locale, "en">, Record<string, string>> = { es, ar, hi };
+const PATTERNS = (stepPatterns as [string, string, string, string][]).map(([src, esT, arT, hiT]) => ({ re: new RegExp(src), es: esT, ar: arT, hi: hiT }));
 
 export type Vars = Record<string, string | number>;
 export type T = (key: string, vars?: Vars) => string;
@@ -32,7 +33,7 @@ export function translateData(locale: Locale, text: string): string {
   if (locale === "en" || !text) return text;
   const dict = DICTS[locale];
   if (dict[text]) return dict[text]!;
-  for (const p of PATTERNS) if (p.re.test(text)) return text.replace(p.re, locale === "es" ? p.es : p.ar);
+  for (const p of PATTERNS) if (p.re.test(text)) return text.replace(p.re, p[locale]);
   return text;
 }
 
@@ -54,5 +55,6 @@ export function timeAgo(locale: Locale, d: Date, now = Date.now()): string {
   const [n, unit] = s < 60 ? [s, 0] : s < 3600 ? [Math.round(s / 60), 1] : s < 86400 ? [Math.round(s / 3600), 2] : [Math.round(s / 86400), 3];
   if (locale === "es") return `hace ${n} ${["s", "min", "h", "d"][unit]}`;
   if (locale === "ar") return `قبل ${n} ${["ث", "د", "س", "يوم"][unit]}`;
+  if (locale === "hi") return `${n} ${["सेकंड", "मिनट", "घंटे", "दिन"][unit]} पहले`;
   return `${n}${["s", "m", "h", "d"][unit]} ago`;
 }

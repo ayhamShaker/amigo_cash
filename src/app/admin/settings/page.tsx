@@ -60,9 +60,9 @@ export default async function SettingsPage() {
         <div className="card">
           <h3 style={{ fontSize: 17, marginBottom: 6 }}>الموقع والإعلانات</h3>
           <Toggle name="bannerEnabled" on={s.bannerEnabled} title="شريط الإعلان أعلى الموقع" />
-          {(["en", "es", "ar"] as const).map((l) => (
+          {(["en", "es", "ar", "hi"] as const).map((l) => (
             <label className="field" style={{ padding: "8px 0" }} key={l}>
-              <span className="flabel">نص الإعلان ({l === "en" ? "إنجليزي" : l === "es" ? "إسباني" : "عربي"})</span>
+              <span className="flabel">نص الإعلان ({l === "en" ? "إنجليزي" : l === "es" ? "إسباني" : l === "hi" ? "هندي" : "عربي"})</span>
               <input className="input" name={`banner_${l}`} dir={l === "ar" ? "rtl" : "ltr"} defaultValue={s.bannerText[l]} maxLength={200} />
             </label>
           ))}

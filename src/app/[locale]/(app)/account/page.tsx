@@ -49,7 +49,7 @@ export default async function AccountPage({ params, searchParams }: { params: Pr
             <span className="small" style={{ fontWeight: 700 }}>
               {t("Language")}
             </span>
-            <div className="row" style={{ gap: 8 }}>
+            <div className="row account-prefs" style={{ gap: 8 }}>
               <LangSwitch current={locale} label={t("Language")} />
               <ThemeToggle initial={theme} labels={{ toDark: t("Switch to dark mode"), toLight: t("Switch to light mode") }} />
             </div>

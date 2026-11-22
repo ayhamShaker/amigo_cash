@@ -112,7 +112,9 @@ export default async function ChatAdminPage({ searchParams }: { searchParams: Pr
                       ? ["¡Hola! Ya lo reviso.", "Tus monedas ya están en tu saldo.", "Tu retiro ya fue enviado.", "Apagá la VPN y probá de nuevo."]
                       : conv.locale === "ar"
                         ? ["أهلا! خليني أتحقق من الموضوع.", "العملات صارت برصيدك.", "تم إرسال السحب.", "أوقف الـ VPN وجرب مرة ثانية."]
-                        : ["Hi! Let me check that for you.", "Your coins are now in your balance.", "Your withdrawal has been sent.", "Please turn off your VPN and try again."]
+                        : conv.locale === "hi"
+                          ? ["नमस्ते! मैं अभी देखता हूँ।", "आपके कॉइन अब आपके बैलेंस में हैं।", "आपकी निकासी भेज दी गई है।", "कृपया VPN बंद करके फिर कोशिश करें।"]
+                          : ["Hi! Let me check that for you.", "Your coins are now in your balance.", "Your withdrawal has been sent.", "Please turn off your VPN and try again."]
                   }
                 />
                 <div className="row" style={{ alignItems: "flex-end" }}>

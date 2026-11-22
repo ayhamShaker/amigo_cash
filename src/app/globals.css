@@ -553,3 +553,15 @@ th{background:transparent}
 .main{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
 .admin .shell{max-width:none;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
 .admin .topbar{max-width:none}
+/* language menu */
+.langmenu{position:relative;flex:none}
+.langbtn{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 12px;border-radius:12px;border:1px solid var(--glass-edge);background:var(--surface);color:var(--fg);font:700 13px/1 var(--f-mono);cursor:pointer}
+.langbtn svg.i{width:18px;height:18px}
+.langbtn .chev{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.langlist{position:absolute;top:48px;inset-inline-end:0;min-width:190px;background:var(--surface-solid);border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 40px -12px rgba(4,38,58,.35);padding:6px;display:flex;flex-direction:column;z-index:80}
+.langlist a{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;text-decoration:none;color:var(--fg);font-weight:600;font-size:14px}
+.langlist a:hover{background:var(--surface-2)}
+.langlist a.on{background:var(--accent-soft);color:var(--accent)}
+html[lang="hi"] body{font-family:var(--f-body),'Noto Sans Devanagari',sans-serif}
+@media (max-width:480px){body:not(.admin) .topbar .themebtn{display:none}.langbtn{padding:0 9px}.langbtn .chev{display:none}}
+.account-prefs .themebtn{display:inline-grid!important}

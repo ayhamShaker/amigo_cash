@@ -110,7 +110,7 @@ export function MemberLive({ locale, labels }: { locale: string; labels: { title
               items.map((n) => (
                 <a key={n.id} className={`bellitem ${n.read ? "" : "new"}`} href={n.href ?? "#"} dir="auto">
                   {n.text}
-                  <span className="tiny muted">{new Date(n.createdAt).toLocaleString(locale === "ar" ? "ar-u-nu-latn" : locale === "es" ? "es-AR" : "en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
+                  <span className="tiny muted">{new Date(n.createdAt).toLocaleString(locale === "ar" ? "ar-u-nu-latn" : locale === "es" ? "es-AR" : locale === "hi" ? "hi-IN-u-nu-latn" : "en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
                 </a>
               ))
             ) : (

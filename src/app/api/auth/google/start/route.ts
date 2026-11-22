@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 /** Starts "Continue with Google" (authorization code flow with PKCE and state). */
 export async function GET(req: NextRequest) {
   const e = env();
-  const locale = ["en", "es", "ar"].includes(req.nextUrl.searchParams.get("locale") ?? "") ? req.nextUrl.searchParams.get("locale")! : "en";
+  const locale = ["en", "es", "ar", "hi"].includes(req.nextUrl.searchParams.get("locale") ?? "") ? req.nextUrl.searchParams.get("locale")! : "en";
   if (!e.GOOGLE_CLIENT_ID || !e.GOOGLE_CLIENT_SECRET) {
     return NextResponse.redirect(new URL(`/${locale}/login?google=off`, e.APP_URL));
   }

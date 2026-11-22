@@ -45,6 +45,6 @@ export function dollarsToCents(v: string): number | null {
 
 /** Only allow redirects back into our own site. */
 export function safeNext(next: string, locale: Locale): string {
-  if (/^\/(en|es|ar)(\/[A-Za-z0-9/_-]*)?$/.test(next) && !next.includes("//")) return next;
+  if (/^\/(en|es|ar|hi)(\/[A-Za-z0-9/_-]*)?$/.test(next) && !next.includes("//")) return next;
   return `/${locale}/earn`;
 }

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const LOCALES = ["en", "es", "ar"];
+const LOCALES = ["en", "es", "ar", "hi"];
 
 function pickLocale(req: NextRequest): string {
   const saved = req.cookies.get("amigo_locale")?.value;

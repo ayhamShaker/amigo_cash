@@ -7,6 +7,7 @@ import { join } from "node:path";
 
 const es = JSON.parse(readFileSync("src/i18n/es.json", "utf8")) as Record<string, string>;
 const ar = JSON.parse(readFileSync("src/i18n/ar.json", "utf8")) as Record<string, string>;
+const hi = JSON.parse(readFileSync("src/i18n/hi.json", "utf8")) as Record<string, string>;
 
 function walk(dir: string, out: string[] = []) {
   for (const f of readdirSync(dir)) {
@@ -25,7 +26,7 @@ for (const file of walk("src")) {
   const src = readFileSync(file, "utf8");
   for (const m of src.matchAll(re)) if (!m[2]!.includes("${")) keys.add(m[2]!.replace(/\\'/g, "'").replace(/\\"/g, '"'));
 }
-const missing = [...keys].filter((k) => !es[k] || !ar[k]).sort();
+const missing = [...keys].filter((k) => !es[k] || !ar[k] || !hi[k]).sort();
 if (missing.length) {
   console.log(`${missing.length} keys without a translation:\n`);
   for (const k of missing) console.log(JSON.stringify(k));

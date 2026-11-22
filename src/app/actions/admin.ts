@@ -374,7 +374,7 @@ export async function saveSettingsAction(_p: FormState, fd: FormData): Promise<F
     maintenance: bool(fd, "maintenance"),
     registrationOpen: bool(fd, "registrationOpen"),
     bannerEnabled: bool(fd, "bannerEnabled"),
-    bannerText: { en: str(fd, "banner_en", 200), es: str(fd, "banner_es", 200), ar: str(fd, "banner_ar", 200) },
+    bannerText: { en: str(fd, "banner_en", 200), es: str(fd, "banner_es", 200), ar: str(fd, "banner_ar", 200), hi: str(fd, "banner_hi", 200) },
     prizesCents: str(fd, "prizes", 200).split(",").map((s) => dollarsToCents(s.trim()) ?? 0).slice(0, 20),
     supportEmail: str(fd, "supportEmail", 254) || cur.supportEmail,
   };

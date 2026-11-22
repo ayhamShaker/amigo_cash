@@ -1,26 +1,57 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Icon } from "./icons";
 
 const LOCALES = [
-  ["en", "EN"],
-  ["es", "ES"],
-  ["ar", "AR"],
+  ["en", "EN", "English"],
+  ["es", "ES", "Español"],
+  ["ar", "AR", "العربية"],
+  ["hi", "HI", "हिन्दी"],
 ] as const;
 
-/** EN / ES / AR switch that keeps the visitor on the same page. */
+/** Language menu that keeps the visitor on the same page. */
 export function LangSwitch({ current, label }: { current: string; label: string }) {
   const pathname = usePathname() || `/${current}`;
-  const rest = pathname.replace(/^\/(en|es|ar)(?=\/|$)/, "");
+  const rest = pathname.replace(/^\/(en|es|ar|hi)(?=\/|$)/, "");
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+  const cur = LOCALES.find(([k]) => k === current) ?? LOCALES[0];
   return (
-    <div className="langsw" role="group" aria-label={label}>
-      {LOCALES.map(([k, l]) => (
-        <a key={k} href={`/${k}${rest}`} className={current === k ? "on" : ""} aria-current={current === k ? "true" : undefined} lang={k} hrefLang={k}>
-          {l}
-        </a>
-      ))}
+    <div className="langmenu" ref={ref}>
+      <button type="button" className="langbtn" aria-haspopup="true" aria-expanded={open} aria-label={label} onClick={() => setOpen((o) => !o)}>
+        <Icon name="globe" />
+        <span>{cur[1]}</span>
+        <svg className="chev" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open ? (
+        <div className="langlist" role="menu" aria-label={label}>
+          {LOCALES.map(([k, short, name]) => (
+            <a key={k} role="menuitem" href={`/${k}${rest}`} className={current === k ? "on" : ""} aria-current={current === k ? "true" : undefined} lang={k} hrefLang={k}>
+              <span>{name}</span>
+              <span className="tiny muted">{short}</span>
+            </a>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -33,7 +64,7 @@ export function ThemeToggle({ initial, labels }: { initial: "light" | "dark" | "
   return (
     <button
       type="button"
-      className="iconbtn"
+      className="iconbtn themebtn"
       aria-label={dark ? labels.toLight : labels.toDark}
       title={dark ? labels.toLight : labels.toDark}
       onClick={() => {

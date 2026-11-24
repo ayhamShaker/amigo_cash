@@ -7,7 +7,10 @@ import { Coins, Icon } from "@/components/icons";
 import { maskName } from "@/components/site-header";
 import { formatUsd } from "@/lib/money";
 
-export const metadata: Metadata = { title: "Leaderboard" };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  return { title: t("Leaderboard") };
+}
 
 export default async function LeaderboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { t } = await pageLocale(params);
@@ -69,9 +72,20 @@ export default async function LeaderboardPage({ params }: { params: Promise<{ lo
           </table>
         </div>
       ) : (
-        <div className="card empty">
-          <Icon name="trophy" />
-          <span>{t("The race just started. Complete an offer to take the first place.")}</span>
+        <div className="card stack">
+          <div className="empty" style={{ paddingBlock: 20 }}>
+            <Icon name="trophy" />
+            <span>{t("The race just started. Complete an offer to take the first place.")}</span>
+          </div>
+          {settings.prizesCents.length ? (
+            <div className="row wr" style={{ justifyContent: "center", gap: 8 }}>
+              {settings.prizesCents.slice(0, 5).map((p, i) => (
+                <span key={i} className="pill coin">
+                  #{i + 1} · {formatUsd(p)}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
       )}
       <p className="small muted">{t("Counts coins from offers, surveys and referral commission earned since Monday 00:00 UTC. Prizes are added to winners' balances after the week is checked.")}</p>

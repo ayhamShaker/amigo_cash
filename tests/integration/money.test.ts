@@ -10,7 +10,14 @@ const TRON = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
 
 beforeEach(async () => {
   await resetDb();
-  await useSettings({ coinsPerUsd: 1000, autoApproveUnderCents: 1000, firstWithdrawalManual: true, requireVerifiedEmailToWithdraw: true });
+  await useSettings({
+    coinsPerUsd: 1000,
+    autoApproveUnderCents: 1000,
+    firstWithdrawalManual: true,
+    requireVerifiedEmailToWithdraw: true,
+    minEarnedToWithdrawCents: 0,
+    dailyMinEarnedCents: 0,
+  });
 });
 
 describe("withdrawals", () => {

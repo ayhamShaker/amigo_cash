@@ -80,6 +80,9 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
               <input className="input num" name="countries" dir="ltr" defaultValue={o?.countries.join(" ") ?? "US GB CA AU"} />
             </Field>
           </div>
+          <Field label="رابط صورة/أيقونة اللعبة (اختياري، https://)">
+            <input className="input num" name="imageUrl" dir="ltr" defaultValue={o?.imageUrl ?? ""} placeholder="https://cdn.example.com/game-icon.png" maxLength={500} />
+          </Field>
           <Field label="رابط التتبع من الشبكة (لازم يحتوي {user_id})">
             <input className="input num" name="trackingUrl" dir="ltr" defaultValue={o?.trackingUrl ?? ""} placeholder="https://network.example/click?offer=123&sub1={user_id}" maxLength={1000} />
           </Field>

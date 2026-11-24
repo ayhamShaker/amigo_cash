@@ -5,7 +5,10 @@ import { db } from "@/lib/db";
 import { describe, timeAgo } from "@/i18n/t";
 import { Icon } from "@/components/icons";
 
-export const metadata: Metadata = { title: "Activity" };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  return { title: t("Activity") };
+}
 
 const TABS = ["all", "credited", "pending", "reversed"] as const;
 

@@ -7,6 +7,7 @@ import { isLocale, type Locale } from "@/i18n/config";
 import { rateLimit } from "./rate-limit";
 import { sendEmail, simpleHtml } from "./email";
 import { notify } from "./notify";
+import { notifyAdminTelegram } from "./telegram";
 
 export const CHAT_MAX_LEN = 2000;
 
@@ -58,14 +59,16 @@ export async function postUserMessage(args: { conversationId?: string; userId?: 
   }
   const t = makeT(args.locale);
   const id = convId;
+  let senderLabel = "Member";
   await db.$transaction(async (tx) => {
     await tx.chatMessage.create({ data: { conversationId: id, sender: "USER", body } });
     const hasBot = await tx.chatMessage.count({ where: { conversationId: id, sender: "BOT" } });
     const conv = await tx.chatConversation.update({
       where: { id },
       data: { unreadAdmin: { increment: 1 }, status: "OPEN", locale: args.locale },
-      include: { user: { select: { email: true } } },
+      include: { user: { select: { name: true, email: true } } },
     });
+    senderLabel = conv.user ? `${conv.user.name} (${conv.user.email})` : `${conv.guestName ?? "Guest"} (${conv.guestEmail ?? "no email"})`;
     if (!hasBot) {
       const email = conv.user?.email ?? conv.guestEmail ?? "";
       await tx.chatMessage.create({
@@ -73,6 +76,7 @@ export async function postUserMessage(args: { conversationId?: string; userId?: 
       });
     }
   });
+  void notifyAdminTelegram(`New support message\nFrom: ${senderLabel}\nMessage: ${body.slice(0, 500)}`);
   return { ok: true as const, conversationId: id };
 }
 

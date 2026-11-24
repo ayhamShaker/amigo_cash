@@ -14,8 +14,12 @@ export const metadata: Metadata = { title: "شبكات العروض" };
 const MODE_HELP: Record<string, string> = {
   HMAC_SHA256: "sig = HMAC-SHA256(السر, subid:txid:payout:status)",
   MD5_CONCAT: "sig = MD5(subid + txid + payout + السر)",
-  SECRET_PARAM: "الشبكة ترسل السر كما هو بمتغير secret",
-  HMAC_SHA1_URL: "hash = HMAC-SHA1(السر, الرابط كامل بدون &hash=) — مثل BitLabs",
+  SECRET_PARAM: "الشبكة ترسل السر كما هو بمتغير secret (مثل CPAlead / AdGem)",
+  HMAC_SHA1_URL: "BitLabs: hash = HMAC-SHA1(السر, الرابط كامل بدون hash)",
+  TOROX_MD5: "Torox: sig = MD5(oid + '-' + user_id + '-' + السر) — يدعم user_id و oid و payout و sig",
+  CPX_MD5: "CPX Research: hash = MD5(trans_id + '-' + السر) — يدعم user_id و trans_id و amount_usd و hash",
+  AYET_HMAC: "AyeT-Studios: الهيدر X-Ayetstudios-Security-Hash = HMAC-SHA256(السر, البارامترات مرتبة)",
+  LOOTABLY_SHA256: "Lootably: hash = SHA256(userID + ip + revenue + currencyReward + السر)",
 };
 
 export default async function NetworksPage() {

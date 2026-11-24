@@ -7,7 +7,7 @@ import { audit } from "@/server/audit";
 import { requestIp } from "@/server/request";
 import { getSettings, saveSettings, siteSettingsSchema } from "@/server/settings";
 import { bool, dollarsToCents, str } from "@/server/action-utils";
-import { ADDRESS_KIND_KEYS, ADDRESS_KINDS, BUILTIN_ICONS, isSafeMethodImage, type AddressKind, type PayMethod } from "@/lib/methods";
+import { ADDRESS_KIND_KEYS, ADDRESS_KINDS, BUILTIN_ICONS, isSafeMethodImage, US_UK_PRESETS, type AddressKind, type PayMethod } from "@/lib/methods";
 
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 const MAX_IMAGE_BYTES = 100 * 1024;
@@ -125,4 +125,16 @@ export async function deleteMethodAction(_p: FormState, fd: FormData): Promise<F
     { id, name: m.name },
   );
   return err ?? { ok: `تم حذف ${m.name}. السحوبات القديمة بتضل محفوظة.` };
+}
+
+export async function addPresetMethodAction(_p: FormState, fd: FormData): Promise<FormState> {
+  const { admin, ip } = await ctx();
+  const id = str(fd, "preset", 24);
+  const preset = US_UK_PRESETS.find((p) => p.id === id);
+  if (!preset) return { error: "الطريقة غير موجودة." };
+  const cur = await getSettings();
+  if (cur.methods.some((m) => m.id === preset.id)) return { error: `${preset.name} مضافة من قبل.` };
+  if (cur.methods.length >= 30) return { error: "وصلت للحد الأقصى (30 طريقة)." };
+  const err = await store([...cur.methods, preset], admin.id, ip, "method.add_preset", { id: preset.id, name: preset.name });
+  return err ?? { ok: `تمت إضافة ${preset.name} بنجاح.` };
 }

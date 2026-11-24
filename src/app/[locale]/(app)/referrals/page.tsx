@@ -8,7 +8,10 @@ import { Coins, Icon } from "@/components/icons";
 import { CopyButton } from "@/components/forms";
 import { timeAgo } from "@/i18n/t";
 
-export const metadata: Metadata = { title: "Referrals" };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  return { title: t("Referrals") };
+}
 
 export default async function ReferralsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale, t } = await pageLocale(params);
@@ -55,7 +58,7 @@ export default async function ReferralsPage({ params }: { params: Promise<{ loca
         <div>
           <div className="s">{t("Earned from friends")}</div>
           <div className="v" dir="ltr">
-            <span className="coin">A</span>
+            <span className="coin" aria-hidden="true">A</span>
             {data.total.toLocaleString("en-US")}
           </div>
         </div>

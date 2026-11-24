@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { centsToCoins } from "@/lib/money";
 import { ADDRESS_KINDS } from "@/lib/methods";
 import { addEntry, debitAvailable, InsufficientFundsError } from "./ledger";
+import { realEarnedCoins } from "./rewards";
 import type { SiteSettings } from "./settings";
 
 export type WithdrawError =
@@ -12,6 +13,7 @@ export type WithdrawError =
   | "BAD_ADDRESS"
   | "NOT_ACTIVE"
   | "EMAIL_NOT_VERIFIED"
+  | "EARN_REQUIRED"
   | "INSUFFICIENT_FUNDS"
   | "ALREADY_PENDING";
 
@@ -43,6 +45,11 @@ export async function requestWithdrawal(args: {
   const address = args.address.trim();
   if (!ADDRESS_KINDS[m.kind].re.test(address)) throw new WithdrawalError("BAD_ADDRESS");
   const coins = centsToCoins(args.amountCents, settings.coinsPerUsd);
+  const minEarnedCoins = centsToCoins(settings.minEarnedToWithdrawCents, settings.coinsPerUsd);
+  if (minEarnedCoins > 0) {
+    const earned = await realEarnedCoins(args.userId);
+    if (earned < minEarnedCoins) throw new WithdrawalError("EARN_REQUIRED");
+  }
 
   return db.$transaction(async (tx) => {
     const user = await tx.user.findUniqueOrThrow({

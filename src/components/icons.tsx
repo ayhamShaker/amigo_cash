@@ -48,7 +48,7 @@ export function Icon({ name, className, size }: { name: IconName; className?: st
 export function Coins({ n }: { n: number }) {
   return (
     <span className="amt" dir="ltr">
-      <span className="coin">A</span>
+      <span className="coin" aria-hidden="true">A</span>
       {Math.round(n).toLocaleString("en-US")}
     </span>
   );

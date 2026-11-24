@@ -3,8 +3,8 @@ import { requireAdminPage } from "@/server/admin-guard";
 import { getSettings } from "@/server/settings";
 import { ActionForm, Submit } from "@/components/forms";
 import { MethodIconPicker } from "@/components/method-icon-picker";
-import { addMethodAction, deleteMethodAction, moveMethodAction, saveMethodAction } from "@/app/actions/methods";
-import { ADDRESS_KIND_KEYS, BUILTIN_ICONS, type AddressKind, type PayMethod } from "@/lib/methods";
+import { addMethodAction, addPresetMethodAction, deleteMethodAction, moveMethodAction, saveMethodAction } from "@/app/actions/methods";
+import { ADDRESS_KIND_KEYS, BUILTIN_ICONS, US_UK_PRESETS, type AddressKind, type PayMethod } from "@/lib/methods";
 
 export const metadata: Metadata = { title: "طرق السحب" };
 
@@ -84,9 +84,23 @@ export default async function MethodsPage() {
       <div className="pagehead">
         <div>
           <h1>طرق السحب</h1>
-          <p className="small muted">عدل أي طريقة أو أضف طريقة جديدة. الترتيب هون هو نفس الترتيب اللي بيشوفه العضو.</p>
+          <p className="small muted">عدل أي طريقة أو أضف طريقة جديدة. الترتيب هون هو نفس الترتيب اللي بيشوفه العضو. لسوق US/UK يفضل تفعيل PayPal وAmazon وVisa وSteam وLTC/USDC وإطفاء Binance Pay.</p>
         </div>
       </div>
+
+      {US_UK_PRESETS.some((p) => !s.methods.some((m) => m.id === p.id)) ? (
+        <div className="card stack">
+          <h3 style={{ fontSize: 16 }}>إضافة سريعة لطرق US / UK المطلوبة</h3>
+          <div className="row wr" style={{ gap: 8 }}>
+            {US_UK_PRESETS.filter((p) => !s.methods.some((m) => m.id === p.id)).map((p) => (
+              <ActionForm key={p.id} action={addPresetMethodAction}>
+                <input type="hidden" name="preset" value={p.id} />
+                <Submit className="btn ghost sm">+ {p.name}</Submit>
+              </ActionForm>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {s.methods.map((m, i) => (
         <div className="card stack" key={m.id}>

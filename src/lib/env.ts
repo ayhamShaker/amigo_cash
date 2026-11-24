@@ -21,6 +21,12 @@ const schema = z.object({
   IPQS_API_KEY: z.string().trim().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  // Optional Telegram admin alerts (new withdrawal, new support message, chargeback).
+  TELEGRAM_BOT_TOKEN: z.string().trim().optional(),
+  TELEGRAM_CHAT_ID: z.string().trim().optional(),
+  // Optional Cloudflare Turnstile CAPTCHA on sign-up.
+  TURNSTILE_SITE_KEY: z.string().trim().optional(),
+  TURNSTILE_SECRET_KEY: z.string().trim().optional(),
   // How many reverse proxies sit in front of the app (Cloudflare + host = 1 or 2).
   // The owner's email. When that address is confirmed (email link or Google), the account becomes admin.
   BOOTSTRAP_ADMIN_EMAIL: z.string().optional(),

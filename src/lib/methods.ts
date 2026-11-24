@@ -51,6 +51,16 @@ export const DEFAULT_METHODS: PayMethod[] = [
   { id: "paypal", name: "PayPal", sub: "USD balance", kind: "email", field: "PayPal email", placeholder: "you@email.com", image: "/methods/paypal.svg", enabled: false, minCents: 500, feeCents: 0 },
 ];
 
+/** One-click presets popular with US & UK GPT members. */
+export const US_UK_PRESETS: PayMethod[] = [
+  { id: "visa", name: "Visa Prepaid", sub: "Virtual US / UK card", kind: "email", field: "Email for the card", placeholder: "you@email.com", image: "/methods/visa.svg", enabled: true, minCents: 500, feeCents: 0 },
+  { id: "steam", name: "Steam Gift Card", sub: "Digital code", kind: "email", field: "Email for the code", placeholder: "you@email.com", image: "/methods/steam.svg", enabled: true, minCents: 500, feeCents: 0 },
+  { id: "apple", name: "Apple Gift Card", sub: "App Store & iTunes", kind: "email", field: "Email for the code", placeholder: "you@email.com", image: "/methods/applepay.svg", enabled: true, minCents: 500, feeCents: 0 },
+  { id: "googleplay", name: "Google Play", sub: "Digital code", kind: "email", field: "Email for the code", placeholder: "you@email.com", image: "/methods/googlepay.svg", enabled: true, minCents: 500, feeCents: 0 },
+  { id: "usdc-sol", name: "USDC (Solana)", sub: "Fast · low fee", kind: "sol", field: "Solana USDC address", placeholder: "7xKX…gAsU", image: "/methods/usdc.svg", enabled: true, minCents: 200, feeCents: 0 },
+  { id: "usdc-base", name: "USDC (Base / EVM)", sub: "0x address", kind: "evm", field: "Base / EVM address", placeholder: "0x71C…9A2f", image: "/methods/usdc.svg", enabled: true, minCents: 200, feeCents: 0 },
+];
+
 export function methodName(methods: PayMethod[], id: string) {
   return methods.find((m) => m.id === id)?.name ?? id;
 }

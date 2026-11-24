@@ -6,7 +6,11 @@ import { currentUser } from "@/server/session";
 import { getSettings } from "@/server/settings";
 import { formatUsd } from "@/lib/money";
 
-export const metadata: Metadata = { title: "Legal" };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; doc: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  const { doc } = await params;
+  return { title: doc === "privacy" ? t("Privacy") : t("Terms") };
+}
 
 /**
  * Plain-language terms and privacy notice. The owner must have them reviewed by

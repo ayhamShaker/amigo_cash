@@ -20,6 +20,7 @@ import { clearPendingLogin, createSession, currentUser, destroySession, revokeOt
 import { deviceId, requestIp } from "@/server/request";
 import { clearAttributionCookies, signupAttribution } from "@/server/marketing";
 import { recordDevice } from "@/server/fraud";
+import { verifyTurnstile } from "@/server/turnstile";
 import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
 
@@ -27,6 +28,8 @@ export async function signupAction(_prev: FormState, fd: FormData): Promise<Form
   const { locale, t } = tFrom(fd);
   const settings = await getSettings();
   const ip = await requestIp();
+  const captchaOk = await verifyTurnstile(str(fd, "cf-turnstile-response", 2048), ip);
+  if (!captchaOk) return { error: t("Please complete the human verification check and try again.") };
   const refFromCookie = (await cookies()).get("amigo_ref")?.value;
   const r = await signup({
     name: str(fd, "name", 40),

@@ -16,14 +16,16 @@ function pickLocale(req: NextRequest): string {
 }
 
 function buildCsp(nonce: string, isDev: boolean, https: boolean) {
+  const turnstile = process.env.TURNSTILE_SITE_KEY ? " https://challenges.cloudflare.com" : "";
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${turnstile}${isDev ? " 'unsafe-eval'" : ""}`,
     // inline style attributes are used for per-offer colours; styles cannot run code
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: blob:",
-    "connect-src 'self'",
+    // allow https: for offer thumbnails from offer networks
+    "img-src 'self' data: blob: https:",
+    "connect-src 'self' https://challenges.cloudflare.com",
     // offer walls are third-party pages shown in an iframe and redirect between their own domains
     "frame-src 'self' https:",
     "frame-ancestors 'none'",
@@ -85,7 +87,7 @@ export const config = {
   matcher: [
     // everything except API routes, Next internals and static files
     {
-      source: "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|manifest.webmanifest|.*\\.(?:png|ico|svg|jpg|webp)$).*)",
+      source: "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|.*\\.(?:png|ico|svg|jpg|webp)$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

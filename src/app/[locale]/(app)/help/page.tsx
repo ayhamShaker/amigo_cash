@@ -4,7 +4,10 @@ import { getSettings } from "@/server/settings";
 import { FaqList } from "@/components/faq";
 import { Icon } from "@/components/icons";
 
-export const metadata: Metadata = { title: "Help" };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  return { title: t("Help") };
+}
 
 export default async function HelpPage({ params }: { params: Promise<{ locale: string }> }) {
   const { t } = await pageLocale(params);
@@ -14,7 +17,10 @@ export default async function HelpPage({ params }: { params: Promise<{ locale: s
       <div className="pagehead">
         <h1>{t("Help centre")}</h1>
         <span className="small muted">
-          {t("Or email {e}", { e: settings.supportEmail })}
+          {t("Email us at")}{" "}
+          <a href={`mailto:${settings.supportEmail}`} dir="ltr" style={{ color: "var(--accent)", fontWeight: 700 }}>
+            {settings.supportEmail}
+          </a>
         </span>
       </div>
       <div className="split">

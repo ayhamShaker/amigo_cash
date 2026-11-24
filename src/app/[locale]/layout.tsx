@@ -3,6 +3,7 @@ import { dirOf, LOCALES } from "@/i18n/config";
 import { pageLocale, themeCookie } from "./locale";
 import { getSettings } from "@/server/settings";
 import { currentUser } from "@/server/session";
+import { formatUsd } from "@/lib/money";
 import { TrackVisit } from "@/components/track-visit";
 import { ChatWidget } from "@/components/chat-widget";
 import { Logo, Icon } from "@/components/icons";
@@ -27,10 +28,31 @@ export const viewport: Viewport = {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale, t } = await pageLocale(params);
+  const settings = await getSettings();
+  const enabled = settings.methods.filter((m) => m.enabled);
+  const minCents = enabled.length ? Math.min(...enabled.map((m) => m.minCents)) : 100;
+  const description = t("Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from {min} in crypto or gift cards.", {
+    min: formatUsd(minCents),
+  });
+  const baseUrl = process.env.APP_URL || "https://amigo.cash";
   return {
+    metadataBase: new URL(baseUrl),
     title: { default: "Amigo Cash", template: "%s · Amigo Cash" },
-    description: t("Pick a game or app, reach the goal, and the coins land in your balance as soon as the advertiser confirms it. Cash out from {min} in crypto or gift cards.", { min: "$1.00" }),
-    alternates: { languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])) },
+    description,
+    alternates: { canonical: `/${locale}`, languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])) },
+    openGraph: {
+      type: "website",
+      siteName: "Amigo Cash",
+      title: `Amigo Cash — ${t("Play games. Try apps.")} ${t("Get paid")}`,
+      description,
+      url: `/${locale}`,
+      locale,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Amigo Cash — ${t("Play games. Try apps.")} ${t("Get paid")}`,
+      description,
+    },
     icons: { icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/icon.png", type: "image/png" }], apple: "/apple-touch-icon.png" },
     manifest: "/manifest.webmanifest",
     other: { "content-language": locale },
@@ -84,7 +106,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
               labels={{
                 open: t("Open live chat"),
                 title: t("Live support"),
-                online: t("Online · usually replies in 2 min"),
+                online: settings.supportOnline ? t("Online · usually replies in 2 min") : t("Away · we will reply by email"),
                 close: t("Close chat"),
                 greeting: t("Hi! How can we help you today?"),
                 support: t("Support"),

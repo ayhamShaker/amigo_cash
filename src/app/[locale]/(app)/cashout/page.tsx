@@ -8,15 +8,26 @@ import { CashoutForm } from "@/components/cashout-form";
 import { withdrawAction } from "@/app/actions/member";
 import { Coins, Icon } from "@/components/icons";
 import { GuestCard } from "@/components/member";
-import { coinsToCents, formatUsd } from "@/lib/money";
+import { coinsToCents, centsToCoins, formatUsd } from "@/lib/money";
+import { realEarnedCoins } from "@/server/rewards";
 import { timeAgo, translateData } from "@/i18n/t";
 
-export const metadata: Metadata = { title: "Cash out" };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  return { title: t("Cash out") };
+}
 
 export default async function CashoutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale, t } = await pageLocale(params);
   const [user, settings] = await Promise.all([currentUser(), getSettings()]);
-  const mine = user ? await db.withdrawal.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 50 }) : [];
+  const [mine, realEarned] = user
+    ? await Promise.all([
+        db.withdrawal.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 50 }),
+        settings.minEarnedToWithdrawCents > 0 ? realEarnedCoins(user.id) : Promise.resolve(0),
+      ])
+    : [[], 0];
+  const minEarnedCoins = centsToCoins(settings.minEarnedToWithdrawCents, settings.coinsPerUsd);
+  const needRealCoins = user && minEarnedCoins > 0 ? Math.max(0, minEarnedCoins - realEarned) : 0;
   const methods = settings.methods.map((m) => ({ ...m, name: t(m.name), sub: t(m.sub), field: t(m.field) }));
   const pill = (s: string) =>
     s === "PAID" ? <span className="pill good">{t("Sent")}</span> : s === "REJECTED" ? <span className="pill bad">{t("Rejected · refunded")}</span> : s === "APPROVED" ? <span className="pill info">{t("Approved")}</span> : <span className="pill warn">{t("Processing")}</span>;
@@ -42,6 +53,17 @@ export default async function CashoutPage({ params }: { params: Promise<{ locale
           <Icon name="mail" />
           <span>
             {t("Confirm your email address before your first withdrawal. Check your inbox for the link.")} <a href={`/${locale}/account`}>{t("Account")}</a>
+          </span>
+        </div>
+      ) : null}
+      {user && needRealCoins > 0 ? (
+        <div className="note">
+          <Icon name="bolt" />
+          <span>
+            {t("Earn {c} more coins from offers or surveys to unlock withdrawals.", { c: needRealCoins.toLocaleString("en-US") })}{" "}
+            <a href={`/${locale}/earn`} style={{ color: "var(--accent)", fontWeight: 700 }}>
+              {t("Browse offers")}
+            </a>
           </span>
         </div>
       ) : null}

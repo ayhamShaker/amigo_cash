@@ -13,6 +13,21 @@ export async function userAgent(): Promise<string | null> {
   return (await headers()).get("user-agent")?.slice(0, 300) ?? null;
 }
 
+/** Country code inferred by Vercel or Cloudflare edge headers (2-letter ISO), if present. */
+export async function visitorCountry(): Promise<string | null> {
+  const h = await headers();
+  const raw = (h.get("x-vercel-ip-country") ?? h.get("cf-ipcountry") ?? "").trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(raw) && raw !== "XX" && raw !== "T1" ? raw : null;
+}
+
+/** Platform hint from User-Agent ("android" | "ios" | "desktop"). */
+export async function visitorDevice(): Promise<"android" | "ios" | "desktop"> {
+  const ua = (await userAgent()) ?? "";
+  if (/android/i.test(ua)) return "android";
+  if (/iphone|ipad|ipod/i.test(ua)) return "ios";
+  return "desktop";
+}
+
 /** Secure cookies and the __Host- prefix whenever the site is served over https. */
 export const secureCookies = () => (process.env.APP_URL ?? "").startsWith("https://");
 

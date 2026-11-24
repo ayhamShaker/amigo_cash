@@ -8,6 +8,7 @@ export function OfferCard({
   href,
   title,
   color,
+  imageUrl,
   category,
   networkName,
   steps,
@@ -19,6 +20,7 @@ export function OfferCard({
   href: string;
   title: string;
   color: string;
+  imageUrl?: string | null;
   category: string;
   networkName: string;
   steps: number;
@@ -33,12 +35,18 @@ export function OfferCard({
     .join("")
     .slice(0, 2);
   const safeColor = /^#[0-9a-fA-F]{6}$/.test(color) ? color : "#0284C7";
+  const safeImg = imageUrl && imageUrl.startsWith("https://") ? imageUrl : null;
   return (
     <a className="offer" href={href}>
       <div className="offer-top">
-        <span className="appicon" style={{ background: `linear-gradient(150deg, ${safeColor}, color-mix(in srgb, ${safeColor} 70%, #000))` }}>
-          {initials}
-        </span>
+        {safeImg ? (
+          /* eslint-disable-next-line @next/next/no-img-element -- external offer thumbnail */
+          <img className="offer-img" src={safeImg} alt="" width={52} height={52} loading="lazy" />
+        ) : (
+          <span className="appicon" style={{ background: `linear-gradient(150deg, ${safeColor}, color-mix(in srgb, ${safeColor} 70%, #000))` }}>
+            {initials}
+          </span>
+        )}
         <span className="grow">
           <h4>{title}</h4>
           <span className="tiny muted">

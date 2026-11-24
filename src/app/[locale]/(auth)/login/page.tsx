@@ -6,14 +6,20 @@ import { loginAction } from "@/app/actions/auth";
 import { currentUser } from "@/server/session";
 import { safeNextPublic } from "@/lib/next-url";
 import { GoogleMark } from "@/components/google-mark";
+import { env } from "@/lib/env";
 
-export const metadata: Metadata = { title: "Log in", robots: { index: false } };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  return { title: t("Log in"), robots: { index: false } };
+}
 
 export default async function LoginPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const { locale, t } = await pageLocale(params);
   const sp = await searchParams;
   const next = safeNextPublic(sp.next, locale);
   if (await currentUser()) redirect(next);
+  const e = env();
+  const googleOn = !!(e.GOOGLE_CLIENT_ID && e.GOOGLE_CLIENT_SECRET);
   const googleMsg: Record<string, string> = {
     off: t("Google sign-in is not set up yet. Use your email and password."),
     failed: t("Google sign-in did not finish. Try again."),
@@ -28,15 +34,19 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
       <h1>{t("Welcome back")}</h1>
       {sp.reset ? <div className="formmsg good">{t("Password updated. Log in with your new password.")}</div> : null}
       {sp.google && googleMsg[sp.google] ? <div className="formmsg bad">{googleMsg[sp.google]}</div> : null}
-      <a className="btn ghost block" href={`/api/auth/google/start?locale=${locale}`}>
-        <GoogleMark />
-        {t("Continue with Google")}
-      </a>
-      <div className="orline">
-        <span />
-        <span className="tiny muted">{t("or with email")}</span>
-        <span />
-      </div>
+      {googleOn ? (
+        <>
+          <a className="btn ghost block" href={`/api/auth/google/start?locale=${locale}`}>
+            <GoogleMark />
+            {t("Continue with Google")}
+          </a>
+          <div className="orline">
+            <span />
+            <span className="tiny muted">{t("or with email")}</span>
+            <span />
+          </div>
+        </>
+      ) : null}
       <ActionForm action={loginAction} locale={locale} className="stack">
         <input type="hidden" name="next" value={next} />
         <div className="field">

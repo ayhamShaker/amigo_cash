@@ -31,6 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/fraud", label: "مكافحة الاحتيال", icon: "shield" },
     { href: "/admin/marketing", label: "التسويق", icon: "star" },
     { href: "/admin/methods", label: "طرق السحب", icon: "wallet" },
+    { href: "/admin/contest", label: "المسابقة الأسبوعية", icon: "trophy" },
     { href: "/admin/promos", label: "أكواد المكافآت", icon: "tag" },
     { href: "/admin/chat", label: "الدعم المباشر", icon: "chat", badge: waitingChats },
     { href: "/admin/settings", label: "إعدادات الموقع", icon: "sliders" },

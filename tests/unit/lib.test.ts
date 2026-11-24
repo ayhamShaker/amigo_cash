@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { decrypt, encrypt, safeEqual } from "@/lib/crypto";
 import { clientIpFromHeaders, ipInAllowList } from "@/lib/ip";
 import { centsToCoins, coinsToCents, payoutToCoins } from "@/lib/money";
-import { parsePayoutCents, parseStatus } from "@/server/postback";
+import { parsePayoutCents, parseStatus, verifySignature, buildSignedUrl, buildSignedHeaders } from "@/server/postback";
+import { streakLadder, countConsecutiveDays } from "@/server/rewards";
+import { levelBoostPct } from "@/components/level";
 
 const KEY = Buffer.alloc(32, 9).toString("base64");
 
@@ -64,7 +66,47 @@ describe("postback parsing", () => {
     expect(parseStatus(null)).toBe("credit");
     expect(parseStatus("2")).toBe("reversal");
     expect(parseStatus("chargeback")).toBe("reversal");
+    expect(parseStatus("1", "1")).toBe("reversal");
     expect(parseStatus("9")).toBeNull();
+  });
+  it("verifies real offerwall signature modes", () => {
+    const modes = ["HMAC_SHA256", "MD5_CONCAT", "SECRET_PARAM", "HMAC_SHA1_URL", "TOROX_MD5", "CPX_MD5", "AYET_HMAC", "LOOTABLY_SHA256"] as const;
+    for (const mode of modes) {
+      const url = buildSignedUrl(mode, "my-secret", "https://amigo.cash/api/postback/net", {
+        subid: "u123",
+        txid: "tx-99",
+        payout: "2.50",
+        status: "1",
+        offer: "Castle Clash",
+      });
+      const headers = buildSignedHeaders(mode, "my-secret", url);
+      expect(verifySignature(mode, "my-secret", url, headers)).toBe(true);
+      expect(verifySignature(mode, "wrong-secret", url, headers)).toBe(false);
+    }
+  });
+});
+
+describe("profit-safe streak and levels", () => {
+  it("builds a bounded 7-day escalating streak ladder", () => {
+    const ladder = streakLadder(10, 60);
+    expect(ladder).toHaveLength(7);
+    expect(ladder[0]).toBe(10);
+    expect(ladder[6]).toBe(60);
+    for (let i = 1; i < ladder.length; i++) expect(ladder[i]!).toBeGreaterThanOrEqual(ladder[i - 1]!);
+  });
+  it("counts consecutive UTC days accurately", () => {
+    const now = new Date("2026-11-24T12:00:00Z");
+    expect(countConsecutiveDays(["2026-11-24", "2026-11-23", "2026-11-22"], now)).toEqual({ claimedToday: true, streak: 3 });
+    expect(countConsecutiveDays(["2026-11-23", "2026-11-22"], now)).toEqual({ claimedToday: false, streak: 2 });
+    expect(countConsecutiveDays(["2026-11-20"], now)).toEqual({ claimedToday: false, streak: 0 });
+  });
+  it("caps level boost cleanly from 0% to 5%", () => {
+    expect(levelBoostPct(0, true)).toBe(0);
+    expect(levelBoostPct(10_000, true)).toBe(1);
+    expect(levelBoostPct(50_000, true)).toBe(2);
+    expect(levelBoostPct(150_000, true)).toBe(3);
+    expect(levelBoostPct(500_000, true)).toBe(5);
+    expect(levelBoostPct(500_000, false)).toBe(0);
   });
 });
 

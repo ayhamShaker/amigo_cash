@@ -5,13 +5,17 @@ import { ActionForm, PasswordInput, Submit } from "@/components/forms";
 import { changePasswordAction, resendVerificationAction, signOutEverywhereAction, startTwoFactorAction, updateProfileAction, logoutAction } from "@/app/actions/auth";
 import { Icon } from "@/components/icons";
 import { LevelCard } from "@/components/level";
+import { getSettings } from "@/server/settings";
 import { formatDate } from "@/i18n/t";
 
-export const metadata: Metadata = { title: "Account", robots: { index: false } };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  return { title: t("Account"), robots: { index: false } };
+}
 
 export default async function AccountPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const { locale, t } = await pageLocale(params);
-  const user = await requireMember(locale, "/account");
+  const [user, settings] = await Promise.all([requireMember(locale, "/account"), getSettings()]);
   const sp = await searchParams;
   const theme = await themeCookie();
   return (
@@ -44,7 +48,7 @@ export default async function AccountPage({ params, searchParams }: { params: Pr
               </div>
             </div>
           </div>
-          <LevelCard earned={user.lifetimeEarned} t={t} />
+          <LevelCard earned={user.lifetimeEarned} t={t} boostEnabled={settings.levelBoostEnabled} />
           <div className="row between wr" style={{ borderTop: "1px solid var(--line)", paddingTop: 12 }}>
             <span className="small" style={{ fontWeight: 700 }}>
               {t("Language")}

@@ -10,6 +10,7 @@ import { requestWithdrawal, WithdrawalError } from "@/server/withdrawals";
 import { checkIp, isBadConnection } from "@/server/fraud";
 import { requestIp } from "@/server/request";
 import { rateLimit } from "@/server/rate-limit";
+import { notifyAdminTelegram } from "@/server/telegram";
 import { dollarsToCents, str, tFrom } from "@/server/action-utils";
 import { formatCoins, formatUsd } from "@/lib/money";
 import { db } from "@/lib/db";
@@ -32,8 +33,13 @@ export async function dailyBonusAction(_prev: FormState, fd: FormData): Promise<
   if (await connectionBlocked()) return { error: t("Earning is paused on this connection. Turn off your VPN and reload the page.") };
   const r = await claimDailyBonus(u.id, await getSettings());
   revalidatePath(`/${locale}/earn`);
-  if (!r.ok) return { error: t("Opened. Next chest in {h} hours.", { h: hoursToMidnightUtc() }) };
-  return { ok: t("The chest had {c} coins", { c: formatCoins(r.coins) }) };
+  if (!r.ok) {
+    if (r.reason === "EARN_REQUIRED") {
+      return { error: t("Earn {c} more coins from offers or surveys to unlock the daily streak.", { c: formatCoins(r.needCoins) }) };
+    }
+    return { error: t("Opened. Next chest in {h} hours.", { h: hoursToMidnightUtc() }) };
+  }
+  return { ok: t("Day {d}: +{c} coins added!", { d: r.day, c: formatCoins(r.coins) }) };
 }
 
 function hoursToMidnightUtc() {
@@ -69,6 +75,9 @@ export async function withdrawAction(_prev: FormState, fd: FormData): Promise<Fo
   try {
     const w = await requestWithdrawal({ userId: u.id, method, amountCents: cents, address: str(fd, "address", 120), settings });
     revalidatePath(`/${locale}/cashout`);
+    void notifyAdminTelegram(
+      `New withdrawal (${w.status})\nMember: ${u.name} (${u.email})\nMethod: ${pm.name}\nAmount: ${formatUsd(cents - w.feeCents)} (gross ${formatUsd(cents)})\nFirst payout: ${w.firstPayout ? "YES" : "no"}`,
+    );
     const name = t(pm.name);
     return {
       ok:
@@ -85,6 +94,7 @@ export async function withdrawAction(_prev: FormState, fd: FormData): Promise<Fo
       BAD_ADDRESS: t("Check the {f}. It does not look right.", { f: t(pm.field) }),
       NOT_ACTIVE: t("Your account is suspended"),
       EMAIL_NOT_VERIFIED: t("Confirm your email address before your first withdrawal. Check your inbox for the link."),
+      EARN_REQUIRED: t("Earn at least {v} from offers or surveys before your first withdrawal.", { v: formatUsd(settings.minEarnedToWithdrawCents) }),
       INSUFFICIENT_FUNDS: t("Not enough coins for this amount"),
       ALREADY_PENDING: t("You already have a withdrawal in progress. Wait for it to finish."),
     };

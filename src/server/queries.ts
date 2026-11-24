@@ -14,31 +14,47 @@ export function parseSteps(v: unknown): OfferStep[] {
 }
 
 /** Coins a member would get for an offer (and each of its steps). */
-export function offerCoins(o: { payoutCents: number; network: { userShare: number | null } }, s: SiteSettings, pct = 100) {
+export function offerCoins(o: { payoutCents: number; network: { userShare: number | null } }, s: SiteSettings, pct = 100, boostPct = 0) {
   const share = o.network.userShare ?? s.userSharePct;
-  return payoutToCoins(Math.round((o.payoutCents * pct) / 100), share, s.coinsPerUsd);
+  return payoutToCoins(Math.round((o.payoutCents * pct) / 100), share, s.coinsPerUsd, boostPct);
 }
 
-export async function liveOffers() {
-  return db.offer.findMany({
+export function offerMatchesCountry(countries: string[], country: string | null): boolean {
+  if (!country || countries.length === 0) return true;
+  return countries.includes(country.toUpperCase());
+}
+
+export function offerMatchesPlatform(platformText: string, filter: string): boolean {
+  if (!filter || filter === "all") return true;
+  const p = platformText.toLowerCase();
+  if (filter === "android") return p.includes("android");
+  if (filter === "ios") return p.includes("ios") || p.includes("iphone") || p.includes("ipad");
+  if (filter === "desktop") return p.includes("desktop") || p.includes("web") || p.includes("pc") || p.includes("mac") || p.includes("windows");
+  return true;
+}
+
+export async function liveOffers(country?: string | null) {
+  const all = await db.offer.findMany({
     where: { active: true, network: { enabled: true } },
     include: { network: { select: { name: true, userShare: true } } },
     orderBy: [{ featured: "desc" }, { payoutCents: "desc" }],
-    take: 60,
+    take: 100,
   });
+  if (!country) return all.slice(0, 60);
+  return all.filter((o) => offerMatchesCountry(o.countries, country)).slice(0, 60);
 }
 
-/** Recent real activity for the ticker: credited conversions and paid withdrawals. */
+/** Recent real activity for the ticker: credited conversions and paid withdrawals (excluding admin test accounts). */
 export async function recentActivity(limit = 12) {
   const [conv, paid] = await Promise.all([
     db.conversion.findMany({
-      where: { status: "CREDITED", userId: { not: null } },
+      where: { status: "CREDITED", userId: { not: null }, user: { role: "USER", status: "ACTIVE" } },
       orderBy: { createdAt: "desc" },
       take: limit,
       select: { id: true, coins: true, offerName: true, user: { select: { name: true } } },
     }),
     db.withdrawal.findMany({
-      where: { status: "PAID" },
+      where: { status: "PAID", user: { role: "USER" } },
       orderBy: { reviewedAt: "desc" },
       take: Math.ceil(limit / 3),
       select: { id: true, amountCents: true, method: true, user: { select: { name: true } } },
@@ -62,19 +78,26 @@ export function weekStartUtc(now = new Date()) {
   return d;
 }
 
-/** Top earners this week (offers, surveys and referral commission, minus reversals). */
-export async function weeklyLeaderboard(limit = 10) {
-  const since = weekStartUtc();
+/** Top earners in an arbitrary [since, until) range (offers, surveys and referral commission, minus reversals). */
+export async function weeklyLeaderboardRange(since: Date, until: Date, limit = 10) {
   return db.$queryRaw<{ id: string; name: string; country: string; coins: number }[]>`
     SELECT u.id, u.name, u.country, SUM(l.amount)::int AS coins
     FROM "LedgerEntry" l JOIN "User" u ON u.id = l."userId"
     WHERE l."createdAt" >= ${since}
+      AND l."createdAt" < ${until}
       AND l.kind IN ('OFFER','SURVEY','REFERRAL','REVERSAL')
       AND u.status = 'ACTIVE' AND u.role = 'USER'
     GROUP BY u.id, u.name, u.country
     HAVING SUM(l.amount) > 0
     ORDER BY coins DESC
     LIMIT ${limit}`;
+}
+
+/** Top earners this week (offers, surveys and referral commission, minus reversals). */
+export async function weeklyLeaderboard(limit = 10) {
+  const since = weekStartUtc();
+  const until = new Date(since.getTime() + 7 * 86_400_000);
+  return weeklyLeaderboardRange(since, until, limit);
 }
 
 export async function weeklyCoinsFor(userId: string) {

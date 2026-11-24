@@ -10,9 +10,11 @@ import { audit } from "@/server/audit";
 import { requestIp } from "@/server/request";
 import { adjustBalance, releaseDueHolds } from "@/server/ledger";
 import { approveWithdrawal, markWithdrawalPaid, rejectWithdrawal } from "@/server/withdrawals";
-import { adminReverseConversion, buildSignedUrl, handlePostback, SIGNATURE_MODES, type SignatureMode } from "@/server/postback";
+import { adminReverseConversion, buildSignedHeaders, buildSignedUrl, handlePostback, SIGNATURE_MODES, type SignatureMode } from "@/server/postback";
+import { payWeeklyContest, previousWeekRange } from "@/server/contest";
 import { decrypt } from "@/lib/crypto";
 import { postAdminReply, setConversationStatus } from "@/server/chat";
+import { sendEmail, simpleHtml } from "@/server/email";
 import { getSettings, saveSettings, siteSettingsSchema, type SiteSettings } from "@/server/settings";
 import { bool, dollarsToCents, int, str } from "@/server/action-utils";
 import { normalisePromo } from "@/server/rewards";
@@ -20,6 +22,8 @@ import { adminPasswordResetLink, clearTotp } from "@/server/auth";
 import { notify } from "@/server/notify";
 import { formatCoins, formatUsd } from "@/lib/money";
 import { ipInAllowList } from "@/lib/ip";
+import { makeT } from "@/i18n/t";
+import { isLocale } from "@/i18n/config";
 
 /**
  * Links pasted on a phone often carry spaces, invisible direction marks or
@@ -148,12 +152,26 @@ export async function withdrawalAction(_p: FormState, fd: FormData): Promise<For
   }
   if (!ok) return { error: "هالطلب انعالج من قبل أو حالته ما بتسمح بهالعملية." };
   await audit({ actorId: admin.id, action: `withdrawal.${op}`, targetType: "withdrawal", targetId: id, ip });
-  const w = await db.withdrawal.findUnique({ where: { id }, select: { userId: true, amountCents: true, feeCents: true, note: true, txRef: true } });
+  const w = await db.withdrawal.findUnique({
+    where: { id },
+    select: { userId: true, amountCents: true, feeCents: true, note: true, txRef: true, user: { select: { email: true, locale: true } } },
+  });
   if (w) {
     const v = formatUsd(w.amountCents - w.feeCents);
+    const loc = isLocale(w.user.locale) ? w.user.locale : "en";
+    const t = makeT(loc);
+    const cashoutUrl = `${env().APP_URL}/${loc}/cashout`;
     if (op === "approve") await notify(w.userId, "withdrawal", { k: "Your withdrawal of {v} was approved. It will be sent soon.", a: { v } }, "/cashout");
-    if (op === "paid") await notify(w.userId, "withdrawal", { k: "Your withdrawal of {v} was sent. Reference: {ref}", a: { v, ref: w.txRef ?? "—" } }, "/cashout");
-    if (op === "reject") await notify(w.userId, "withdrawal", { k: "Your withdrawal of {v} was rejected and the coins are back in your balance. Reason: {r}", a: { v, r: w.note ?? "" } }, "/cashout");
+    if (op === "paid") {
+      await notify(w.userId, "withdrawal", { k: "Your withdrawal of {v} was sent. Reference: {ref}", a: { v, ref: w.txRef ?? "—" } }, "/cashout");
+      const msg = t("Your withdrawal of {v} was sent. Reference: {ref}", { v, ref: w.txRef ?? "—" });
+      await sendEmail({ to: w.user.email, subject: t("Your Amigo Cash withdrawal was sent"), text: `${msg}\n\n${cashoutUrl}`, html: simpleHtml(msg, { label: t("Cash out"), url: cashoutUrl }) });
+    }
+    if (op === "reject") {
+      await notify(w.userId, "withdrawal", { k: "Your withdrawal of {v} was rejected and the coins are back in your balance. Reason: {r}", a: { v, r: w.note ?? "" } }, "/cashout");
+      const msg = t("Your withdrawal of {v} was rejected and the coins are back in your balance. Reason: {r}", { v, r: w.note ?? "" });
+      await sendEmail({ to: w.user.email, subject: t("Update on your Amigo Cash withdrawal"), text: `${msg}\n\n${cashoutUrl}`, html: simpleHtml(msg, { label: t("Cash out"), url: cashoutUrl }) });
+    }
   }
   revalidatePath("/admin/withdrawals");
   return { ok: op === "approve" ? "تمت الموافقة. أرسل المبلغ وبعدين اضغط «تم الدفع»." : op === "paid" ? "تم تسجيل الدفع." : "تم الرفض وإرجاع الرصيد للمستخدم." };
@@ -190,6 +208,17 @@ export async function saveOfferAction(_p: FormState, fd: FormData): Promise<Form
     return { error: "رابط التتبع لازم يبدأ بـ https:// ويحتوي {user_id}" };
   }
   const color = /^#[0-9a-fA-F]{6}$/.test(str(fd, "color", 7)) ? str(fd, "color", 7) : "#0284C7";
+  const imageRaw = cleanUrl(str(fd, "imageUrl", 500));
+  let imageUrl: string | null = null;
+  if (imageRaw) {
+    try {
+      const iu = new URL(imageRaw);
+      if (iu.protocol !== "https:") throw new Error();
+      imageUrl = iu.toString();
+    } catch {
+      return { error: "رابط صورة العرض لازم يبدأ بـ https://" };
+    }
+  }
   const networkId = str(fd, "networkId", 40);
   if (!(await db.network.findUnique({ where: { id: networkId } }))) return { error: "اختر شبكة." };
   const data = {
@@ -198,6 +227,7 @@ export async function saveOfferAction(_p: FormState, fd: FormData): Promise<Form
     category: ["game", "app", "signup", "finance", "trial"].includes(str(fd, "category", 10)) ? str(fd, "category", 10) : "game",
     payoutCents,
     color,
+    imageUrl,
     countries: str(fd, "countries", 200).toUpperCase().split(/[\s,]+/).filter((c) => /^[A-Z]{2}$/.test(c)),
     platform: str(fd, "platform", 40) || "Android · iOS",
     days: Math.min(365, Math.max(1, int(fd, "days") ?? 14)),
@@ -279,14 +309,16 @@ export async function sendTestPostbackAction(_p: FormState, fd: FormData): Promi
   if (!network?.secretEnc) return { error: "احفظ سر الـ Postback لهالشبكة أولا." };
   const member = await db.user.findFirst({ where: { OR: [{ id: who }, { email: who.toLowerCase() }] }, select: { id: true, name: true } });
   if (!member) return { error: "ما لقيت عضو بهالإيميل أو الرقم." };
-  const url = buildSignedUrl(network.signatureMode as SignatureMode, decrypt(network.secretEnc, env().ENCRYPTION_KEY), `${env().APP_URL}/api/postback/${network.id}`, {
+  const secret = decrypt(network.secretEnc, env().ENCRYPTION_KEY);
+  const mode = network.signatureMode as SignatureMode;
+  const url = buildSignedUrl(mode, secret, `${env().APP_URL}/api/postback/${network.id}`, {
     subid: member.id,
     txid: `admin-test-${Date.now()}`,
     payout: (payout / 100).toFixed(2),
     status: "1",
     offer: "Test offer",
   });
-  const r = await handlePostback(network.id, url, ip, { adminTest: true });
+  const r = await handlePostback(network.id, url, ip, { adminTest: true, headers: buildSignedHeaders(mode, secret, url) });
   await audit({ actorId: admin.id, action: "postback.test", targetType: "network", targetId: network.id, data: { member: member.id, payoutCents: payout, outcome: r.outcome }, ip });
   revalidatePath("/admin/networks");
   if (r.outcome === "credited") return { ok: `✓ وصل التأكيد وانضاف الرصيد لـ ${member.name}. شوفه بسجل التأكيدات.` };
@@ -362,6 +394,16 @@ export async function saveSettingsAction(_p: FormState, fd: FormData): Promise<F
     const v = int(fd, k);
     return v === null ? fallback : v;
   };
+  const safeSocial = (k: string) => {
+    const raw = str(fd, k, 200).trim();
+    if (!raw) return "";
+    try {
+      const u = new URL(raw);
+      return u.protocol === "https:" ? u.toString() : "";
+    } catch {
+      return "";
+    }
+  };
   const next: SiteSettings = {
     ...cur,
     coinsPerUsd: num("coinsPerUsd", cur.coinsPerUsd),
@@ -371,6 +413,13 @@ export async function saveSettingsAction(_p: FormState, fd: FormData): Promise<F
     inviteBonus: num("inviteBonus", cur.inviteBonus),
     dailyMin: num("dailyMin", cur.dailyMin),
     dailyMax: num("dailyMax", cur.dailyMax),
+    levelBoostEnabled: bool(fd, "levelBoostEnabled"),
+    minEarnedToWithdrawCents: dollarsToCents(str(fd, "minEarnedToWithdraw", 12)) ?? cur.minEarnedToWithdrawCents,
+    dailyMinEarnedCents: dollarsToCents(str(fd, "dailyMinEarned", 12)) ?? cur.dailyMinEarnedCents,
+    supportOnline: bool(fd, "supportOnline"),
+    telegramUrl: safeSocial("telegramUrl"),
+    discordUrl: safeSocial("discordUrl"),
+    trustpilotUrl: safeSocial("trustpilotUrl"),
     maintenance: bool(fd, "maintenance"),
     registrationOpen: bool(fd, "registrationOpen"),
     bannerEnabled: bool(fd, "bannerEnabled"),
@@ -416,4 +465,20 @@ export async function saveFraudRulesAction(_p: FormState, fd: FormData): Promise
 function pickFraud(s: SiteSettings) {
   const { holdThresholdCents, holdDays, blockVpn, vpnStrictness, maxFraudScore, maxAccountsPerDevice, autoBanRisk, firstWithdrawalManual, autoApproveUnderCents, requireVerifiedEmailToWithdraw } = s;
   return { holdThresholdCents, holdDays, blockVpn, vpnStrictness, maxFraudScore, maxAccountsPerDevice, autoBanRisk, firstWithdrawalManual, autoApproveUnderCents, requireVerifiedEmailToWithdraw };
+}
+
+/* ---------------- weekly contest ---------------- */
+
+export async function payContestAction(): Promise<FormState> {
+  const { admin, ip } = await ctx();
+  const { start } = previousWeekRange();
+  const res = await payWeeklyContest(start, admin.id);
+  if (!res.ok) {
+    if (res.error === "ALREADY_PAID") return { error: "جوائز الأسبوع الماضي اتوزعت من قبل." };
+    if (res.error === "NO_WINNERS") return { error: "ما في فائزين مستحقين بالأسبوع الماضي (أو الجوائز كلها صفر)." };
+    return { error: "الأسبوع لسا ما خلص." };
+  }
+  await audit({ actorId: admin.id, action: "contest.pay", targetType: "contest", targetId: start.toISOString().slice(0, 10), data: { totalCents: res.totalCents, count: res.winners.length }, ip });
+  revalidatePath("/admin/contest");
+  return { ok: `تم توزيع ${formatUsd(res.totalCents)} على ${res.winners.length} فائزين بنجاح.` };
 }

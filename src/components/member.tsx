@@ -11,7 +11,7 @@ export function WalletBar({ user, settings, t, locale }: { user: SessionUser; se
       <div>
         <div className="s">{t("Available")}</div>
         <div className="v" dir="ltr">
-          <span className="coin">A</span>
+          <span className="coin" aria-hidden="true">A</span>
           {user.balance.toLocaleString("en-US")}
         </div>
         <div className="s">≈ {formatUsd(coinsToCents(Math.max(0, user.balance), settings.coinsPerUsd))}</div>

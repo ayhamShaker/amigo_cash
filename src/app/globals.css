@@ -336,10 +336,10 @@ td.r,th.r{text-align:end}
 .otp{font-size:22px;letter-spacing:.3em;text-align:center}
 .invite{background:var(--coin-soft);color:var(--fg);padding-block:12px;border-bottom:1px solid var(--line)}
 .invite svg{color:var(--coin)}
-.chatfab{position:fixed;z-index:140;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 30px rgba(2,132,199,.35)}
+.chatfab{position:fixed;z-index:140;inset-inline-end:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 30px rgba(2,132,199,.35)}
 .chatfab svg{width:26px;height:26px}
-.chatbadge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;border-radius:12px;background:var(--bad);color:#fff;font:700 11px/20px var(--f-mono);padding:0 5px}
-.chatpanel{position:fixed;z-index:160;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:370px;max-width:calc(100vw - 32px);height:min(560px,calc(100vh - 120px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;animation:pop .18s}
+.chatbadge{position:absolute;top:-2px;inset-inline-end:-2px;min-width:20px;height:20px;border-radius:12px;background:var(--bad);color:#fff;font:700 11px/20px var(--f-mono);padding:0 5px}
+.chatpanel{position:fixed;z-index:160;inset-inline-end:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:370px;max-width:calc(100vw - 32px);height:min(560px,calc(100vh - 120px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;animation:pop .18s}
 .chathead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--accent);color:var(--accent-ink)}
 .chathead .iconbtn{background:transparent;border-color:color-mix(in srgb,currentColor 30%,transparent);color:inherit}
 .chatav{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,#fff 25%,transparent)}
@@ -474,11 +474,19 @@ th{background:transparent}
 
 /* header: floating glass bar */
 .topbar{position:sticky;top:calc(10px + env(safe-area-inset-top,0px));margin:10px auto 0;max-width:none;width:calc(100% - 2*max(20px,env(safe-area-inset-left,0px)));background:var(--surface);border:1px solid var(--glass-edge);border-radius:var(--r);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
-.topbar-in{height:62px;padding-left:14px;padding-right:10px;max-width:none}
-.toplinks{display:flex;gap:2px;margin-inline-start:14px}
+.topbar-in{height:62px;padding-left:14px;padding-right:10px;max-width:none;min-width:0}
+.toplinks{display:flex;gap:2px;margin-inline-start:14px;min-width:0}
 .toplinks a{padding:9px 13px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;color:var(--muted);white-space:nowrap}
 .toplinks a:hover{background:var(--surface-2);color:var(--fg)}
 .toplinks a.on{background:var(--surface-solid);color:var(--fg);box-shadow:0 1px 2px rgba(4,38,58,.08)}
+@media (max-width:1100px){
+  .topbar-in{gap:8px}
+  .toplinks{margin-inline-start:6px;gap:1px}
+  .toplinks a{padding:7px 9px;font-size:13px}
+}
+@media (max-width:940px){
+  .toplinks{display:none}
+}
 .balance-chip{background:var(--ink-band);color:var(--ink-band-fg);padding:6px 6px 6px 12px;border-radius:12px}
 .balance-chip .muted{color:color-mix(in srgb,var(--ink-band-fg) 65%,transparent)}
 .avatar{border-radius:12px;width:42px;height:42px}
@@ -499,7 +507,7 @@ th{background:transparent}
 .walletbar>div{border-radius:var(--r);border-inline-end:1px solid var(--glass-edge)!important}
 .walletbar>div:last-child{border-inline-end:1px solid var(--glass-edge)!important}
 .bottomnav{display:none}
-@media (max-width:820px){
+@media (max-width:940px){
   .topbar{top:calc(8px + env(safe-area-inset-top,0px));margin-top:8px}
   .topbar-in{height:58px;padding-left:10px;padding-right:8px}
   .toplinks{display:none}
@@ -510,10 +518,21 @@ th{background:transparent}
   .walletbar>div{border-bottom:1px solid var(--glass-edge)!important}
   .main{padding-block:12px 110px}
   .chatfab{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .footer{padding-bottom:96px}
 }
 @media (max-width:480px){.logo{font-size:19px;gap:7px}.logo-mark{width:32px;height:32px}}
 @media (max-width:370px){.logo .wm{display:none}}
-.footer{border-top:0}
+.footer{border-top:0;padding-block:24px 36px;padding-inline-end:84px}
+.offer-img{width:52px;height:52px;border-radius:12px;object-fit:cover;flex:none;border:1px solid var(--line);background:var(--surface-2)}
+.streak{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:10px}
+.streak-day{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;border-radius:10px;border:1px solid var(--line);background:var(--surface-solid);font-size:11px;text-align:center}
+.streak-day.done{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.streak-day.next{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:800}
+.streak-day b{font-family:var(--f-mono);font-size:12px}
+@media (max-width:540px){.streak{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.social-links{display:inline-flex;gap:10px;flex-wrap:wrap;align-items:center}
+.social-links a{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:var(--surface-2);font-size:12px;font-weight:700;text-decoration:none}
+.social-links a:hover{background:var(--accent-soft);color:var(--accent)}
 .ticker{border-radius:var(--r);max-width:1240px;margin:12px auto 0;width:calc(100% - 2*max(16px,env(safe-area-inset-left,0px)))}
 .banner{border-radius:0}
 

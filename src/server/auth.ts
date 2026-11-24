@@ -78,7 +78,7 @@ export async function signup(input: SignupInput): Promise<{ ok: true; userId: st
       attribution: input.attribution ?? null,
     });
     await recordDevice(user.id, input.deviceId, input.ip);
-    if (ipv.checked && ipv.fraudScore >= 85) await addFlag(user.id, "High-risk IP", 30);
+    if (ipv.checked && ipv.fraudScore >= settings.maxFraudScore) await addFlag(user.id, "High-risk IP", 30);
     await sendVerificationEmail(user.id);
     return { ok: true, userId: user.id };
   } catch (e) {

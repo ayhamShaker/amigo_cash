@@ -12,8 +12,13 @@ import { Submit } from "@/components/forms";
 import { coinsToCents, formatUsd } from "@/lib/money";
 import { translateData } from "@/i18n/t";
 import { intlTag } from "@/i18n/config";
+import { countryName } from "@/lib/countries";
+import { levelBoostPct } from "@/components/level";
 
-export const metadata: Metadata = { title: "Offer" };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+  const { t } = await pageLocale(params);
+  return { title: t("Offer") };
+}
 
 export default async function OfferPage({ params, searchParams }: { params: Promise<{ locale: string; id: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const { locale, t } = await pageLocale(params);
@@ -23,29 +28,37 @@ export default async function OfferPage({ params, searchParams }: { params: Prom
   if (!offer) notFound();
   const [user, settings] = await Promise.all([currentUser(), getSettings()]);
   const steps = parseSteps(offer.steps);
-  const total = offerCoins(offer, settings);
+  const boost = user ? levelBoostPct(user.lifetimeEarned, settings.levelBoostEnabled) : 0;
+  const total = offerCoins(offer, settings, 100, boost);
   const started = user ? await db.offerProgress.findUnique({ where: { userId_offerId: { userId: user.id, offerId: offer.id } } }) : null;
-  const names = new Intl.DisplayNames([intlTag(locale)], { type: "region" });
+  const tag = intlTag(locale);
   const allowed = !user || offer.countries.length === 0 || offer.countries.includes(user.country);
   const safeColor = /^#[0-9a-fA-F]{6}$/.test(offer.color) ? offer.color : "#0284C7";
+  const safeImg = offer.imageUrl && offer.imageUrl.startsWith("https://") ? offer.imageUrl : null;
 
   return (
     <>
       <a className="small" href={`/${locale}/earn`}>
-        ← {t("Earn")}
+        <span className="arr">←</span> {t("Earn")}
       </a>
       <div className="split">
         <div className="card stack">
           <div className="row">
-            <div className="appicon" style={{ background: safeColor }}>
-              {offer.title[0]}
-            </div>
+            {safeImg ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- external offer thumbnail */
+              <img className="offer-img" src={safeImg} alt="" width={56} height={56} />
+            ) : (
+              <div className="appicon" style={{ background: safeColor }}>
+                {offer.title[0]}
+              </div>
+            )}
             <div className="grow">
               <h1 style={{ fontSize: 26 }}>{offer.title}</h1>
               <div className="row wr" style={{ gap: 6, marginTop: 6 }}>
                 <span className="pill">{t(CATEGORY_LABEL[offer.category] ?? "Game")}</span>
                 <span className="pill">{translateData(locale, offer.platform)}</span>
                 <span className="pill">{offer.network.name}</span>
+                {boost > 0 ? <span className="pill good">+{boost}%</span> : null}
               </div>
             </div>
           </div>
@@ -57,7 +70,7 @@ export default async function OfferPage({ params, searchParams }: { params: Prom
                 <span className="small" style={{ fontWeight: i === 0 ? 800 : 600 }}>
                   {translateData(locale, s.label)}
                 </span>
-                <Coins n={offerCoins(offer, settings, s.pct)} />
+                <Coins n={offerCoins(offer, settings, s.pct, boost)} />
               </div>
             ))}
           </div>
@@ -72,7 +85,7 @@ export default async function OfferPage({ params, searchParams }: { params: Prom
           <div className="small muted">
             {t("Finish within {d} days. Available in {c}. New users only. Rewards of {v}+ are held for {h} days.", {
               d: offer.days,
-              c: offer.countries.length ? offer.countries.map((c) => names.of(c) ?? c).join(", ") : t("all countries"),
+              c: offer.countries.length ? offer.countries.map((c) => countryName(c, tag)).join(", ") : t("all countries"),
               v: formatUsd(settings.holdThresholdCents),
               h: settings.holdDays,
             })}
@@ -82,7 +95,7 @@ export default async function OfferPage({ params, searchParams }: { params: Prom
             <b className="num">{formatUsd(coinsToCents(total, settings.coinsPerUsd))}</b>
           </div>
           {sp.vpn ? <div className="formmsg bad">{t("Earning is paused on this connection. Turn off your VPN and reload the page.")}</div> : null}
-          {!allowed ? <div className="pill bad">{t("Not available in {c}", { c: names.of(user!.country) ?? user!.country })}</div> : null}
+          {!allowed ? <div className="pill bad">{t("Not available in {c}", { c: countryName(user!.country, tag) })}</div> : null}
           {!user ? (
             <a className="btn primary lg block" href={`/${locale}/signup`}>
               <Icon name="lock" />

@@ -2,9 +2,11 @@ import { cookies } from "next/headers";
 import { CREATOR_COOKIE } from "@/lib/attribution";
 import { pageLocale, themeCookie } from "./locale";
 import { SiteHeader, maskName } from "@/components/site-header";
+import { BottomNav, type NavItem } from "@/components/nav";
 import { Coins, Icon } from "@/components/icons";
 import { getSettings } from "@/server/settings";
 import { currentUser } from "@/server/session";
+import { visitorCountry } from "@/server/request";
 import { liveOffers, offerCoins, parseSteps, publicStats, recentActivity } from "@/server/queries";
 import { formatUsd } from "@/lib/money";
 import { translateData } from "@/i18n/t";
@@ -16,7 +18,10 @@ import { OfferCard } from "@/components/offer-card";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale, t } = await pageLocale(params);
-  const [settings, user, theme, offers, stats, activity] = await Promise.all([getSettings(), currentUser(), themeCookie(), liveOffers(), publicStats(), recentActivity()]);
+  const [settings, user, theme, geo, stats, activity] = await Promise.all([getSettings(), currentUser(), themeCookie(), visitorCountry(), publicStats(), recentActivity()]);
+  const country = user?.country ?? geo;
+  let offers = await liveOffers(country);
+  if (offers.length === 0 && country) offers = await liveOffers();
   const refCode = (await cookies()).get("amigo_ref")?.value;
   const creatorId = (await cookies()).get(CREATOR_COOKIE)?.value;
   const creator = !user && creatorId ? await db.creator.findUnique({ where: { id: creatorId }, select: { name: true, active: true, bonusCoins: true } }) : null;
@@ -26,6 +31,15 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const minCents = Math.min(...enabledMethods.map((m) => m.minCents), 100_000);
   const networks = await db.network.count({ where: { enabled: true } });
   const mname = (id: string) => t(methodName(settings.methods, id));
+  const methodList = enabledMethods.slice(0, 4).map((m) => t(m.name)).join(", ");
+  const L = `/${locale}`;
+  const bottomNav: NavItem[] = [
+    { href: `${L}/earn`, label: t("Earn"), icon: "bolt" },
+    { href: `${L}/surveys`, label: t("Surveys"), icon: "survey" },
+    { href: `${L}/cashout`, label: t("Cash out"), icon: "wallet" },
+    { href: `${L}/leaderboard`, label: t("Leaderboard"), icon: "trophy" },
+    { href: user ? `${L}/account` : `${L}/login`, label: user ? t("Account") : t("Log in"), icon: "user" },
+  ];
 
   const tickerItems = [
     ...activity.conv.map((c) => ({ key: c.id, node: t("{n} earned {c} on {o}", { n: maskName(c.user?.name ?? "Member"), c: c.coins.toLocaleString("en-US"), o: c.offerName }) })),
@@ -96,9 +110,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           {featured ? (
             <a className="tile c2" href={`/${locale}/earn/offer/${featured.id}`} style={{ textDecoration: "none", color: "inherit" }}>
               <div className="row">
-                <span className="appicon" style={{ background: featured.color, width: 56, height: 56, borderRadius: 12 }}>
-                  {featured.title[0]}
-                </span>
+                {featured.imageUrl && featured.imageUrl.startsWith("https://") ? (
+                  /* eslint-disable-next-line @next/next/no-img-element -- external offer thumbnail */
+                  <img className="offer-img" src={featured.imageUrl} alt="" width={56} height={56} />
+                ) : (
+                  <span className="appicon" style={{ background: featured.color, width: 56, height: 56, borderRadius: 12 }}>
+                    {featured.title[0]}
+                  </span>
+                )}
                 <div className="grow">
                   <div className="eyebrow">{t("Featured game")}</div>
                   <b style={{ fontSize: 19 }}>{featured.title}</b>
@@ -147,6 +166,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                     href={`/${locale}/earn/offer/${o.id}`}
                     title={o.title}
                     color={o.color}
+                    imageUrl={o.imageUrl}
                     category={o.category}
                     networkName={o.network.name}
                     steps={parseSteps(o.steps).length}
@@ -186,7 +206,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               <li>
                 <span className="num">1</span>
                 <b>{t("Choose an offer")}</b>
-                <span className="small muted">{t("Games, app sign-ups and short surveys from {n} offer partners. Every task shows the exact coins before you start.", { n: Math.max(networks, 1) })}</span>
+                <span className="small muted">
+                  {networks > 1
+                    ? t("Games, app sign-ups and short surveys from {n} offer partners. Every task shows the exact coins before you start.", { n: networks })
+                    : t("Games, app sign-ups and short surveys from our offer partners. Every task shows the exact coins before you start.")}
+                </span>
               </li>
               <li>
                 <span className="num">2</span>
@@ -196,7 +220,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               <li>
                 <span className="num">3</span>
                 <b>{t("Cash out")}</b>
-                <span className="small muted">{t("{c} coins = $1. Withdraw to USDT, Litecoin, Binance Pay or an Amazon gift card.", { c: settings.coinsPerUsd.toLocaleString("en-US") })}</span>
+                <span className="small muted">
+                  {methodList
+                    ? t("{c} coins = $1. Withdraw to {m} and more.", { c: settings.coinsPerUsd.toLocaleString("en-US"), m: methodList })
+                    : t("{c} coins = $1. Withdraw in crypto or gift cards.", { c: settings.coinsPerUsd.toLocaleString("en-US") })}
+                </span>
               </li>
             </ol>
           </section>
@@ -249,12 +277,32 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <footer className="footer">
         <div className="wrap row between wr">
           <span>{t("© 2026 Amigo Cash. Members must be {age}+. Earnings depend on the offers you complete.", { age: settings.minAge })}</span>
-          <span className="row" style={{ gap: 16 }}>
+          <span className="row wr" style={{ gap: 14 }}>
+            {settings.telegramUrl || settings.discordUrl || settings.trustpilotUrl ? (
+              <span className="social-links">
+                {settings.telegramUrl ? (
+                  <a href={settings.telegramUrl} target="_blank" rel="noopener noreferrer">
+                    Telegram
+                  </a>
+                ) : null}
+                {settings.discordUrl ? (
+                  <a href={settings.discordUrl} target="_blank" rel="noopener noreferrer">
+                    Discord
+                  </a>
+                ) : null}
+                {settings.trustpilotUrl ? (
+                  <a href={settings.trustpilotUrl} target="_blank" rel="noopener noreferrer">
+                    Trustpilot
+                  </a>
+                ) : null}
+              </span>
+            ) : null}
             <a href={`/${locale}/legal/terms`}>{t("Terms")}</a>
             <a href={`/${locale}/legal/privacy`}>{t("Privacy")}</a>
           </span>
         </div>
       </footer>
+      <BottomNav items={bottomNav} label={t("Main")} />
     </>
   );
 }

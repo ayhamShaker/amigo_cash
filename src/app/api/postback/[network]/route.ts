@@ -23,7 +23,7 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ network: string
     }
   }
   try {
-    const r = await handlePostback(network, url, ip);
+    const r = await handlePostback(network, url, ip, { headers: req.headers });
     if (r.outcome === "refused") console.warn(`[postback] ${network} refused: ${r.reason}`);
     return new NextResponse(r.body, { status: r.http, headers: { "content-type": "text/plain" } });
   } catch (err) {

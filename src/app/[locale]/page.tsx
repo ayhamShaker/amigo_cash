@@ -89,7 +89,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <span className="pill" style={{ alignSelf: "flex-start", background: "rgba(255,255,255,.18)", color: "#fff" }}>
               {t("Rewards for your free time")}
             </span>
-            <h1 style={{ fontSize: "clamp(36px,4.6vw,58px)", fontWeight: 900, letterSpacing: "-.035em", lineHeight: 1.02 }}>
+            <h1 className="hero-title">
               {t("Play games. Try apps.")} {t("Get paid")} {t("in minutes.")}
             </h1>
             <div className="stack" style={{ gap: 18 }}>

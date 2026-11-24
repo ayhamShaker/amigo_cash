@@ -138,3 +138,17 @@ export async function addPresetMethodAction(_p: FormState, fd: FormData): Promis
   const err = await store([...cur.methods, preset], admin.id, ip, "method.add_preset", { id: preset.id, name: preset.name });
   return err ?? { ok: `تمت إضافة ${preset.name} بنجاح.` };
 }
+
+export async function setAllMethodsMinAction(_p: FormState, fd: FormData): Promise<FormState> {
+  const { admin, ip } = await ctx();
+  const minCents = dollarsToCents(str(fd, "min", 12));
+  if (minCents === null || minCents < 50) return { error: "الحد الأدنى لازم يكون 0.50$ أو أكتر." };
+  const cur = await getSettings();
+  const list = cur.methods.map((m) => ({
+    ...m,
+    minCents,
+    feeCents: Math.min(m.feeCents, Math.max(0, minCents - 1)),
+  }));
+  const err = await store(list, admin.id, ip, "method.set_all_min", { minCents });
+  return err ?? { ok: `تم تعيين الحد الأدنى لكل الطرق إلى $${(minCents / 100).toFixed(2)}.` };
+}

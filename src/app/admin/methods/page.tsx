@@ -3,7 +3,7 @@ import { requireAdminPage } from "@/server/admin-guard";
 import { getSettings } from "@/server/settings";
 import { ActionForm, Submit } from "@/components/forms";
 import { MethodIconPicker } from "@/components/method-icon-picker";
-import { addMethodAction, addPresetMethodAction, deleteMethodAction, moveMethodAction, saveMethodAction } from "@/app/actions/methods";
+import { addMethodAction, addPresetMethodAction, deleteMethodAction, moveMethodAction, saveMethodAction, setAllMethodsMinAction } from "@/app/actions/methods";
 import { ADDRESS_KIND_KEYS, BUILTIN_ICONS, US_UK_PRESETS, type AddressKind, type PayMethod } from "@/lib/methods";
 
 export const metadata: Metadata = { title: "طرق السحب" };
@@ -57,7 +57,7 @@ function Fields({ m }: { m?: PayMethod }) {
         <div className="row" style={{ gap: 10, alignItems: "flex-end" }}>
           <label className="field grow">
             <span className="flabel">الحد الأدنى ($)</span>
-            <input className="input num" name="min" dir="ltr" inputMode="decimal" defaultValue={m ? usd(m.minCents) : "1.00"} />
+            <input className="input num" name="min" dir="ltr" inputMode="decimal" defaultValue={m ? usd(m.minCents) : "10.00"} />
           </label>
           <label className="field grow">
             <span className="flabel">الرسوم ($)</span>
@@ -86,6 +86,17 @@ export default async function MethodsPage() {
           <h1>طرق السحب</h1>
           <p className="small muted">عدل أي طريقة أو أضف طريقة جديدة. الترتيب هون هو نفس الترتيب اللي بيشوفه العضو. لسوق US/UK يفضل تفعيل PayPal وAmazon وVisa وSteam وLTC/USDC وإطفاء Binance Pay.</p>
         </div>
+      </div>
+
+      <div className="card row wr between">
+        <div>
+          <b className="small">تغيير الحد الأدنى لكل الطرق دفعة واحدة</b>
+          <div className="tiny muted">بيطبّق نفس الحد الأدنى على كل طرق السحب الحالية بضغطة زر.</div>
+        </div>
+        <ActionForm action={setAllMethodsMinAction} className="row wr">
+          <input className="input num" name="min" dir="ltr" inputMode="decimal" defaultValue="10.00" style={{ width: 96 }} aria-label="الحد الأدنى بالدولار" />
+          <Submit className="btn primary sm">تطبيق على الكل</Submit>
+        </ActionForm>
       </div>
 
       {US_UK_PRESETS.some((p) => !s.methods.some((m) => m.id === p.id)) ? (

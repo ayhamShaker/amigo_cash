@@ -43,12 +43,12 @@ export type PayMethod = {
 };
 
 export const DEFAULT_METHODS: PayMethod[] = [
-  { id: "usdt", name: "USDT", sub: "Tether · TRC-20", kind: "trc20", field: "TRC20 wallet address", placeholder: "TXk2…9fQa", image: "/methods/usdt.svg", enabled: true, minCents: 200, feeCents: 0 },
-  { id: "ltc", name: "Litecoin", sub: "LTC network", kind: "ltc", field: "Litecoin address", placeholder: "ltc1q…", image: "/methods/ltc.svg", enabled: true, minCents: 100, feeCents: 0 },
+  { id: "usdt", name: "USDT", sub: "Tether · TRC-20", kind: "trc20", field: "TRC20 wallet address", placeholder: "TXk2…9fQa", image: "/methods/usdt.svg", enabled: true, minCents: 1000, feeCents: 0 },
+  { id: "ltc", name: "Litecoin", sub: "LTC network", kind: "ltc", field: "Litecoin address", placeholder: "ltc1q…", image: "/methods/ltc.svg", enabled: true, minCents: 1000, feeCents: 0 },
   { id: "btc", name: "Bitcoin", sub: "BTC network", kind: "btc", field: "Bitcoin address", placeholder: "bc1q…", image: "/methods/btc.svg", enabled: true, minCents: 1000, feeCents: 50 },
-  { id: "binance", name: "Binance Pay", sub: "Instant transfer", kind: "binance", field: "Binance Pay ID", placeholder: "354 120 987", image: "/methods/bnb.svg", enabled: true, minCents: 100, feeCents: 0 },
-  { id: "amazon", name: "Amazon Gift Card", sub: "US / UK store", kind: "email", field: "Email for the code", placeholder: "you@email.com", image: "/methods/amazon.svg", enabled: true, minCents: 500, feeCents: 0 },
-  { id: "paypal", name: "PayPal", sub: "USD balance", kind: "email", field: "PayPal email", placeholder: "you@email.com", image: "/methods/paypal.svg", enabled: false, minCents: 500, feeCents: 0 },
+  { id: "binance", name: "Binance Pay", sub: "Instant transfer", kind: "binance", field: "Binance Pay ID", placeholder: "354 120 987", image: "/methods/bnb.svg", enabled: true, minCents: 1000, feeCents: 0 },
+  { id: "amazon", name: "Amazon Gift Card", sub: "US / UK store", kind: "email", field: "Email for the code", placeholder: "you@email.com", image: "/methods/amazon.svg", enabled: true, minCents: 1000, feeCents: 0 },
+  { id: "paypal", name: "PayPal", sub: "USD balance", kind: "email", field: "PayPal email", placeholder: "you@email.com", image: "/methods/paypal.svg", enabled: false, minCents: 1000, feeCents: 0 },
 ];
 
 /** One-click presets popular with US & UK GPT members. */

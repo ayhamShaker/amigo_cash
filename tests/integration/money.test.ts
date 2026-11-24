@@ -6,6 +6,8 @@ import { claimDailyBonus, redeemPromo } from "@/server/rewards";
 import { rateLimit } from "@/server/rate-limit";
 import { expectLedgerConsistent, makeUser, resetDb, useSettings } from "../support/db";
 
+import { DEFAULT_METHODS } from "@/lib/methods";
+
 const TRON = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
 
 beforeEach(async () => {
@@ -17,6 +19,7 @@ beforeEach(async () => {
     requireVerifiedEmailToWithdraw: true,
     minEarnedToWithdrawCents: 0,
     dailyMinEarnedCents: 0,
+    methods: DEFAULT_METHODS.map((m) => (m.id === "usdt" ? { ...m, minCents: 200 } : m.id === "binance" ? { ...m, minCents: 100 } : m)),
   });
 });
 

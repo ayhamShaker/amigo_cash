@@ -54,7 +54,7 @@ export async function recentActivity(limit = 12) {
       select: { id: true, coins: true, offerName: true, user: { select: { name: true } } },
     }),
     db.withdrawal.findMany({
-      where: { status: "PAID", user: { role: "USER" } },
+      where: { status: "PAID", user: { role: "USER", status: "ACTIVE" } },
       orderBy: { reviewedAt: "desc" },
       take: Math.ceil(limit / 3),
       select: { id: true, amountCents: true, method: true, user: { select: { name: true } } },

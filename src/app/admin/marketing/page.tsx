@@ -3,11 +3,12 @@ import { requireAdminPage } from "@/server/admin-guard";
 import { adminLang, makeAt, type AdminLang } from "@/server/admin-lang";
 import { env } from "@/lib/env";
 import { getSettings } from "@/server/settings";
-import { campaignFunnel, creatorReport, sourceFunnel, type FunnelRow } from "@/server/marketing";
+import { campaignFunnel, countryFunnel, creatorReport, deviceReport, sourceFunnel, type FunnelRow } from "@/server/marketing";
 import { ActionForm, CopyButton, Submit } from "@/components/forms";
 import { daysAgo } from "@/lib/time";
 import { createCreatorAction, updateCreatorAction } from "@/app/actions/marketing";
 import { coinsToCents, formatUsd } from "@/lib/money";
+import { countryName } from "@/lib/countries";
 
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await adminLang();
@@ -56,7 +57,7 @@ function pct(a: number, b: number) {
   return b > 0 && a <= b ? `${Math.round((a / b) * 100)}%` : "—";
 }
 
-function FunnelTable({ rows, label, coinsPerUsd, lang, showVisits = true }: { rows: FunnelRow[]; label: (k: string) => string; coinsPerUsd: number; lang: AdminLang; showVisits?: boolean }) {
+function FunnelTable({ rows, label, coinsPerUsd, lang, showVisits = true, heading }: { rows: FunnelRow[]; label: (k: string) => string; coinsPerUsd: number; lang: AdminLang; showVisits?: boolean; heading?: string }) {
   const at = makeAt(lang);
   if (!rows.length) return <div className="card empty">{at("ما في بيانات لهالفترة بعد.", "No data for this period yet.")}</div>;
   return (
@@ -64,7 +65,7 @@ function FunnelTable({ rows, label, coinsPerUsd, lang, showVisits = true }: { ro
       <table>
         <thead>
           <tr>
-            <th>{at("المصدر", "Source")}</th>
+            <th>{heading ?? at("المصدر", "Source")}</th>
             {showVisits ? <th className="r">{at("زيارات", "Visits")}</th> : null}
             <th className="r">{at("تسجيلات", "Sign-ups")}</th>
             {showVisits ? <th className="r">{at("نسبة التسجيل", "Conv.")}</th> : null}
@@ -79,7 +80,7 @@ function FunnelTable({ rows, label, coinsPerUsd, lang, showVisits = true }: { ro
           {rows.map((r) => (
             <tr key={r.key}>
               <td>
-                <b dir="ltr">{label(r.key)}</b>
+                <b dir="auto">{label(r.key)}</b>
               </td>
               {showVisits ? <td className="r num">{r.visits.toLocaleString("en-US")}</td> : null}
               <td className="r num">{r.signups.toLocaleString("en-US")}</td>
@@ -146,13 +147,26 @@ export default async function MarketingPage({ searchParams }: { searchParams: Pr
   const range = sp.d && RANGES[sp.d] ? sp.d : "30";
   const days = RANGES[range]![1];
   const since = days ? daysAgo(days) : new Date(0);
-  const [settings, sources, campaigns, creators] = await Promise.all([getSettings(), sourceFunnel(since), campaignFunnel(since), creatorReport()]);
+  const [settings, sources, countries, devices, campaigns, creators] = await Promise.all([
+    getSettings(),
+    sourceFunnel(since),
+    countryFunnel(since),
+    deviceReport(since),
+    campaignFunnel(since),
+    creatorReport(),
+  ]);
   const base = env().APP_URL.replace(/\/$/, "");
   const total = sources.reduce(
     (a, r) => ({ visits: a.visits + r.visits, signups: a.signups + r.signups, earners: a.earners + r.earners, revenue: a.revenue + r.revenueCents, paid: a.paid + r.paidCents }),
     { visits: 0, signups: 0, earners: 0, revenue: 0, paid: 0 },
   );
   const srcMap = lang === "en" ? SOURCE_EN : SOURCE_AR;
+  const totalDeviceVisits = devices.reduce((sum, d) => sum + d.visits, 0);
+  const topDeviceVisits = devices[0]?.visits || 1;
+  const deviceLabel = (d: string) =>
+    d === "android" ? "Android" : d === "ios" ? "iOS" : at("كمبيوتر", "Desktop");
+  const countryLabel = (code: string) =>
+    code === "XX" ? at("غير معروف (XX)", "Unknown (XX)") : `${countryName(code, lang === "en" ? "en" : "ar")} (${code})`;
 
   return (
     <>
@@ -197,10 +211,41 @@ export default async function MarketingPage({ searchParams }: { searchParams: Pr
         <FunnelTable rows={sources} label={(k) => srcMap[k] ?? k} coinsPerUsd={settings.coinsPerUsd} lang={lang} />
       </section>
 
+      <section className="stack">
+        <h2 style={{ fontSize: 20 }}>{at("حسب الدولة (الزوار + الأعضاء)", "By country (visitors & members)")}</h2>
+        <FunnelTable
+          rows={countries}
+          label={countryLabel}
+          coinsPerUsd={settings.coinsPerUsd}
+          lang={lang}
+          heading={at("الدولة", "Country")}
+        />
+      </section>
+
+      <section className="card stack">
+        <h2 style={{ fontSize: 18 }}>{at("الزوار حسب الجهاز", "Visitors by device")}</h2>
+        {devices.length ? (
+          devices.map((d) => (
+            <div className="hbar" key={d.device} style={{ gridTemplateColumns: "92px 1fr 115px" }}>
+              <span className="cc">{deviceLabel(d.device)}</span>
+              <span className="t">
+                <i style={{ width: `${(d.visits / topDeviceVisits) * 100}%` }} />
+              </span>
+              <span className="num" style={{ textAlign: "end" }}>
+                {d.visits.toLocaleString("en-US")}{" "}
+                <span className="tiny muted">({pct(d.visits, totalDeviceVisits)})</span>
+              </span>
+            </div>
+          ))
+        ) : (
+          <p className="muted small">{at("ما في بيانات أجهزة لهالفترة بعد.", "No device data for this period yet.")}</p>
+        )}
+      </section>
+
       {campaigns.length ? (
         <section className="stack">
           <h2 style={{ fontSize: 20 }}>{at("حسب الحملة (utm_campaign)", "By campaign (utm_campaign)")}</h2>
-          <FunnelTable rows={campaigns} label={(k) => k} coinsPerUsd={settings.coinsPerUsd} lang={lang} showVisits={false} />
+          <FunnelTable rows={campaigns} label={(k) => k} coinsPerUsd={settings.coinsPerUsd} lang={lang} showVisits={false} heading={at("الحملة", "Campaign")} />
         </section>
       ) : null}
 

@@ -87,7 +87,7 @@ export const config = {
   matcher: [
     // everything except API routes, Next internals and static files
     {
-      source: "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|.*\\.(?:png|ico|svg|jpg|webp)$).*)",
+      source: "/((?!api|_next/static|_next/image|_vercel|opengraph-image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|.*\\.(?:png|ico|svg|jpg|webp)$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

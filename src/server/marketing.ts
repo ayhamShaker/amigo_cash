@@ -9,12 +9,19 @@ function todayUtc(now = new Date()) {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 }
 
-/** Counts one visit (a browser session) for a source. */
-export async function recordVisit(source: string, creatorId: string | null) {
+/** Counts one visit (a browser session) for a source, and optionally country + device. */
+export async function recordVisit(source: string, creatorId: string | null, country?: string | null, device?: string | null) {
   const day = todayUtc();
   await db.$executeRaw`
     INSERT INTO "TrafficDay" ("day", "source", "creatorId", "visits") VALUES (${day}, ${source}, ${creatorId ?? ""}, 1)
     ON CONFLICT ("day", "source", "creatorId") DO UPDATE SET "visits" = "TrafficDay"."visits" + 1`;
+  const cc = country && /^[A-Z]{2}$/.test(country) ? country : "XX";
+  const dev = device === "android" || device === "ios" || device === "desktop" ? device : "desktop";
+  if (country !== undefined || device !== undefined) {
+    await db.$executeRaw`
+      INSERT INTO "TrafficCountry" ("day", "country", "device", "visits") VALUES (${day}, ${cc}, ${dev}, 1)
+      ON CONFLICT ("day", "country", "device") DO UPDATE SET "visits" = "TrafficCountry"."visits" + 1`;
+  }
 }
 
 export type SignupAttribution = Attribution & { creatorId: string | null; creatorBonus: number; creatorName: string | null };
@@ -114,6 +121,31 @@ export async function campaignFunnel(since: Date): Promise<FunnelRow[]> {
     WHERE u."createdAt" >= ${since} AND u.role = 'USER' AND u."campaign" IS NOT NULL
     GROUP BY 1`;
   return toRows(raw, new Map());
+}
+
+/** Visitors (TrafficCountry) + signed-up members grouped by country code. */
+export async function countryFunnel(since: Date): Promise<FunnelRow[]> {
+  const raw = await db.$queryRaw<RawRow[]>`
+    SELECT COALESCE(NULLIF(u."country", ''), 'XX') AS key,
+      COUNT(*) AS signups,
+      COUNT(u."emailVerifiedAt") AS confirmed,
+      COUNT(*) FILTER (WHERE u."lifetimeEarned" > 0) AS earners,
+      SUM(u."lifetimeEarned") AS earned,
+      SUM((SELECT COALESCE(SUM(c."payoutCents"), 0) FROM "Conversion" c WHERE c."userId" = u.id AND c.status = 'CREDITED')) AS revenue,
+      SUM((SELECT COALESCE(SUM(w."amountCents"), 0) FROM "Withdrawal" w WHERE w."userId" = u.id AND w.status = 'PAID')) AS paid
+    FROM "User" u
+    WHERE u."createdAt" >= ${since} AND u.role = 'USER'
+    GROUP BY 1`;
+  const v = await db.$queryRaw<{ country: string; visits: bigint }[]>`
+    SELECT "country", SUM("visits") AS visits FROM "TrafficCountry" WHERE "day" >= ${todayUtc(since)} GROUP BY 1`;
+  return toRows(raw, new Map(v.map((x) => [x.country, Number(x.visits)]))).sort((a, b) => b.visits - a.visits || b.signups - a.signups);
+}
+
+/** Visitor sessions grouped by device type (android / ios / desktop). */
+export async function deviceReport(since: Date): Promise<{ device: string; visits: number }[]> {
+  const rows = await db.$queryRaw<{ device: string; visits: bigint }[]>`
+    SELECT "device", SUM("visits") AS visits FROM "TrafficCountry" WHERE "day" >= ${todayUtc(since)} GROUP BY 1 ORDER BY visits DESC`;
+  return rows.map((r) => ({ device: r.device, visits: Number(r.visits) }));
 }
 
 export type CreatorRow = FunnelRow & { id: string; slug: string; name: string; platform: string; active: boolean; bonusCoins: number; clicks: number; account: { id: string; email: string } | null; commissionCoins: number; notes: string };

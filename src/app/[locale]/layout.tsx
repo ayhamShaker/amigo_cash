@@ -4,6 +4,7 @@ import { pageLocale, themeCookie } from "./locale";
 import { getSettings } from "@/server/settings";
 import { currentUser } from "@/server/session";
 import { formatUsd } from "@/lib/money";
+import { Analytics } from "@vercel/analytics/next";
 import { TrackVisit } from "@/components/track-visit";
 import { ChatWidget } from "@/components/chat-widget";
 import { Logo, Icon } from "@/components/icons";
@@ -102,6 +103,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
             {settings.bannerEnabled && settings.bannerText[locale] ? <div className="banner">{settings.bannerText[locale]}</div> : null}
             {children}
             <TrackVisit />
+            <Analytics />
             <ChatWidget
               locale={locale}
               signedIn={!!user}

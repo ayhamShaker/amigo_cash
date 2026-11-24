@@ -169,6 +169,18 @@ model TrafficDay {
   @@id([day, source, creatorId])
 }
 
+/**
+ * Visits per day, country (Vercel/Cloudflare geo header) and device type.
+ */
+model TrafficCountry {
+  day     DateTime @db.Date
+  country String
+  device  String
+  visits  Int      @default(0)
+
+  @@id([day, country, device])
+}
+
 model Session {
   id         String   @id // SHA-256 of the cookie token, never the token itself
   userId     String

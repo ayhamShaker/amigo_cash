@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/server/admin-guard";
+import { adminLang, makeAt } from "@/server/admin-lang";
 import { getSettings } from "@/server/settings";
 import { ActionForm, Submit } from "@/components/forms";
 import { saveSettingsAction } from "@/app/actions/admin";
 import { env } from "@/lib/env";
 import { coinsToCents, formatUsd } from "@/lib/money";
 
-export const metadata: Metadata = { title: "إعدادات الموقع" };
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await adminLang();
+  return { title: lang === "en" ? "Site Settings" : "إعدادات الموقع" };
+}
 
 export default async function SettingsPage() {
-  await requireAdminPage();
+  const [, lang] = await Promise.all([requireAdminPage(), adminLang()]);
+  const at = makeAt(lang);
   const s = await getSettings();
   const e = env();
   const usd = (c: number) => (c / 100).toFixed(2);
 
-  // Live profit-safety unit economics calculation
   const baseShare = s.userSharePct;
-  const maxBoost = s.levelBoostEnabled ? 5 : 0; // Diamond +5%
+  const maxBoost = s.levelBoostEnabled ? 5 : 0;
   const diamondShare = baseShare * (1 + maxBoost / 100);
   const refOfRevenue = (diamondShare * s.referralPct) / 100;
   const normalMargin = 100 - baseShare;
@@ -24,7 +28,6 @@ export default async function SettingsPage() {
   const worstCaseMargin = 100 - diamondShare - refOfRevenue;
 
   const freeSignupCents = coinsToCents(s.welcomeBonus + s.inviteBonus, s.coinsPerUsd);
-  // Gross network revenue required for a user to earn minEarnedToWithdrawCents
   const minRevFromUserCents = baseShare > 0 ? Math.round((s.minEarnedToWithdrawCents * 100) / baseShare) : 0;
   const profitAtUnlockCents = Math.round((minRevFromUserCents * Math.max(0, referredMargin)) / 100);
   const bonusSafe = s.minEarnedToWithdrawCents > 0 && profitAtUnlockCents >= freeSignupCents;
@@ -34,64 +37,75 @@ export default async function SettingsPage() {
     <>
       <div className="pagehead">
         <div>
-          <h1>إعدادات الموقع</h1>
-          <p className="small muted">أي تغيير هون بينعكس على الموقع فورا. ما في داعي تلمس الكود. قواعد الأمان والسحب موجودة بصفحة «مكافحة الاحتيال».</p>
+          <h1>{at("إعدادات الموقع", "Site settings")}</h1>
+          <p className="small muted">
+            {at("أي تغيير هون بينعكس على الموقع فورا. ما في داعي تلمس الكود. قواعد الأمان والسحب موجودة بصفحة «مكافحة الاحتيال».", "Changes take effect immediately. Fraud and payout-safety rules live on the Fraud & Rules page.")}
+          </p>
         </div>
       </div>
 
       <div className="card stack">
-        <h3 style={{ fontSize: 17 }}>حالة الخدمات</h3>
+        <h3 style={{ fontSize: 17 }}>{at("حالة الخدمات", "Connected services")}</h3>
         <div className="row wr">
-          <Svc ok={!!e.RESEND_API_KEY} label="الإيميلات (Resend)" />
-          <Svc ok={!!e.IPQS_API_KEY} label="كشف VPN (IPQualityScore)" />
-          <Svc ok={!!e.GOOGLE_CLIENT_ID && !!e.GOOGLE_CLIENT_SECRET} label="الدخول بـ Google" />
-          <Svc ok={!!e.TELEGRAM_BOT_TOKEN && !!e.TELEGRAM_CHAT_ID} label="تنبيهات Telegram" />
-          <Svc ok={!!e.TURNSTILE_SITE_KEY && !!e.TURNSTILE_SECRET_KEY} label="حماية Turnstile" />
+          <Svc ok={!!e.RESEND_API_KEY} label={at("الإيميلات (Resend)", "Emails (Resend)")} />
+          <Svc ok={!!e.IPQS_API_KEY} label={at("كشف VPN (IPQualityScore)", "VPN check (IPQualityScore)")} />
+          <Svc ok={!!e.GOOGLE_CLIENT_ID && !!e.GOOGLE_CLIENT_SECRET} label={at("الدخول بـ Google", "Google Sign-in")} />
+          <Svc ok={!!e.TELEGRAM_BOT_TOKEN && !!e.TELEGRAM_CHAT_ID} label={at("تنبيهات Telegram", "Telegram alerts")} />
+          <Svc ok={!!e.TURNSTILE_SITE_KEY && !!e.TURNSTILE_SECRET_KEY} label={at("حماية Turnstile", "Cloudflare Turnstile")} />
         </div>
       </div>
 
       <div className="card stack">
-        <h3 style={{ fontSize: 17 }}>حاسبة هامش الربح والأمان المالي</h3>
+        <h3 style={{ fontSize: 17 }}>{at("حاسبة هامش الربح والأمان المالي", "Profit margin & anti-loss calculator")}</h3>
         <div className="kpis">
           <div className="kpi">
-            <div className="k">ربحك من عضو عادي</div>
+            <div className="k">{at("ربحك من عضو عادي", "Standard user margin")}</div>
             <div className="v" style={{ color: normalMargin >= 20 ? "var(--good)" : "var(--warn)" }}>
               {normalMargin.toFixed(1)}%
             </div>
-            <div className="d muted">حصة العضو {baseShare}%</div>
+            <div className="d muted">{at("حصة العضو", "User share")} {baseShare}%</div>
           </div>
           <div className="kpi">
-            <div className="k">ربحك من عضو مدعو</div>
+            <div className="k">{at("ربحك من عضو مدعو", "Referred user margin")}</div>
             <div className="v" style={{ color: referredMargin >= 15 ? "var(--good)" : "var(--warn)" }}>
               {referredMargin.toFixed(1)}%
             </div>
-            <div className="d muted">بعد عمولة الإحالة {s.referralPct}%</div>
+            <div className="d muted">{at("بعد عمولة الإحالة", "After referral")} {s.referralPct}%</div>
           </div>
           <div className="kpi">
-            <div className="k">أسوأ حالة (Diamond + إحالة)</div>
+            <div className="k">{at("أسوأ حالة (Diamond + إحالة)", "Worst case (Diamond + referral)")}</div>
             <div className="v" style={{ color: worstCaseMargin >= 12 ? "var(--good)" : "var(--bad)" }}>
               {worstCaseMargin.toFixed(1)}%
             </div>
-            <div className="d muted">{s.levelBoostEnabled ? "مع بونص المستويات (حتى +5%)" : "بونص المستويات مطفأ"}</div>
+            <div className="d muted">{s.levelBoostEnabled ? at("مع بونص المستويات (حتى +5%)", "With level boost (up to +5%)") : at("بونص المستويات مطفأ", "Level boost off")}</div>
           </div>
           <div className="kpi">
-            <div className="k">حماية البونص المجاني</div>
+            <div className="k">{at("حماية البونص المجاني", "Free bonus protection")}</div>
             <div className="v" style={{ color: bonusSafe ? "var(--good)" : "var(--bad)", fontSize: 18 }}>
-              {bonusSafe ? "آمن ✓" : "خطر خسارة !"}
+              {bonusSafe ? at("آمن ✓", "Safe ✓") : at("خطر خسارة !", "Loss risk!")}
             </div>
             <div className="d muted">
-              بونص تسجيل+دعوة {formatUsd(freeSignupCents)} مقابل ربح {formatUsd(profitAtUnlockCents)} عند فتح السحب
+              {at(
+                `بونص تسجيل+دعوة ${formatUsd(freeSignupCents)} مقابل ربح ${formatUsd(profitAtUnlockCents)} عند فتح السحب`,
+                `Signup+invite ${formatUsd(freeSignupCents)} vs ${formatUsd(profitAtUnlockCents)} profit at unlock`,
+              )}
             </div>
           </div>
         </div>
         {!bonusSafe ? (
           <div className="formmsg bad">
-            انتبه: البونص الترحيبي + الدعوة ({formatUsd(freeSignupCents)}) أكبر من ربحك الصافي عند فتح السحب ({formatUsd(profitAtUnlockCents)}). ارفع «أقل ربح حقيقي لفتح السحب» أو خفّض البونص لحتى ما تخسر من صيّادي البونص.
+            {at(
+              `انتبه: البونص الترحيبي + الدعوة (${formatUsd(freeSignupCents)}) أكبر من ربحك الصافي عند فتح السحب (${formatUsd(profitAtUnlockCents)}). ارفع «أقل ربح حقيقي لفتح السحب» أو خفّض البونص لحتى ما تخسر من صيّادي البونص.`,
+              `Warning: welcome + invite bonuses (${formatUsd(freeSignupCents)}) exceed your net profit at withdrawal unlock (${formatUsd(profitAtUnlockCents)}). Increase "Min real earnings to withdraw" or lower signup bonuses.`,
+            )}
           </div>
         ) : null}
         {weeklyPoolCents > 0 ? (
           <p className="tiny muted">
-            مجموع جوائز المسابقة الأسبوعية حاليا {formatUsd(weeklyPoolCents)}/أسبوع — لتحافظ على ربحيتك، يُفضل ما تتجاوز الجوائز 15%–20% من إيرادك الأسبوعي (يعني تحتاج تقريبا {formatUsd(weeklyPoolCents * 5)} إيراد أسبوعي من الشبكات).
+            {at(
+              `مجموع جوائز المسابقة الأسبوعية حاليا ${formatUsd(weeklyPoolCents)}/أسبوع — يُفضل ما تتجاوز الجوائز 15%–20% من إيرادك الأسبوعي (تحتاج تقريبا ${formatUsd(weeklyPoolCents * 5)} إيراد أسبوعي).`,
+              `Weekly contest pool is ${formatUsd(weeklyPoolCents)}/week — keep prizes under 15%–20% of weekly network revenue (~${formatUsd(weeklyPoolCents * 5)}/week).`,
+            )}
           </p>
         ) : null}
       </div>
@@ -99,22 +113,22 @@ export default async function SettingsPage() {
       <ActionForm action={saveSettingsAction} className="stack">
         <div className="grid2">
           <div className="card">
-            <h3 style={{ fontSize: 17, marginBottom: 6 }}>الاقتصاد وحماية الربح</h3>
-            <NumRow name="coinsPerUsd" title="عدد الكوينز مقابل 1 دولار" value={s.coinsPerUsd} />
-            <NumRow name="userSharePct" title="حصة العضو العامة %" hint="من كل دولار تدفعه الشبكة (المقترح 65–70%)" value={s.userSharePct} />
-            <NumRow name="referralPct" title="عمولة الإحالة %" hint="من أرباح المدعو (المقترح 5–10%)" value={s.referralPct} />
-            <Toggle name="levelBoostEnabled" on={s.levelBoostEnabled} title="بونص المستويات (Silver +1% → Diamond +5%)" hint="يُضاف فقط على العروض والاستبيانات الحقيقية" />
-            <NumRow name="welcomeBonus" title="مكافأة التسجيل (كوينز)" hint="المقترح 100 كوين ($0.10)" value={s.welcomeBonus} />
-            <NumRow name="inviteBonus" title="مكافأة إضافية للمدعو (كوينز)" hint="المقترح 100 كوين ($0.10)" value={s.inviteBonus} />
-            <DecRow name="minEarnedToWithdraw" title="أقل ربح حقيقي لفتح السحب ($)" hint="من العروض/الاستبيانات فقط — يمنع سحب البونص المجاني بدون شغل (المقترح $2.00)" value={usd(s.minEarnedToWithdrawCents)} />
-            <NumRow name="dailyMin" title="سلسلة الصندوق اليومي: اليوم 1" value={s.dailyMin} />
-            <NumRow name="dailyMax" title="سلسلة الصندوق اليومي: اليوم 7" value={s.dailyMax} />
-            <DecRow name="dailyMinEarned" title="شرط فتح الصندوق اليومي ($ بآخر 30 يوم)" hint="يمنع الحسابات الخاملة من سحب كوينز يومية مجانا (المقترح $0.50)" value={usd(s.dailyMinEarnedCents)} />
+            <h3 style={{ fontSize: 17, marginBottom: 6 }}>{at("الاقتصاد وحماية الربح", "Economy & profit guardrails")}</h3>
+            <NumRow name="coinsPerUsd" title={at("عدد الكوينز مقابل 1 دولار", "Coins per $1.00")} value={s.coinsPerUsd} />
+            <NumRow name="userSharePct" title={at("حصة العضو العامة %", "Global member share %")} hint={at("من كل دولار تدفعه الشبكة (المقترح 65–70%)", "Of network payout (recommended 65–70%)")} value={s.userSharePct} />
+            <NumRow name="referralPct" title={at("عمولة الإحالة %", "Referral commission %")} hint={at("من أرباح المدعو (المقترح 5–10%)", "Of referred earnings (recommended 5–10%)")} value={s.referralPct} />
+            <Toggle name="levelBoostEnabled" on={s.levelBoostEnabled} title={at("بونص المستويات (Silver +1% → Diamond +5%)", "Level boosts (Silver +1% → Diamond +5%)")} hint={at("يُضاف فقط على العروض والاستبيانات الحقيقية", "Applies only to real offers & surveys")} />
+            <NumRow name="welcomeBonus" title={at("مكافأة التسجيل (كوينز)", "Welcome bonus (coins)")} hint={at("المقترح 100 كوين ($0.10)", "Recommended 100 coins ($0.10)")} value={s.welcomeBonus} />
+            <NumRow name="inviteBonus" title={at("مكافأة إضافية للمدعو (كوينز)", "Invite bonus (coins)")} hint={at("المقترح 100 كوين ($0.10)", "Recommended 100 coins ($0.10)")} value={s.inviteBonus} />
+            <DecRow name="minEarnedToWithdraw" title={at("أقل ربح حقيقي لفتح السحب ($)", "Min real earnings to withdraw ($)")} hint={at("من العروض/الاستبيانات فقط — يمنع سحب البونص المجاني بدون شغل", "Real offers/surveys only — blocks bonus-only farmers")} value={usd(s.minEarnedToWithdrawCents)} />
+            <NumRow name="dailyMin" title={at("سلسلة الصندوق اليومي: اليوم 1", "Daily streak: Day 1 coins")} value={s.dailyMin} />
+            <NumRow name="dailyMax" title={at("سلسلة الصندوق اليومي: اليوم 7", "Daily streak: Day 7 coins")} value={s.dailyMax} />
+            <DecRow name="dailyMinEarned" title={at("شرط فتح الصندوق اليومي ($ بآخر 30 يوم)", "Min 30d earnings for daily streak ($)")} hint={at("يمنع الحسابات الخاملة من سحب كوينز يومية مجانا", "Stops inactive accounts from farming daily coins")} value={usd(s.dailyMinEarnedCents)} />
             <label className="setrow">
               <span>
-                <b className="small">جوائز المسابقة الأسبوعية ($)</b>
+                <b className="small">{at("جوائز المسابقة الأسبوعية ($)", "Weekly contest prizes ($)")}</b>
                 <span className="tiny muted" style={{ display: "block" }}>
-                  مفصولة بفاصلة، من المركز الأول
+                  {at("مفصولة بفاصلة، من المركز الأول", "Comma-separated, starting from #1")}
                 </span>
               </span>
               <input className="input num" name="prizes" dir="ltr" defaultValue={s.prizesCents.map((c) => usd(c)).join(", ")} style={{ width: 220 }} />
@@ -122,49 +136,51 @@ export default async function SettingsPage() {
           </div>
           <div className="stack">
             <div className="card stack" style={{ gap: 10 }}>
-              <h3 style={{ fontSize: 17 }}>طرق السحب</h3>
-              <p className="small muted">صفحة خاصة لطرق السحب: تعدل الاسم والصورة والحد الأدنى والرسوم، أو تضيف طرق US/UK بضغطة واحدة.</p>
+              <h3 style={{ fontSize: 17 }}>{at("طرق السحب", "Cash-out methods")}</h3>
+              <p className="small muted">{at("صفحة خاصة لطرق السحب: تعدل الاسم والصورة والحد الأدنى والرسوم، أو تضيف طرق US/UK بضغطة واحدة.", "Manage method icons, minimums, fees, and 1-click US/UK presets on the dedicated page.")}</p>
               <a className="btn primary" href="/admin/methods" style={{ alignSelf: "flex-start" }}>
-                فتح طرق السحب
+                {at("فتح طرق السحب", "Open cash-out methods")}
               </a>
             </div>
             <div className="card stack" style={{ gap: 8 }}>
-              <h3 style={{ fontSize: 17 }}>المجتمع والثقة (اختياري)</h3>
-              <p className="tiny muted">بتظهر بالفوتر وببطاقة الأكواد بصفحة الربح. اتركها فاضية لإخفائها.</p>
+              <h3 style={{ fontSize: 17 }}>{at("المجتمع والثقة (اختياري)", "Community & trust links (optional)")}</h3>
+              <p className="tiny muted">{at("بتظهر بالفوتر وببطاقة الأكواد بصفحة الربح. اتركها فاضية لإخفائها.", "Shown in the footer and promo card. Leave blank to hide.")}</p>
               <label className="field">
-                <span className="flabel">رابط قناة Telegram</span>
+                <span className="flabel">{at("رابط قناة Telegram", "Telegram channel URL")}</span>
                 <input className="input" name="telegramUrl" dir="ltr" defaultValue={s.telegramUrl} placeholder="https://t.me/amigocash" maxLength={200} />
               </label>
               <label className="field">
-                <span className="flabel">رابط سيرفر Discord</span>
+                <span className="flabel">{at("رابط سيرفر Discord", "Discord server URL")}</span>
                 <input className="input" name="discordUrl" dir="ltr" defaultValue={s.discordUrl} placeholder="https://discord.gg/..." maxLength={200} />
               </label>
               <label className="field">
-                <span className="flabel">رابط صفحة Trustpilot</span>
-                <input className="input" name="trustpilotUrl" dir="ltr" defaultValue={s.trustpilotUrl} placeholder="https://www.trustpilot.com/review/amigo.cash" maxLength={200} />
+                <span className="flabel">{at("رابط صفحة Trustpilot", "Trustpilot review URL")}</span>
+                <input className="input" name="trustpilotUrl" dir="ltr" defaultValue={s.trustpilotUrl} placeholder="https://www.trustpilot.com/review/amigo-cash.com" maxLength={200} />
               </label>
             </div>
           </div>
         </div>
         <div className="card">
-          <h3 style={{ fontSize: 17, marginBottom: 6 }}>الموقع والإعلانات والدعم</h3>
-          <Toggle name="supportOnline" on={s.supportOnline} title="الدعم المباشر متصل الآن" hint="لو مطفأ بيظهر للزائر إن الرد بيوصل بالإيميل بدل «خلال دقيقتين»" />
-          <Toggle name="bannerEnabled" on={s.bannerEnabled} title="شريط الإعلان أعلى الموقع" />
+          <h3 style={{ fontSize: 17, marginBottom: 6 }}>{at("الموقع والإعلانات والدعم", "Site, announcements & support")}</h3>
+          <Toggle name="supportOnline" on={s.supportOnline} title={at("الدعم المباشر متصل الآن", "Live support online now")} hint={at("لو مطفأ بيظهر للزائر إن الرد بيوصل بالإيميل بدل «خلال دقيقتين»", 'When off, chat shows "Away · we will reply by email"')} />
+          <Toggle name="bannerEnabled" on={s.bannerEnabled} title={at("شريط الإعلان أعلى الموقع", "Top announcement banner")} />
           {(["en", "es", "ar", "hi"] as const).map((l) => (
             <label className="field" style={{ padding: "8px 0" }} key={l}>
-              <span className="flabel">نص الإعلان ({l === "en" ? "إنجليزي" : l === "es" ? "إسباني" : l === "hi" ? "هندي" : "عربي"})</span>
+              <span className="flabel">
+                {at("نص الإعلان", "Banner text")} ({l === "en" ? at("إنجليزي", "English") : l === "es" ? at("إسباني", "Spanish") : l === "hi" ? at("هندي", "Hindi") : at("عربي", "Arabic")})
+              </span>
               <input className="input" name={`banner_${l}`} dir={l === "ar" ? "rtl" : "ltr"} defaultValue={s.bannerText[l]} maxLength={200} />
             </label>
           ))}
-          <Toggle name="registrationOpen" on={s.registrationOpen} title="التسجيل مفتوح" />
-          <Toggle name="maintenance" on={s.maintenance} title="وضع الصيانة" hint="يخفي الموقع عن الأعضاء، لوحة الإدارة تبقى شغالة" />
+          <Toggle name="registrationOpen" on={s.registrationOpen} title={at("التسجيل مفتوح", "Registrations open")} />
+          <Toggle name="maintenance" on={s.maintenance} title={at("وضع الصيانة", "Maintenance mode")} hint={at("يخفي الموقع عن الأعضاء، لوحة الإدارة تبقى شغالة", "Hides member site; admin panel stays accessible")} />
           <label className="setrow">
-            <b className="small">إيميل الدعم</b>
+            <b className="small">{at("إيميل الدعم", "Support email")}</b>
             <input className="input" name="supportEmail" dir="ltr" defaultValue={s.supportEmail} style={{ width: 240 }} />
           </label>
         </div>
         <div className="row" style={{ justifyContent: "flex-end" }}>
-          <Submit className="btn primary lg">حفظ كل الإعدادات</Submit>
+          <Submit className="btn primary lg">{at("حفظ كل الإعدادات", "Save all settings")}</Submit>
         </div>
       </ActionForm>
     </>

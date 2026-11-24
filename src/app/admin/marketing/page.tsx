@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/server/admin-guard";
+import { adminLang, makeAt, type AdminLang } from "@/server/admin-lang";
 import { env } from "@/lib/env";
 import { getSettings } from "@/server/settings";
 import { campaignFunnel, creatorReport, sourceFunnel, type FunnelRow } from "@/server/marketing";
@@ -8,9 +9,10 @@ import { daysAgo } from "@/lib/time";
 import { createCreatorAction, updateCreatorAction } from "@/app/actions/marketing";
 import { coinsToCents, formatUsd } from "@/lib/money";
 
-export const metadata: Metadata = { title: "التسويق" };
-
-const RANGES: Record<string, [string, number | null]> = { "7": ["آخر 7 أيام", 7], "30": ["آخر 30 يوم", 30], "90": ["آخر 90 يوم", 90], all: ["من البداية", null] };
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await adminLang();
+  return { title: lang === "en" ? "Marketing" : "التسويق" };
+}
 
 const SOURCE_AR: Record<string, string> = {
   direct: "مباشر (بدون مصدر)",
@@ -31,27 +33,46 @@ const SOURCE_AR: Record<string, string> = {
   trustpilot: "Trustpilot",
 };
 
+const SOURCE_EN: Record<string, string> = {
+  direct: "Direct",
+  referral: "Member referral",
+  creator: "Creators",
+  tiktok: "TikTok",
+  youtube: "YouTube",
+  reddit: "Reddit",
+  instagram: "Instagram",
+  facebook: "Facebook",
+  x: "X (Twitter)",
+  discord: "Discord",
+  telegram: "Telegram",
+  whatsapp: "WhatsApp",
+  snapchat: "Snapchat",
+  google: "Google",
+  bing: "Bing",
+  trustpilot: "Trustpilot",
+};
+
 function pct(a: number, b: number) {
-  // members from before visit counting started can make a > b; a share above 100% means nothing
   return b > 0 && a <= b ? `${Math.round((a / b) * 100)}%` : "—";
 }
 
-function FunnelTable({ rows, label, coinsPerUsd, showVisits = true }: { rows: FunnelRow[]; label: (k: string) => string; coinsPerUsd: number; showVisits?: boolean }) {
-  if (!rows.length) return <div className="card empty">ما في بيانات لهالفترة بعد.</div>;
+function FunnelTable({ rows, label, coinsPerUsd, lang, showVisits = true }: { rows: FunnelRow[]; label: (k: string) => string; coinsPerUsd: number; lang: AdminLang; showVisits?: boolean }) {
+  const at = makeAt(lang);
+  if (!rows.length) return <div className="card empty">{at("ما في بيانات لهالفترة بعد.", "No data for this period yet.")}</div>;
   return (
     <div className="tablewrap">
       <table>
         <thead>
           <tr>
-            <th>المصدر</th>
-            {showVisits ? <th className="r">زيارات</th> : null}
-            <th className="r">تسجيلات</th>
-            {showVisits ? <th className="r">نسبة التسجيل</th> : null}
-            <th className="r">أكدوا الإيميل</th>
-            <th className="r">ربحوا شي</th>
-            <th className="r">أرباح الأعضاء</th>
-            <th className="r">دخلك من الشبكات</th>
-            <th className="r">سحبوا</th>
+            <th>{at("المصدر", "Source")}</th>
+            {showVisits ? <th className="r">{at("زيارات", "Visits")}</th> : null}
+            <th className="r">{at("تسجيلات", "Sign-ups")}</th>
+            {showVisits ? <th className="r">{at("نسبة التسجيل", "Conv.")}</th> : null}
+            <th className="r">{at("أكدوا الإيميل", "Verified")}</th>
+            <th className="r">{at("ربحوا شي", "Earners")}</th>
+            <th className="r">{at("أرباح الأعضاء", "Earned")}</th>
+            <th className="r">{at("دخلك من الشبكات", "Revenue")}</th>
+            <th className="r">{at("سحبوا", "Paid out")}</th>
           </tr>
         </thead>
         <tbody>
@@ -80,31 +101,32 @@ function FunnelTable({ rows, label, coinsPerUsd, showVisits = true }: { rows: Fu
   );
 }
 
-function CreatorFields({ c }: { c?: { name: string; slug: string; platform: string; bonusCoins: number; notes: string; account: { email: string } | null } }) {
+function CreatorFields({ c, lang }: { c?: { name: string; slug: string; platform: string; bonusCoins: number; notes: string; account: { email: string } | null }; lang: AdminLang }) {
+  const at = makeAt(lang);
   return (
     <div className="grid2" style={{ gap: 12 }}>
       <label className="field">
-        <span className="flabel">الاسم</span>
+        <span className="flabel">{at("الاسم", "Name")}</span>
         <input className="input" name="name" defaultValue={c?.name} maxLength={40} placeholder="Jake Plays" dir="auto" />
       </label>
       <label className="field">
-        <span className="flabel">الرابط الخاص (بالإنجليزي)</span>
+        <span className="flabel">{at("الرابط الخاص (بالإنجليزي)", "Link slug")}</span>
         <input className="input" name="slug" defaultValue={c?.slug} maxLength={30} placeholder="jake-plays" dir="ltr" />
       </label>
       <label className="field">
-        <span className="flabel">المنصة</span>
+        <span className="flabel">{at("المنصة", "Platform")}</span>
         <input className="input" name="platform" defaultValue={c?.platform} maxLength={30} placeholder="TikTok" dir="ltr" />
       </label>
       <label className="field">
-        <span className="flabel">مكافأة للي بيسجل من رابطه (عملات)</span>
+        <span className="flabel">{at("مكافأة للي بيسجل من رابطه (عملات)", "Sign-up bonus coins")}</span>
         <input className="input num" name="bonusCoins" defaultValue={c?.bonusCoins ?? 0} inputMode="numeric" dir="ltr" />
       </label>
       <label className="field">
-        <span className="flabel">إيميل حساب المؤثر بالموقع (اختياري، ليربح عمولة)</span>
+        <span className="flabel">{at("إيميل حساب المؤثر بالموقع (اختياري، ليربح عمولة)", "Creator's member email (optional, for commission)")}</span>
         <input className="input" name="account" defaultValue={c?.account?.email ?? ""} maxLength={254} placeholder="creator@email.com" dir="ltr" />
       </label>
       <label className="field">
-        <span className="flabel">ملاحظات (الاتفاق، طريقة الدفع…)</span>
+        <span className="flabel">{at("ملاحظات (الاتفاق، طريقة الدفع…)", "Notes (deal terms, payout…)")}</span>
         <input className="input" name="notes" defaultValue={c?.notes} maxLength={300} dir="auto" />
       </label>
     </div>
@@ -112,7 +134,14 @@ function CreatorFields({ c }: { c?: { name: string; slug: string; platform: stri
 }
 
 export default async function MarketingPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireAdminPage();
+  const [, lang] = await Promise.all([requireAdminPage(), adminLang()]);
+  const at = makeAt(lang);
+  const RANGES: Record<string, [string, number | null]> = {
+    "7": [at("آخر 7 أيام", "Last 7d"), 7],
+    "30": [at("آخر 30 يوم", "Last 30d"), 30],
+    "90": [at("آخر 90 يوم", "Last 90d"), 90],
+    all: [at("من البداية", "All time"), null],
+  };
   const sp = await searchParams;
   const range = sp.d && RANGES[sp.d] ? sp.d : "30";
   const days = RANGES[range]![1];
@@ -123,13 +152,14 @@ export default async function MarketingPage({ searchParams }: { searchParams: Pr
     (a, r) => ({ visits: a.visits + r.visits, signups: a.signups + r.signups, earners: a.earners + r.earners, revenue: a.revenue + r.revenueCents, paid: a.paid + r.paidCents }),
     { visits: 0, signups: 0, earners: 0, revenue: 0, paid: 0 },
   );
+  const srcMap = lang === "en" ? SOURCE_EN : SOURCE_AR;
 
   return (
     <>
       <div className="pagehead">
         <div>
-          <h1>التسويق</h1>
-          <p className="small muted">من وين عم يجوا الأعضاء، وشو القناة اللي بتجيب ناس بيربحوا فعلاً.</p>
+          <h1>{at("التسويق", "Marketing")}</h1>
+          <p className="small muted">{at("من وين عم يجوا الأعضاء، وشو القناة اللي بتجيب ناس بيربحوا فعلاً.", "See which channels and creators bring members who actually earn.")}</p>
         </div>
         <div className="tabs">
           {Object.entries(RANGES).map(([k, [label]]) => (
@@ -142,55 +172,52 @@ export default async function MarketingPage({ searchParams }: { searchParams: Pr
 
       <div className="kpis">
         <div className="kpi">
-          <div className="k">زيارات</div>
+          <div className="k">{at("زيارات", "Visits")}</div>
           <div className="v">{total.visits.toLocaleString("en-US")}</div>
         </div>
         <div className="kpi">
-          <div className="k">تسجيلات</div>
+          <div className="k">{at("تسجيلات", "Sign-ups")}</div>
           <div className="v">{total.signups.toLocaleString("en-US")}</div>
-          <div className="d muted">{pct(total.signups, total.visits)} من الزيارات</div>
+          <div className="d muted">{pct(total.signups, total.visits)} {at("من الزيارات", "of visits")}</div>
         </div>
         <div className="kpi">
-          <div className="k">أعضاء ربحوا شي</div>
+          <div className="k">{at("أعضاء ربحوا شي", "Active earners")}</div>
           <div className="v">{total.earners.toLocaleString("en-US")}</div>
-          <div className="d muted">{pct(total.earners, total.signups)} من المسجلين</div>
+          <div className="d muted">{pct(total.earners, total.signups)} {at("من المسجلين", "of sign-ups")}</div>
         </div>
         <div className="kpi">
-          <div className="k">دخلك من الشبكات</div>
+          <div className="k">{at("دخلك من الشبكات", "Network revenue")}</div>
           <div className="v">{formatUsd(total.revenue)}</div>
-          <div className="d muted">دفعت للأعضاء {formatUsd(total.paid)}</div>
+          <div className="d muted">{at("دفعت للأعضاء", "Paid out")} {formatUsd(total.paid)}</div>
         </div>
       </div>
 
       <section className="stack">
-        <h2 style={{ fontSize: 20 }}>حسب المصدر</h2>
-        <FunnelTable rows={sources} label={(k) => SOURCE_AR[k] ?? k} coinsPerUsd={settings.coinsPerUsd} />
-        <p className="tiny muted">
-          الأرقام للأعضاء اللي سجلوا خلال الفترة. «دخلك من الشبكات» هو اللي دفعته شبكات العروض عن هالأعضاء، و«سحبوا» هو اللي دفعته أنت إلهن. الزيارة بتنحسب مرة وحدة لكل جلسة متصفح.
-        </p>
+        <h2 style={{ fontSize: 20 }}>{at("حسب المصدر", "By source")}</h2>
+        <FunnelTable rows={sources} label={(k) => srcMap[k] ?? k} coinsPerUsd={settings.coinsPerUsd} lang={lang} />
       </section>
 
       {campaigns.length ? (
         <section className="stack">
-          <h2 style={{ fontSize: 20 }}>حسب الحملة (utm_campaign)</h2>
-          <FunnelTable rows={campaigns} label={(k) => k} coinsPerUsd={settings.coinsPerUsd} showVisits={false} />
+          <h2 style={{ fontSize: 20 }}>{at("حسب الحملة (utm_campaign)", "By campaign (utm_campaign)")}</h2>
+          <FunnelTable rows={campaigns} label={(k) => k} coinsPerUsd={settings.coinsPerUsd} lang={lang} showVisits={false} />
         </section>
       ) : null}
 
       <section className="stack">
-        <h2 style={{ fontSize: 20 }}>المؤثرين</h2>
+        <h2 style={{ fontSize: 20 }}>{at("المؤثرين", "Creators")}</h2>
         {creators.length ? (
           <div className="tablewrap">
             <table>
               <thead>
                 <tr>
-                  <th>المؤثر</th>
-                  <th>الرابط</th>
-                  <th className="r">نقرات</th>
-                  <th className="r">تسجيلات</th>
-                  <th className="r">ربحوا شي</th>
-                  <th className="r">دخلك منهم</th>
-                  <th className="r">عمولة المؤثر</th>
+                  <th>{at("المؤثر", "Creator")}</th>
+                  <th>{at("الرابط", "Link")}</th>
+                  <th className="r">{at("نقرات", "Clicks")}</th>
+                  <th className="r">{at("تسجيلات", "Sign-ups")}</th>
+                  <th className="r">{at("ربحوا شي", "Earners")}</th>
+                  <th className="r">{at("دخلك منهم", "Revenue")}</th>
+                  <th className="r">{at("عمولة المؤثر", "Commission")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -199,7 +226,7 @@ export default async function MarketingPage({ searchParams }: { searchParams: Pr
                     <td>
                       <b dir="auto">{c.name}</b>
                       <div className="tiny muted" dir="ltr">
-                        {c.platform || "—"} {c.active ? "" : "· موقوف"}
+                        {c.platform || "—"} {c.active ? "" : at("· موقوف", "· paused")}
                       </div>
                     </td>
                     <td>
@@ -207,7 +234,7 @@ export default async function MarketingPage({ searchParams }: { searchParams: Pr
                         <span className="cc" dir="ltr">
                           /c/{c.slug}
                         </span>
-                        <CopyButton text={`${base}/c/${c.slug}`} label="نسخ" done="تم النسخ" />
+                        <CopyButton text={`${base}/c/${c.slug}`} label={at("نسخ", "Copy")} done={at("تم النسخ", "Copied")} />
                       </div>
                     </td>
                     <td className="r num">{c.clicks.toLocaleString("en-US")}</td>
@@ -218,56 +245,55 @@ export default async function MarketingPage({ searchParams }: { searchParams: Pr
                     <td className="r num">
                       <b>{formatUsd(c.revenueCents)}</b>
                     </td>
-                    <td className="r num">{c.account ? formatUsd(coinsToCents(c.commissionCoins, settings.coinsPerUsd)) : <span className="tiny muted">بدون حساب</span>}</td>
+                    <td className="r num">{c.account ? formatUsd(coinsToCents(c.commissionCoins, settings.coinsPerUsd)) : <span className="tiny muted">{at("بدون حساب", "No account")}</span>}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <div className="card empty">ما في مؤثرين بعد. ضيف أول واحد من تحت.</div>
+          <div className="card empty">{at("ما في مؤثرين بعد. ضيف أول واحد من تحت.", "No creators yet. Add one below.")}</div>
         )}
 
         {creators.map((c) => (
           <details className="card" key={c.id}>
             <summary style={{ cursor: "pointer", fontWeight: 700 }}>
-              تعديل: <span dir="auto">{c.name}</span>
+              {at("تعديل:", "Edit:")} <span dir="auto">{c.name}</span>
             </summary>
             <ActionForm action={updateCreatorAction} className="stack">
               <input type="hidden" name="id" value={c.id} />
               <div style={{ height: 8 }} />
-              <CreatorFields c={c} />
+              <CreatorFields c={c} lang={lang} />
               <label className="setrow" style={{ borderBottom: 0, padding: 0 }}>
-                <b className="small">الرابط شغال</b>
+                <b className="small">{at("الرابط شغال", "Link active")}</b>
                 <span className="switch">
                   <input type="checkbox" name="active" defaultChecked={c.active} />
                   <span />
                 </span>
               </label>
-              <Submit className="btn primary">حفظ</Submit>
+              <Submit className="btn primary">{at("حفظ", "Save")}</Submit>
             </ActionForm>
           </details>
         ))}
 
         <div className="card stack" style={{ borderStyle: "dashed" }}>
-          <h3 style={{ fontSize: 18 }}>إضافة مؤثر</h3>
+          <h3 style={{ fontSize: 18 }}>{at("إضافة مؤثر", "Add creator")}</h3>
           <p className="small muted">
-            بيصير إله رابط خاص <span dir="ltr">{base}/c/…</span>. كل شخص بيفوت منه بينحسب إله لمدة 30 يوم. إذا ربطت حسابه بالموقع، الأعضاء الجدد بيصيروا من دعواته وبياخد عمولة {settings.referralPct}% من أرباحهن تلقائياً.
+            {at(
+              `بيصير إله رابط خاص ${base}/c/…. كل شخص بيفوت منه بينحسب إله لمدة 30 يوم. إذا ربطت حسابه بالموقع، بياخد عمولة ${settings.referralPct}% من أرباحهن تلقائياً.`,
+              `Creates a personal ${base}/c/… link with 30-day attribution. Linking their member account automatically pays them ${settings.referralPct}% lifetime referral commission.`,
+            )}
           </p>
           <ActionForm action={createCreatorAction} className="stack" resetOnOk>
-            <CreatorFields />
-            <Submit className="btn primary">إضافة</Submit>
+            <CreatorFields lang={lang} />
+            <Submit className="btn primary">{at("إضافة", "Add creator")}</Submit>
           </ActionForm>
         </div>
       </section>
 
       <section className="card stack">
-        <h2 style={{ fontSize: 18 }}>كيف تتبع أي إعلان أو منشور</h2>
-        <p className="small">
-          الموقع بيعرف لحاله إذا الشخص إجا من TikTok أو YouTube أو Reddit أو Google… من الرابط اللي ضغط عليه. وإذا بدك تفرق بين منشورين، زيد على الرابط <span dir="ltr">utm_source</span> و<span dir="ltr">utm_campaign</span>:
-        </p>
+        <h2 style={{ fontSize: 18 }}>{at("كيف تتبع أي إعلان أو منشور", "Tracking posts & campaigns")}</h2>
         <div className="code">{`${base}/?utm_source=tiktok&utm_campaign=video-1\n${base}/?utm_source=reddit&utm_campaign=beermoney-post`}</div>
-        <p className="tiny muted">التطبيقات متل TikTok وInstagram أحياناً ما بتقول من وين إجا الزائر، فحط utm_source بالرابط اللي بالبايو دايماً.</p>
       </section>
     </>
   );

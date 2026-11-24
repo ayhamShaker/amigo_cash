@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/server/admin-guard";
+import { adminLang, makeAt } from "@/server/admin-lang";
 import { getSettings } from "@/server/settings";
 import { db } from "@/lib/db";
 import { ActionForm, Submit } from "@/components/forms";
 import { withdrawalAction } from "@/app/actions/admin";
-import { Risk, Usd, agoAr, WITHDRAWAL_STATUS_AR } from "@/components/admin-ui";
+import { Risk, Usd, agoAr, withdrawalStatusLabel } from "@/components/admin-ui";
 import { methodName } from "@/lib/methods";
 import type { WithdrawalStatus } from "@/generated/prisma/client";
 
-export const metadata: Metadata = { title: "السحوبات" };
-
-const TABS: Record<string, [string, WithdrawalStatus[] | null]> = {
-  open: ["بانتظارك", ["PENDING", "APPROVED"]],
-  paid: ["مدفوعة", ["PAID"]],
-  rejected: ["مرفوضة", ["REJECTED"]],
-  all: ["الكل", null],
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await adminLang();
+  return { title: lang === "en" ? "Withdrawals" : "السحوبات" };
+}
 
 const REASONS: [string, string][] = [
   ["VPN or proxy detected", "تم اكتشاف VPN أو بروكسي"],
@@ -25,7 +22,14 @@ const REASONS: [string, string][] = [
 ];
 
 export default async function WithdrawalsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireAdminPage();
+  const [, lang] = await Promise.all([requireAdminPage(), adminLang()]);
+  const at = makeAt(lang);
+  const TABS: Record<string, [string, WithdrawalStatus[] | null]> = {
+    open: [at("بانتظارك", "Open"), ["PENDING", "APPROVED"]],
+    paid: [at("مدفوعة", "Paid"), ["PAID"]],
+    rejected: [at("مرفوضة", "Rejected"), ["REJECTED"]],
+    all: [at("الكل", "All"), null],
+  };
   const settings = await getSettings();
   const sp = await searchParams;
   const tab = sp.tab && TABS[sp.tab] ? sp.tab : "open";
@@ -41,9 +45,10 @@ export default async function WithdrawalsPage({ searchParams }: { searchParams: 
     <>
       <div className="pagehead">
         <div>
-          <h1>السحوبات</h1>
+          <h1>{at("السحوبات", "Withdrawals")}</h1>
           <p className="small muted">
-            {openSum._count} طلب مفتوح بقيمة <Usd cents={openSum._sum.amountCents ?? 0} />. «جاهز للدفع» يعني تمت الموافقة: أرسل المبلغ من محفظتك ثم اضغط «تم الدفع» وحط رقم العملية.
+            {openSum._count} {at("طلب مفتوح بقيمة", "open requests totaling")} <Usd cents={openSum._sum.amountCents ?? 0} />.{" "}
+            {at("«جاهز للدفع» يعني تمت الموافقة: أرسل المبلغ من محفظتك ثم اضغط «تم الدفع» وحط رقم العملية.", '"Ready to pay" means approved: send the payout, then click "Mark paid" with the TX reference.')}
           </p>
         </div>
       </div>
@@ -57,7 +62,7 @@ export default async function WithdrawalsPage({ searchParams }: { searchParams: 
       {list.length ? (
         <div className="stack">
           {list.map((w) => {
-            const [label, cls] = WITHDRAWAL_STATUS_AR[w.status] ?? ["", ""];
+            const [label, cls] = withdrawalStatusLabel(w.status, lang);
             const open = w.status === "PENDING" || w.status === "APPROVED";
             return (
               <div className="card stack" key={w.id} style={{ gap: 10 }}>
@@ -66,7 +71,7 @@ export default async function WithdrawalsPage({ searchParams }: { searchParams: 
                     <a href={`/admin/users/${w.user.id}`}>
                       <b>{w.user.name}</b>
                     </a>
-                    {w.firstPayout ? <span className="pill info">أول سحب</span> : null}
+                    {w.firstPayout ? <span className="pill info">{at("أول سحب", "First payout")}</span> : null}
                     <span className={`pill ${cls}`}>{label}</span>
                     <Risk score={w.user.riskScore} />
                     {w.user.flags.map((f) => (
@@ -75,7 +80,7 @@ export default async function WithdrawalsPage({ searchParams }: { searchParams: 
                       </span>
                     ))}
                   </div>
-                  <span className="small muted">{agoAr(w.createdAt)}</span>
+                  <span className="small muted">{agoAr(w.createdAt, undefined, lang)}</span>
                 </div>
                 <div className="row between wr">
                   <div>
@@ -84,19 +89,19 @@ export default async function WithdrawalsPage({ searchParams }: { searchParams: 
                       {w.address}
                     </div>
                   </div>
-                  <div style={{ textAlign: "left" }}>
+                  <div style={{ textAlign: "end" }}>
                     <div style={{ fontSize: 22, fontWeight: 800 }}>
                       <Usd cents={w.amountCents - w.feeCents} />
                     </div>
                     <div className="tiny muted">
-                      المبلغ <Usd cents={w.amountCents} /> − رسوم <Usd cents={w.feeCents} />
+                      {at("المبلغ", "Gross")} <Usd cents={w.amountCents} /> − {at("رسوم", "fee")} <Usd cents={w.feeCents} />
                     </div>
                   </div>
                 </div>
-                {w.note ? <div className="small muted">السبب: {w.note}</div> : null}
+                {w.note ? <div className="small muted">{at("السبب:", "Reason:")} {w.note}</div> : null}
                 {w.txRef ? (
                   <div className="small muted">
-                    رقم العملية: <span dir="ltr">{w.txRef}</span>
+                    {at("رقم العملية:", "Reference:")} <span dir="ltr">{w.txRef}</span>
                   </div>
                 ) : null}
                 {open ? (
@@ -105,29 +110,29 @@ export default async function WithdrawalsPage({ searchParams }: { searchParams: 
                       <ActionForm action={withdrawalAction}>
                         <input type="hidden" name="id" value={w.id} />
                         <input type="hidden" name="op" value="approve" />
-                        <Submit className="btn">موافقة</Submit>
+                        <Submit className="btn">{at("موافقة", "Approve")}</Submit>
                       </ActionForm>
                     ) : null}
                     <ActionForm action={withdrawalAction} className="row wr">
                       <input type="hidden" name="id" value={w.id} />
                       <input type="hidden" name="op" value="paid" />
-                      <input className="input" name="txRef" placeholder="رقم العملية / TX hash" dir="ltr" style={{ width: 220 }} maxLength={200} aria-label="رقم العملية" />
-                      <Submit className="btn good">تم الدفع</Submit>
+                      <input className="input" name="txRef" placeholder={at("رقم العملية / TX hash", "TX hash / code")} dir="ltr" style={{ width: 220 }} maxLength={200} aria-label={at("رقم العملية", "Reference")} />
+                      <Submit className="btn good">{at("تم الدفع", "Mark paid")}</Submit>
                     </ActionForm>
                     <ActionForm action={withdrawalAction} className="row wr">
                       <input type="hidden" name="id" value={w.id} />
                       <input type="hidden" name="op" value="reject" />
-                      <select className="input" name="reason" style={{ width: 230 }} aria-label="سبب الرفض" defaultValue="">
+                      <select className="input" name="reason" style={{ width: 230 }} aria-label={at("سبب الرفض", "Rejection reason")} defaultValue="">
                         <option value="" disabled>
-                          سبب الرفض…
+                          {at("سبب الرفض…", "Rejection reason…")}
                         </option>
-                        {REASONS.map(([v, l]) => (
-                          <option key={v} value={v}>
-                            {l}
+                        {REASONS.map(([en, ar]) => (
+                          <option key={en} value={en}>
+                            {lang === "en" ? en : ar}
                           </option>
                         ))}
                       </select>
-                      <Submit className="btn bad">رفض وإرجاع الرصيد</Submit>
+                      <Submit className="btn bad">{at("رفض وإرجاع الرصيد", "Reject & refund")}</Submit>
                     </ActionForm>
                   </div>
                 ) : null}
@@ -136,7 +141,7 @@ export default async function WithdrawalsPage({ searchParams }: { searchParams: 
           })}
         </div>
       ) : (
-        <div className="card empty">ما في طلبات هون.</div>
+        <div className="card empty">{at("ما في طلبات هون.", "No withdrawals here.")}</div>
       )}
     </>
   );

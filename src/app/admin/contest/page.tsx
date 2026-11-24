@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/server/admin-guard";
+import { adminLang, makeAt } from "@/server/admin-lang";
 import { db } from "@/lib/db";
 import { getSettings } from "@/server/settings";
 import { weekStartUtc, weeklyLeaderboard, weeklyLeaderboardRange } from "@/server/queries";
@@ -8,10 +9,14 @@ import { ActionForm, Submit } from "@/components/forms";
 import { payContestAction } from "@/app/actions/admin";
 import { Usd, Num } from "@/components/admin-ui";
 
-export const metadata: Metadata = { title: "المسابقة الأسبوعية" };
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await adminLang();
+  return { title: lang === "en" ? "Weekly Contest" : "المسابقة الأسبوعية" };
+}
 
 export default async function ContestAdminPage() {
-  await requireAdminPage();
+  const [, lang] = await Promise.all([requireAdminPage(), adminLang()]);
+  const at = makeAt(lang);
   const settings = await getSettings();
   const prev = previousWeekRange();
   const curStart = weekStartUtc();
@@ -34,33 +39,38 @@ export default async function ContestAdminPage() {
     <>
       <div className="pagehead">
         <div>
-          <h1>المسابقة الأسبوعية</h1>
-          <p className="small muted">مجموع الجوائز الحالي: <Usd cents={poolCents} /> (بتعدّله من إعدادات الموقع). الدفع محمي بحيث ما بيندفع نفس الأسبوع مرتين أبداً.</p>
+          <h1>{at("المسابقة الأسبوعية", "Weekly Contest")}</h1>
+          <p className="small muted">
+            {at("مجموع الجوائز الحالي:", "Current prize pool:")} <Usd cents={poolCents} />{" "}
+            {at("(بتعدّله من إعدادات الموقع). الدفع محمي بحيث ما بيندفع نفس الأسبوع مرتين أبداً.", "(editable in Settings). Protected against duplicate payouts.")}
+          </p>
         </div>
       </div>
 
       <div className="card stack">
         <div className="row between wr">
           <div>
-            <h2 style={{ fontSize: 19 }}>الأسبوع الماضي ({fmtWeek(prev.start)})</h2>
+            <h2 style={{ fontSize: 19 }}>{at("الأسبوع الماضي", "Last week")} ({fmtWeek(prev.start)})</h2>
             <p className="small muted">
-              إيراد الشبكات بالأسبوع الماضي: <Usd cents={prevRevCents} /> · المستحق للفائزين: <Usd cents={prevDueCents} />
+              {at("إيراد الشبكات بالأسبوع الماضي:", "Last week network revenue:")} <Usd cents={prevRevCents} /> · {at("المستحق للفائزين:", "Due to winners:")} <Usd cents={prevDueCents} />
             </p>
           </div>
           {prevPaid ? (
-            <span className="pill good">✓ تم التوزيع ({<Usd cents={prevPaid.totalCents} />})</span>
+            <span className="pill good">✓ {at("تم التوزيع", "Paid")} (<Usd cents={prevPaid.totalCents} />)</span>
           ) : prevDueCents > 0 ? (
             <ActionForm action={payContestAction}>
-              <Submit className="btn primary">توزيع جوائز الأسبوع الماضي</Submit>
+              <Submit className="btn primary">{at("توزيع جوائز الأسبوع الماضي", "Pay last week's winners")}</Submit>
             </ActionForm>
           ) : (
-            <span className="pill">لا يوجد فائزون</span>
+            <span className="pill">{at("لا يوجد فائزون", "No winners")}</span>
           )}
         </div>
 
         {!prevPaid && prevDueCents > 0 && prevRevCents < prevDueCents * 4 ? (
           <div className="formmsg bad">
-            تنبيه ربحية: إيراد الشبكات بالأسبوع الماضي (<Usd cents={prevRevCents} />) قليل مقارنة بمجموع الجوائز (<Usd cents={prevDueCents} />). عدّل الجوائز من «إعدادات الموقع» قبل التوزيع إذا بدك تحافظ على هامش ربحك.
+            {at("تنبيه ربحية: إيراد الشبكات بالأسبوع الماضي", "Profit warning: last week's revenue")} (<Usd cents={prevRevCents} />){" "}
+            {at("قليل مقارنة بمجموع الجوائز", "is low compared to total prizes")} (<Usd cents={prevDueCents} />).{" "}
+            {at("عدّل الجوائز من «إعدادات الموقع» قبل التوزيع إذا بدك تحافظ على هامش ربحك.", "Adjust prizes in Settings before paying out to protect your margin.")}
           </div>
         ) : null}
 
@@ -69,10 +79,10 @@ export default async function ContestAdminPage() {
             <table>
               <thead>
                 <tr>
-                  <th>المركز</th>
-                  <th>العضو</th>
-                  <th className="r">كوينز الأسبوع</th>
-                  <th className="r">الجائزة</th>
+                  <th>{at("المركز", "Rank")}</th>
+                  <th>{at("العضو", "Member")}</th>
+                  <th className="r">{at("كوينز الأسبوع", "Weekly coins")}</th>
+                  <th className="r">{at("الجائزة", "Prize")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -97,15 +107,15 @@ export default async function ContestAdminPage() {
             </table>
           </div>
         ) : (
-          <p className="small muted">ما كان في أرباح مؤهلة بالأسبوع الماضي.</p>
+          <p className="small muted">{at("ما كان في أرباح مؤهلة بالأسبوع الماضي.", "No qualifying earnings last week.")}</p>
         )}
       </div>
 
       <div className="card stack">
         <div className="row between wr">
-          <h2 style={{ fontSize: 19 }}>الأسبوع الحالي (بدأ {fmtWeek(curStart)})</h2>
+          <h2 style={{ fontSize: 19 }}>{at("الأسبوع الحالي (بدأ", "Current week (started")} {fmtWeek(curStart)})</h2>
           <span className="small muted">
-            إيراد الشبكات حتى الآن: <Usd cents={curRevCents} />
+            {at("إيراد الشبكات حتى الآن:", "Network revenue so far:")} <Usd cents={curRevCents} />
           </span>
         </div>
         {curTop.length ? (
@@ -113,10 +123,10 @@ export default async function ContestAdminPage() {
             <table>
               <thead>
                 <tr>
-                  <th>المركز</th>
-                  <th>العضو</th>
-                  <th className="r">كوينز الأسبوع</th>
-                  <th className="r">الجائزة المتوقعة</th>
+                  <th>{at("المركز", "Rank")}</th>
+                  <th>{at("العضو", "Member")}</th>
+                  <th className="r">{at("كوينز الأسبوع", "Weekly coins")}</th>
+                  <th className="r">{at("الجائزة المتوقعة", "Projected prize")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -141,21 +151,21 @@ export default async function ContestAdminPage() {
             </table>
           </div>
         ) : (
-          <p className="small muted">لسا ما في نقاط بهالأسبوع.</p>
+          <p className="small muted">{at("لسا ما في نقاط بهالأسبوع.", "No points yet this week.")}</p>
         )}
       </div>
 
       {history.length ? (
         <div className="card stack">
-          <h2 style={{ fontSize: 19 }}>سجل التوزيعات السابقة</h2>
+          <h2 style={{ fontSize: 19 }}>{at("سجل التوزيعات السابقة", "Payout history")}</h2>
           <div className="tablewrap">
             <table>
               <thead>
                 <tr>
-                  <th>الأسبوع</th>
-                  <th>عدد الفائزين</th>
-                  <th className="r">الإجمالي المدفوع</th>
-                  <th>تاريخ التوزيع</th>
+                  <th>{at("الأسبوع", "Week")}</th>
+                  <th>{at("عدد الفائزين", "Winners")}</th>
+                  <th className="r">{at("الإجمالي المدفوع", "Total paid")}</th>
+                  <th>{at("تاريخ التوزيع", "Paid at")}</th>
                 </tr>
               </thead>
               <tbody>

@@ -249,10 +249,11 @@ td.r,th.r{text-align:end}
 .toast.good{background:var(--good);color:#fff}
 .toast.bad{background:var(--bad);color:#fff}
 
-/* ===== admin (RTL, Arabic) ===== */
-.admin{font-family:var(--f-ar);direction:rtl}
-.admin h1,.admin h2,.admin h3,.admin h4{font-family:var(--f-ar);letter-spacing:0}
-.admin .btn,.admin .input,.admin .tab,.admin .pill,.admin .navlink{font-family:var(--f-ar)}
+/* ===== admin (RTL Arabic / LTR English) ===== */
+.admin{font-family:var(--f-body)}
+html[lang="ar"] .admin{font-family:var(--f-ar);direction:rtl}
+html[lang="ar"] .admin h1,html[lang="ar"] .admin h2,html[lang="ar"] .admin h3,html[lang="ar"] .admin h4{font-family:var(--f-ar);letter-spacing:0}
+html[lang="ar"] .admin .btn,html[lang="ar"] .admin .input,html[lang="ar"] .admin .tab,html[lang="ar"] .admin .pill,html[lang="ar"] .admin .navlink{font-family:var(--f-ar)}
 .admin .topbar{background:var(--ink-band);color:var(--ink-band-fg);border-color:transparent}
 .admin .topbar .logo{color:var(--ink-band-fg)}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -260,7 +261,7 @@ td.r,th.r{text-align:end}
 .kpi .k{font-size:13px;color:var(--muted);font-weight:600}
 .kpi .v{font:700 26px/1.2 var(--f-mono);font-variant-numeric:tabular-nums;margin-top:6px;direction:ltr;text-align:end}
 .kpi .d{font-size:12px;margin-top:4px}
-.admin .kpi .v{text-align:right}
+.admin .kpi .v{text-align:start}
 .chartbox{padding:18px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
 .chartbox svg text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
 .legend{display:flex;gap:16px;font-size:13px;flex-wrap:wrap}

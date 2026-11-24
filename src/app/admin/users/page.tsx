@@ -1,16 +1,26 @@
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/server/admin-guard";
+import { adminLang, makeAt } from "@/server/admin-lang";
 import { daysAgo } from "@/lib/time";
 import { db } from "@/lib/db";
 import { Num, Risk } from "@/components/admin-ui";
 import type { Prisma } from "@/generated/prisma/client";
 
-export const metadata: Metadata = { title: "المستخدمون" };
-
-const FILTERS = { all: "الكل", flagged: "مشبوهون", banned: "محظورون", new: "جدد (7 أيام)", admins: "المدراء" } as const;
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await adminLang();
+  return { title: lang === "en" ? "Users" : "المستخدمون" };
+}
 
 export default async function UsersPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireAdminPage();
+  const [, lang] = await Promise.all([requireAdminPage(), adminLang()]);
+  const at = makeAt(lang);
+  const FILTERS = {
+    all: at("الكل", "All"),
+    flagged: at("مشبوهون", "Flagged"),
+    banned: at("محظورون", "Banned"),
+    new: at("جدد (7 أيام)", "New (7d)"),
+    admins: at("المدراء", "Admins"),
+  } as const;
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().slice(0, 100);
   const f = (sp.f ?? "all") in FILTERS ? (sp.f as keyof typeof FILTERS) : "all";
@@ -26,16 +36,16 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
     <>
       <div className="pagehead">
         <div>
-          <h1>المستخدمون</h1>
+          <h1>{at("المستخدمون", "Users")}</h1>
           <p className="small muted">
-            <Num n={total} /> حساب · اضغط على أي مستخدم للتفاصيل والتحكم
+            <Num n={total} /> {at("حساب · اضغط على أي مستخدم للتفاصيل والتحكم", "accounts · click any member to inspect and manage")}
           </p>
         </div>
       </div>
       <div className="row wr">
         <form className="grow" style={{ minWidth: 220 }} action="/admin/users">
           <input type="hidden" name="f" value={f} />
-          <input className="input" name="q" defaultValue={q} placeholder="ابحث بالاسم أو الإيميل أو الـ IP أو كود الإحالة…" aria-label="بحث" />
+          <input className="input" name="q" defaultValue={q} placeholder={at("ابحث بالاسم أو الإيميل أو الـ IP أو كود الإحالة…", "Search by name, email, IP, or referral code…")} aria-label={at("بحث", "Search")} />
         </form>
         <div className="tabs">
           {Object.entries(FILTERS).map(([k, l]) => (
@@ -49,12 +59,12 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
         <table>
           <thead>
             <tr>
-              <th>المستخدم</th>
-              <th>الدولة</th>
-              <th>الرصيد</th>
-              <th className="hide-sm">مدى الحياة</th>
-              <th>الخطورة</th>
-              <th>الحالة</th>
+              <th>{at("المستخدم", "Member")}</th>
+              <th>{at("الدولة", "Country")}</th>
+              <th>{at("الرصيد", "Balance")}</th>
+              <th className="hide-sm">{at("مدى الحياة", "Lifetime")}</th>
+              <th>{at("الخطورة", "Risk")}</th>
+              <th>{at("الحالة", "Status")}</th>
             </tr>
           </thead>
           <tbody>
@@ -63,8 +73,8 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                 <tr key={u.id}>
                   <td>
                     <a href={`/admin/users/${u.id}`} style={{ textDecoration: "none" }}>
-                      <b>{u.name}</b> {u.role === "ADMIN" ? <span className="pill accent">مدير</span> : null}
-                      <div className="tiny muted" dir="ltr" style={{ textAlign: "right" }}>
+                      <b>{u.name}</b> {u.role === "ADMIN" ? <span className="pill accent">{at("مدير", "Admin")}</span> : null}
+                      <div className="tiny muted" dir="ltr" style={{ textAlign: "start" }}>
                         {u.email}
                       </div>
                     </a>
@@ -86,13 +96,13 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                       </span>
                     ))}
                   </td>
-                  <td>{u.status === "BANNED" ? <span className="pill bad">محظور</span> : <span className="pill good">نشط</span>}</td>
+                  <td>{u.status === "BANNED" ? <span className="pill bad">{at("محظور", "Banned")}</span> : <span className="pill good">{at("نشط", "Active")}</span>}</td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td colSpan={6} className="empty">
-                  ما في نتائج
+                  {at("ما في نتائج", "No results")}
                 </td>
               </tr>
             )}

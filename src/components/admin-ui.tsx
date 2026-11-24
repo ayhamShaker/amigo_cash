@@ -28,8 +28,16 @@ export function Risk({ score }: { score: number }) {
   );
 }
 
-export function agoAr(d: Date, now = Date.now()) {
+export function agoAr(d: Date, now = Date.now(), lang: "ar" | "en" = "ar") {
   const s = Math.max(1, Math.round((now - d.getTime()) / 1000));
+  if (lang === "en") {
+    if (s < 60) return `${s}s ago`;
+    const m = Math.round(s / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.round(m / 60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.round(h / 24)}d ago`;
+  }
   if (s < 60) return `قبل ${s} ث`;
   const m = Math.round(s / 60);
   if (m < 60) return `قبل ${m} د`;
@@ -44,6 +52,17 @@ export const WITHDRAWAL_STATUS_AR: Record<string, [string, string]> = {
   PAID: ["مدفوع", "good"],
   REJECTED: ["مرفوض", "bad"],
 };
+
+export const WITHDRAWAL_STATUS_EN: Record<string, [string, string]> = {
+  PENDING: ["Pending review", "warn"],
+  APPROVED: ["Ready to pay", "info"],
+  PAID: ["Paid", "good"],
+  REJECTED: ["Rejected", "bad"],
+};
+
+export function withdrawalStatusLabel(status: string, lang: "ar" | "en" = "ar"): [string, string] {
+  return (lang === "en" ? WITHDRAWAL_STATUS_EN[status] : WITHDRAWAL_STATUS_AR[status]) ?? [status, ""];
+}
 
 /** Line chart drawn on the server. Values in cents. */
 export function LineChart({ days, series }: { days: string[]; series: { color: string; values: number[]; fill?: boolean }[] }) {

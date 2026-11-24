@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/server/admin-guard";
+import { adminLang, makeAt } from "@/server/admin-lang";
 import { db } from "@/lib/db";
 import { ActionForm, Submit } from "@/components/forms";
 import { reverseConversionAction } from "@/app/actions/admin";
 import { Num, Usd, agoAr } from "@/components/admin-ui";
 import type { ConversionStatus } from "@/generated/prisma/client";
 
-export const metadata: Metadata = { title: "سجل التأكيدات" };
-
-const ST: Record<ConversionStatus, [string, string]> = { CREDITED: ["مؤكد", "good"], REVERSED: ["مسترد", "bad"], REJECTED: ["مرفوض", "warn"] };
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await adminLang();
+  return { title: lang === "en" ? "Postbacks" : "سجل التأكيدات" };
+}
 
 export default async function PostbacksPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireAdminPage();
+  const [, lang] = await Promise.all([requireAdminPage(), adminLang()]);
+  const at = makeAt(lang);
+  const ST: Record<ConversionStatus, [string, string]> = {
+    CREDITED: [at("مؤكد", "Credited"), "good"],
+    REVERSED: [at("مسترد", "Reversed"), "bad"],
+    REJECTED: [at("مرفوض", "Rejected"), "warn"],
+  };
   const sp = await searchParams;
   const status = sp.s && sp.s in ST ? (sp.s as ConversionStatus) : undefined;
   const list = await db.conversion.findMany({
@@ -24,13 +32,13 @@ export default async function PostbacksPage({ searchParams }: { searchParams: Pr
     <>
       <div className="pagehead">
         <div>
-          <h1>سجل التأكيدات (Postbacks)</h1>
-          <p className="small muted">كل مرة الشبكة بتأكد إنو عضو خلص مهمة، بيوصل إشعار هون وبينضاف الرصيد تلقائيا. كل إشعار بيتحقق من التوقيع، والـ IP إذا محدد، وما بيتكرر نفس رقم العملية.</p>
+          <h1>{at("سجل التأكيدات (Postbacks)", "Postback log")}</h1>
+          <p className="small muted">{at("كل مرة الشبكة بتأكد إنو عضو خلص مهمة، بيوصل إشعار هون وبينضاف الرصيد تلقائيا. كل إشعار بيتحقق من التوقيع، والـ IP إذا محدد، وما بيتكرر نفس رقم العملية.", "Every verified network callback is recorded once per (network, txid) and credits the member automatically.")}</p>
         </div>
       </div>
       <div className="tabs">
         <a className={`tab ${!status ? "on" : ""}`} href="/admin/postbacks">
-          الكل
+          {at("الكل", "All")}
         </a>
         {Object.entries(ST).map(([k, [l]]) => (
           <a key={k} className={`tab ${status === k ? "on" : ""}`} href={`/admin/postbacks?s=${k}`}>
@@ -42,20 +50,20 @@ export default async function PostbacksPage({ searchParams }: { searchParams: Pr
         <table>
           <thead>
             <tr>
-              <th>الوقت</th>
-              <th>الشبكة</th>
-              <th>العضو</th>
-              <th>العرض</th>
-              <th>الإيراد</th>
-              <th>للعضو</th>
-              <th>الحالة</th>
+              <th>{at("الوقت", "Time")}</th>
+              <th>{at("الشبكة", "Network")}</th>
+              <th>{at("العضو", "Member")}</th>
+              <th>{at("العرض", "Offer")}</th>
+              <th>{at("الإيراد", "Payout")}</th>
+              <th>{at("للعضو", "Coins")}</th>
+              <th>{at("الحالة", "Status")}</th>
               <th />
             </tr>
           </thead>
           <tbody>
             {list.map((c) => (
               <tr key={c.id}>
-                <td className="small">{agoAr(c.createdAt)}</td>
+                <td className="small">{agoAr(c.createdAt, undefined, lang)}</td>
                 <td dir="ltr">{c.network.name}</td>
                 <td>{c.user ? <a href={`/admin/users/${c.user.id}`}>{c.user.name}</a> : "—"}</td>
                 <td className="small" dir="ltr">
@@ -76,7 +84,7 @@ export default async function PostbacksPage({ searchParams }: { searchParams: Pr
                   {c.status === "CREDITED" ? (
                     <ActionForm action={reverseConversionAction}>
                       <input type="hidden" name="id" value={c.id} />
-                      <Submit className="btn ghost sm">استرداد</Submit>
+                      <Submit className="btn ghost sm">{at("استرداد", "Reverse")}</Submit>
                     </ActionForm>
                   ) : null}
                 </td>
@@ -85,14 +93,14 @@ export default async function PostbacksPage({ searchParams }: { searchParams: Pr
             {!list.length ? (
               <tr>
                 <td colSpan={8} className="empty">
-                  لسا ما وصل أي تأكيد.
+                  {at("لسا ما وصل أي تأكيد.", "No postbacks yet.")}
                 </td>
               </tr>
             ) : null}
           </tbody>
         </table>
       </div>
-      <p className="small muted">زر «استرداد» تستخدمه لما الشبكة تسحب العمولة بعد التدقيق ولم ترسل إشعار استرداد بنفسها: بينخصم المبلغ من العضو ومن عمولة اللي دعاه، وبترتفع درجة خطورته.</p>
+      <p className="small muted">{at("زر «استرداد» تستخدمه لما الشبكة تسحب العمولة بعد التدقيق ولم ترسل إشعار استرداد بنفسها: بينخصم المبلغ من العضو ومن عمولة اللي دعاه، وبترتفع درجة خطورته.", "Use Reverse when a network deducts a conversion manually without sending a reversal postback.")}</p>
     </>
   );
 }

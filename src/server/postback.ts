@@ -25,6 +25,7 @@ import { notifyAdminTelegram } from "./telegram";
  *   - CPX_MD5         : CPX Research — hash = MD5(trans_id + "-" + secret)
  *   - AYET_HMAC       : AyeT-Studios — X-Ayetstudios-Security-Hash = HMAC-SHA256(secret, sorted query)
  *   - LOOTABLY_SHA256 : Lootably — hash = SHA256(userID + ip + revenue + currencyReward + secret)
+ *   - ADGEM_HMAC_SHA256 : AdGem v2 GET — verifier = HMAC-SHA256(postbackKey, full URL without verifier)
  */
 export type SignatureMode =
   | "HMAC_SHA256"
@@ -34,7 +35,8 @@ export type SignatureMode =
   | "TOROX_MD5"
   | "CPX_MD5"
   | "AYET_HMAC"
-  | "LOOTABLY_SHA256";
+  | "LOOTABLY_SHA256"
+  | "ADGEM_HMAC_SHA256";
 
 export const SIGNATURE_MODES: SignatureMode[] = [
   "HMAC_SHA256",
@@ -45,6 +47,7 @@ export const SIGNATURE_MODES: SignatureMode[] = [
   "CPX_MD5",
   "AYET_HMAC",
   "LOOTABLY_SHA256",
+  "ADGEM_HMAC_SHA256",
 ];
 
 export type PostbackResult =
@@ -115,6 +118,8 @@ export function buildSignedUrl(
   } else if (mode === "AYET_HMAC") {
     // For test URLs without custom header, also attach sig header via buildSignedHeaders
     url.searchParams.set("sig", hmacSha256Hex(secret, sortedQueryString(url)));
+  } else if (mode === "ADGEM_HMAC_SHA256") {
+    url.searchParams.set("verifier", hmacSha256Hex(secret, url.toString()));
   }
   return url;
 }
@@ -190,6 +195,20 @@ export function verifySignature(mode: SignatureMode, secret: string, url: URL, h
       const currencyReward = pickParam(q, "currencyReward", "currency_reward", "payout");
       const expected = createHash("sha256").update(`${subid}${userIp}${payout}${currencyReward}${secret}`).digest("hex");
       return safeEqual(hash, expected);
+    }
+    case "ADGEM_HMAC_SHA256": {
+      // AdGem v2 GET: verifier = HMAC-SHA256(postbackKey, full URL without verifier param)
+      const verifier = (q.get("verifier") ?? "").toLowerCase();
+      if (verifier.length !== 64) return false;
+      const full = url.toString();
+      const idx = full.lastIndexOf("&verifier=");
+      if (idx >= 0) {
+        const signed = full.slice(0, idx);
+        if (safeEqual(verifier, hmacSha256Hex(secret, signed))) return true;
+      }
+      const stripped = new URL(full);
+      stripped.searchParams.delete("verifier");
+      return safeEqual(verifier, hmacSha256Hex(secret, stripped.toString()));
     }
   }
 }

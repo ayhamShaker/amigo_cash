@@ -24,17 +24,19 @@ const MODE_HELP_AR: Record<string, string> = {
   CPX_MD5: "CPX Research: hash = MD5(trans_id + '-' + السر) — يدعم user_id و trans_id و amount_usd و hash",
   AYET_HMAC: "AyeT-Studios: الهيدر X-Ayetstudios-Security-Hash = HMAC-SHA256(السر, البارامترات مرتبة)",
   LOOTABLY_SHA256: "Lootably: hash = SHA256(userID + ip + revenue + currencyReward + السر)",
+  ADGEM_HMAC_SHA256: "AdGem v2: verifier = HMAC-SHA256(Postback Key, الرابط كامل بدون verifier)",
 };
 
 const MODE_HELP_EN: Record<string, string> = {
   HMAC_SHA256: "sig = HMAC-SHA256(secret, subid:txid:payout:status)",
   MD5_CONCAT: "sig = MD5(subid + txid + payout + secret)",
-  SECRET_PARAM: "Network sends shared secret as ?secret=... (e.g. CPAlead / AdGem)",
+  SECRET_PARAM: "Network sends shared secret as ?secret=... (e.g. CPAlead / TimeWall)",
   HMAC_SHA1_URL: "BitLabs: hash = HMAC-SHA1(secret, full URL without hash param)",
   TOROX_MD5: "Torox: sig = MD5(oid + '-' + user_id + '-' + secret)",
   CPX_MD5: "CPX Research: hash = MD5(trans_id + '-' + secret)",
   AYET_HMAC: "AyeT-Studios: X-Ayetstudios-Security-Hash header = HMAC-SHA256(secret, sorted query)",
   LOOTABLY_SHA256: "Lootably: hash = SHA256(userID + ip + revenue + currencyReward + secret)",
+  ADGEM_HMAC_SHA256: "AdGem v2: verifier = HMAC-SHA256(Postback Key, full URL without verifier)",
 };
 
 export default async function NetworksPage() {

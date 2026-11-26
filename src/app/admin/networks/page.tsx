@@ -25,6 +25,7 @@ const MODE_HELP_AR: Record<string, string> = {
   AYET_HMAC: "AyeT-Studios: الهيدر X-Ayetstudios-Security-Hash = HMAC-SHA256(السر, البارامترات مرتبة)",
   LOOTABLY_SHA256: "Lootably: hash = SHA256(userID + ip + revenue + currencyReward + السر)",
   ADGEM_HMAC_SHA256: "AdGem v2: verifier = HMAC-SHA256(Postback Key, الرابط كامل بدون verifier)",
+  THEOREMREACH_SHA1: "TheoremReach: hash = base64url(HMAC-SHA1(Secret Key, الرابط كامل بدون hash))",
 };
 
 const MODE_HELP_EN: Record<string, string> = {
@@ -37,6 +38,7 @@ const MODE_HELP_EN: Record<string, string> = {
   AYET_HMAC: "AyeT-Studios: X-Ayetstudios-Security-Hash header = HMAC-SHA256(secret, sorted query)",
   LOOTABLY_SHA256: "Lootably: hash = SHA256(userID + ip + revenue + currencyReward + secret)",
   ADGEM_HMAC_SHA256: "AdGem v2: verifier = HMAC-SHA256(Postback Key, full URL without verifier)",
+  THEOREMREACH_SHA1: "TheoremReach: hash = base64url(HMAC-SHA1(Secret Key, full URL without hash))",
 };
 
 export default async function NetworksPage() {

@@ -26,6 +26,7 @@ import { notifyAdminTelegram } from "./telegram";
  *   - AYET_HMAC       : AyeT-Studios — X-Ayetstudios-Security-Hash = HMAC-SHA256(secret, sorted query)
  *   - LOOTABLY_SHA256 : Lootably — hash = SHA256(userID + ip + revenue + currencyReward + secret)
  *   - ADGEM_HMAC_SHA256 : AdGem v2 GET — verifier = HMAC-SHA256(postbackKey, full URL without verifier)
+ *   - THEOREMREACH_SHA1 : TheoremReach — hash = base64url(HMAC-SHA1(secret, full URL without &hash=...))
  */
 export type SignatureMode =
   | "HMAC_SHA256"
@@ -36,7 +37,8 @@ export type SignatureMode =
   | "CPX_MD5"
   | "AYET_HMAC"
   | "LOOTABLY_SHA256"
-  | "ADGEM_HMAC_SHA256";
+  | "ADGEM_HMAC_SHA256"
+  | "THEOREMREACH_SHA1";
 
 export const SIGNATURE_MODES: SignatureMode[] = [
   "HMAC_SHA256",
@@ -48,6 +50,7 @@ export const SIGNATURE_MODES: SignatureMode[] = [
   "AYET_HMAC",
   "LOOTABLY_SHA256",
   "ADGEM_HMAC_SHA256",
+  "THEOREMREACH_SHA1",
 ];
 
 export type PostbackResult =
@@ -120,6 +123,8 @@ export function buildSignedUrl(
     url.searchParams.set("sig", hmacSha256Hex(secret, sortedQueryString(url)));
   } else if (mode === "ADGEM_HMAC_SHA256") {
     url.searchParams.set("verifier", hmacSha256Hex(secret, url.toString()));
+  } else if (mode === "THEOREMREACH_SHA1") {
+    url.searchParams.set("hash", createHmac("sha1", secret).update(url.toString()).digest("base64url"));
   }
   return url;
 }
@@ -210,6 +215,20 @@ export function verifySignature(mode: SignatureMode, secret: string, url: URL, h
       stripped.searchParams.delete("verifier");
       return safeEqual(verifier, hmacSha256Hex(secret, stripped.toString()));
     }
+    case "THEOREMREACH_SHA1": {
+      // TheoremReach: base64url(HMAC-SHA1(secret, full URL without &hash=...))
+      const hash = q.get("hash") ?? "";
+      if (hash.length < 20) return false;
+      const full = url.toString();
+      const idx = full.lastIndexOf("&hash=");
+      if (idx >= 0) {
+        const signed = full.slice(0, idx);
+        if (safeEqual(hash, createHmac("sha1", secret).update(signed).digest("base64url"))) return true;
+      }
+      const stripped = new URL(full);
+      stripped.searchParams.delete("hash");
+      return safeEqual(hash, createHmac("sha1", secret).update(stripped.toString()).digest("base64url"));
+    }
   }
 }
 
@@ -234,11 +253,15 @@ export async function handlePostback(
   }
 
   const q = url.searchParams;
-  const txid = pickParam(q, "txid", "trans_id", "transaction_id", "oid");
+  if (q.get("debug") === "true" && !opts.adminTest) {
+    return { http: 200, body: "1", outcome: "duplicate" };
+  }
+  const txid = pickParam(q, "txid", "trans_id", "transaction_id", "tx_id", "oid");
   const subid = pickParam(q, "subid", "user_id", "userID", "uid", "external_identifier");
-  const status = parseStatus(q.get("status"), q.get("is_chargeback"));
-  const payoutCents = parsePayoutCents(pickParam(q, "payout", "payout_usd", "amount_usd", "revenue", "amount") || null);
-  const offerName = (pickParam(q, "offer", "offer_name", "campaign_name") || "Offer").slice(0, 120);
+  const status = parseStatus(q.get("status"), q.get("is_chargeback") ?? q.get("reversal"));
+  const rawPayout = pickParam(q, "payout", "payout_usd", "amount_usd", "revenue", "currency", "amount");
+  const payoutCents = parsePayoutCents(rawPayout ? rawPayout.replace(/^-/, "") : null);
+  const offerName = (pickParam(q, "offer_name", "campaign_name") || (q.get("offer") === "true" ? "Offer" : q.get("offer") === "false" ? "Survey" : q.get("offer")) || "Offer").slice(0, 120);
   if (!TXID_RE.test(txid) || !subid || !status || payoutCents === null) {
     return { http: 400, body: "bad request", outcome: "refused", reason: "missing or malformed parameters" };
   }

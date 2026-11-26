@@ -23,7 +23,7 @@ export default async function SurveysPage({ params, searchParams }: { params: Pr
     db.network.findMany({ where: { enabled: true, wallUrl: { not: null }, kind: { contains: "urvey", mode: "insensitive" } }, orderBy: { name: "asc" } }),
   ]);
   const wall = walls.find((w) => w.id === sp.p) ?? walls[0];
-  const vpnBlocked = user && settings.blockVpn ? isBadConnection(await checkIp(await requestIp())) : false;
+  const vpnBlocked = user && user.role !== "ADMIN" && settings.blockVpn ? isBadConnection(await checkIp(await requestIp())) : false;
   return (
     <>
       <div className="pagehead">

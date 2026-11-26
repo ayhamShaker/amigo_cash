@@ -21,7 +21,8 @@ async function member() {
   return u;
 }
 
-async function connectionBlocked(): Promise<boolean> {
+async function connectionBlocked(role?: string): Promise<boolean> {
+  if (role === "ADMIN") return false;
   const settings = await getSettings();
   if (!settings.blockVpn) return false;
   return isBadConnection(await checkIp(await requestIp()));
@@ -30,7 +31,7 @@ async function connectionBlocked(): Promise<boolean> {
 export async function dailyBonusAction(_prev: FormState, fd: FormData): Promise<FormState> {
   const { locale, t } = tFrom(fd);
   const u = await member();
-  if (await connectionBlocked()) return { error: t("Earning is paused on this connection. Turn off your VPN and reload the page.") };
+  if (await connectionBlocked(u.role)) return { error: t("Earning is paused on this connection. Turn off your VPN and reload the page.") };
   const r = await claimDailyBonus(u.id, await getSettings());
   revalidatePath(`/${locale}/earn`);
   if (!r.ok) {
@@ -71,7 +72,7 @@ export async function withdrawAction(_prev: FormState, fd: FormData): Promise<Fo
   if (!pm) return { error: t("Choose a method") };
   const cents = dollarsToCents(str(fd, "amount", 12));
   if (cents === null) return { error: t("Enter an amount in dollars, like 5 or 12.50.") };
-  if (await connectionBlocked()) return { error: t("Turn off your VPN to cash out") };
+  if (await connectionBlocked(u.role)) return { error: t("Turn off your VPN to cash out") };
   try {
     const w = await requestWithdrawal({ userId: u.id, method, amountCents: cents, address: str(fd, "address", 120), settings });
     revalidatePath(`/${locale}/cashout`);
@@ -110,7 +111,7 @@ export async function startOfferAction(fd: FormData) {
   const id = str(fd, "offer", 40);
   const offer = await db.offer.findFirst({ where: { id, active: true, network: { enabled: true } } });
   if (!offer) redirect(`/${locale}/earn`);
-  if (await connectionBlocked()) redirect(`/${locale}/earn/offer/${offer.id}?vpn=1`);
+  if (await connectionBlocked(u.role)) redirect(`/${locale}/earn/offer/${offer.id}?vpn=1`);
   await db.offerProgress.upsert({ where: { userId_offerId: { userId: u.id, offerId: offer.id } }, create: { userId: u.id, offerId: offer.id }, update: {} });
   const url = buildTrackingUrl(offer.trackingUrl, u.id);
   if (!url) redirect(`/${locale}/earn/offer/${offer.id}`);

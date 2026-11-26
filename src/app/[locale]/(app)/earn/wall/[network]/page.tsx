@@ -24,7 +24,7 @@ export default async function WallPage({ params }: { params: Promise<{ locale: s
     getSettings(),
   ]);
   if (!n?.wallUrl) notFound();
-  const vpnBlocked = user && settings.blockVpn ? isBadConnection(await checkIp(await requestIp())) : false;
+  const vpnBlocked = user && user.role !== "ADMIN" && settings.blockVpn ? isBadConnection(await checkIp(await requestIp())) : false;
   return (
     <>
       <div className="pagehead">

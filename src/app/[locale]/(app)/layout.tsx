@@ -17,7 +17,7 @@ export default async function AppLayout({ children, params }: { children: React.
     // Release any matured holds as soon as the member visits.
     if ((await releaseDueHolds({ userId: user.id, limit: 50 })) > 0) user = { ...user, ...(await refreshed(user.id)) };
   }
-  const vpn = user && settings.blockVpn ? isBadConnection(await checkIp(await requestIp())) : false;
+  const vpn = user && user.role !== "ADMIN" && settings.blockVpn ? isBadConnection(await checkIp(await requestIp())) : false;
   const L = `/${locale}`;
   const items: NavItem[] = [
     { href: `${L}/earn`, label: t("Earn"), icon: "bolt" },

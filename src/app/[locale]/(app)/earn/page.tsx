@@ -32,6 +32,7 @@ export default async function EarnPage({ params, searchParams }: { params: Promi
   const cat = sp.cat && CATEGORY_LABEL[sp.cat] ? sp.cat : "all";
   const dev = sp.dev && PLATFORMS.includes(sp.dev as (typeof PLATFORMS)[number]) ? sp.dev : "all";
   const shown = offers.filter((o) => o.featured && (cat === "all" || o.category === cat) && offerMatchesPlatform(o.platform, dev));
+  const hasFeatured = offers.some((o) => o.featured);
   const cats = ["all", ...Object.keys(CATEGORY_LABEL).filter((c) => offers.some((o) => o.featured && o.category === c))];
   const [streak, started, walls] = await Promise.all([
     user ? dailyStreakStatus(user.id, settings) : Promise.resolve(null),
@@ -115,54 +116,56 @@ export default async function EarnPage({ params, searchParams }: { params: Promi
         </div>
       </div>
 
-      <section className="stack">
-        <div className="row between wr">
-          <h2 style={{ fontSize: 20 }}>{t("Featured offers")}</h2>
-          <div className="row wr" style={{ gap: 8 }}>
-            <div className="tabs" role="tablist">
-              {cats.map((c) => (
-                <a key={c} className={`tab ${cat === c ? "on" : ""}`} href={filterUrl(c, dev)} role="tab" aria-selected={cat === c}>
-                  {c === "all" ? t("All") : t(CATEGORY_LABEL[c]!)}
-                </a>
-              ))}
-            </div>
-            {offers.length > 0 ? (
+      {hasFeatured || walls.length === 0 ? (
+        <section className="stack">
+          <div className="row between wr">
+            <h2 style={{ fontSize: 20 }}>{t("Featured offers")}</h2>
+            <div className="row wr" style={{ gap: 8 }}>
               <div className="tabs" role="tablist">
-                {PLATFORMS.map((p) => (
-                  <a key={p} className={`tab ${dev === p ? "on" : ""}`} href={filterUrl(cat, p)} role="tab" aria-selected={dev === p}>
-                    {t(PLATFORM_LABEL[p]!)}
+                {cats.map((c) => (
+                  <a key={c} className={`tab ${cat === c ? "on" : ""}`} href={filterUrl(c, dev)} role="tab" aria-selected={cat === c}>
+                    {c === "all" ? t("All") : t(CATEGORY_LABEL[c]!)}
                   </a>
                 ))}
               </div>
-            ) : null}
+              {offers.length > 0 ? (
+                <div className="tabs" role="tablist">
+                  {PLATFORMS.map((p) => (
+                    <a key={p} className={`tab ${dev === p ? "on" : ""}`} href={filterUrl(cat, p)} role="tab" aria-selected={dev === p}>
+                      {t(PLATFORM_LABEL[p]!)}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
-        </div>
-        {shown.length ? (
-          <div className="offers">
-            {shown.map((o) => {
-              const coins = offerCoins(o, settings, 100, boost);
-              return (
-                <OfferCard
-                  key={o.id}
-                  href={`${L}/earn/offer/${o.id}`}
-                  title={o.title}
-                  color={o.color}
-                  imageUrl={o.imageUrl}
-                  category={o.category}
-                  networkName={o.network.name}
-                  steps={parseSteps(o.steps).length}
-                  coins={coins}
-                  usdCents={coinsToCents(coins, settings.coinsPerUsd)}
-                  progress={startedIds.has(o.id)}
-                  t={t}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <div className="card empty">{t("No offers in this category right now.")}</div>
-        )}
-      </section>
+          {shown.length ? (
+            <div className="offers">
+              {shown.map((o) => {
+                const coins = offerCoins(o, settings, 100, boost);
+                return (
+                  <OfferCard
+                    key={o.id}
+                    href={`${L}/earn/offer/${o.id}`}
+                    title={o.title}
+                    color={o.color}
+                    imageUrl={o.imageUrl}
+                    category={o.category}
+                    networkName={o.network.name}
+                    steps={parseSteps(o.steps).length}
+                    coins={coins}
+                    usdCents={coinsToCents(coins, settings.coinsPerUsd)}
+                    progress={startedIds.has(o.id)}
+                    t={t}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div className="card empty">{t("No offers in this category right now.")}</div>
+          )}
+        </section>
+      ) : null}
 
       {walls.length ? (
         <section className="stack">
